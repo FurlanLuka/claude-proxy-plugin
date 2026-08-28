@@ -113,10 +113,19 @@ while (round < MAX_ROUNDS) {
   }
 
   log(`${findings.length} finding(s) — sending back to implementer.`)
-  impl = await agent(
+  const fixResult = await agent(
     `${HEADLESS_NOTE}\n\n${EDIT_TOOL_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nFix these review findings, then re-run tests to confirm still green.\n\nFindings:\n${JSON.stringify(findings)}\n\nCurrent implementation state:\n${JSON.stringify(impl)}`,
     { schema: IMPL_SCHEMA }
   )
+  // Merge, don't replace — a round that makes no further edits (findings turned out
+  // not to need code changes) would otherwise wipe out the file list from earlier
+  // rounds that actually built things.
+  impl = {
+    filesChanged: Array.from(new Set([...impl.filesChanged, ...fixResult.filesChanged])),
+    testResults: fixResult.testResults,
+    decisions: [...impl.decisions, ...fixResult.decisions],
+    couldNotVerify: fixResult.couldNotVerify,
+  }
   round++
 }
 
