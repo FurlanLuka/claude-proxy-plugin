@@ -55,6 +55,9 @@ const FINDINGS_SCHEMA = {
 const HEADLESS_NOTE =
   'You are running headless inside a workflow, not as the named agent role via its normal invocation path. The persona/reference text below was written for that normal path and may tell you to "Read ../references/..." or similar — ignore those instructions, the paths won\'t resolve from here and the content is already included below. Also ignore any YAML frontmatter block (name/tools/model) — that\'s configuration for the normal invocation path, not relevant here. Also: never use AskUserQuestion, there is no user to answer.'
 
+const EDIT_TOOL_NOTE =
+  'For any file change: use the Edit or Write tool directly. Do not use Bash with sed, python/node heredocs, or any other shell-script workaround to modify files — the dedicated tools are available here and are what should be used, regardless of any other default guidance about preferring shell scripts for file changes.'
+
 phase('Load Context')
 if (!args?.pluginRoot) {
   throw new Error(
@@ -81,7 +84,7 @@ const ctx = await agent(
 phase('Implement')
 log('Implementing the approved plan. Plan already went through architect self-review before you approved it — this is straight execution, not a second design review.')
 let impl = await agent(
-  `${HEADLESS_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nImplement this approved plan. Write the code, apply extraction judgment where it applies, write and run tests, add logs, loop fix → retest until green.\n\nApproved plan:\n${args.plan}`,
+  `${HEADLESS_NOTE}\n\n${EDIT_TOOL_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nImplement this approved plan. Write the code, apply extraction judgment where it applies, write and run tests, add logs, loop fix → retest until green.\n\nApproved plan:\n${args.plan}`,
   { schema: IMPL_SCHEMA }
 )
 
@@ -111,7 +114,7 @@ while (round < MAX_ROUNDS) {
 
   log(`${findings.length} finding(s) — sending back to implementer.`)
   impl = await agent(
-    `${HEADLESS_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nFix these review findings, then re-run tests to confirm still green.\n\nFindings:\n${JSON.stringify(findings)}\n\nCurrent implementation state:\n${JSON.stringify(impl)}`,
+    `${HEADLESS_NOTE}\n\n${EDIT_TOOL_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nFix these review findings, then re-run tests to confirm still green.\n\nFindings:\n${JSON.stringify(findings)}\n\nCurrent implementation state:\n${JSON.stringify(impl)}`,
     { schema: IMPL_SCHEMA }
   )
   round++
