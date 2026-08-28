@@ -1,9 +1,8 @@
 export const meta = {
   name: 'build-product',
-  description: 'Implements an approved plan unattended: sanity-check design, implement, review, loop fixes, report.',
+  description: 'Implements an approved plan unattended: implement, review, loop fixes, report.',
   phases: [
     { title: 'Load Context' },
-    { title: 'Review Design' },
     { title: 'Implement' },
     { title: 'Review Code' },
     { title: 'Report' },
@@ -18,7 +17,6 @@ const CONTEXT_SCHEMA = {
     architecturePrinciples: { type: 'string' },
     cleanCodePrinciples: { type: 'string' },
     testingPrinciples: { type: 'string' },
-    architectAgent: { type: 'string' },
     cleanCodeArchitectAgent: { type: 'string' },
     testArchitectAgent: { type: 'string' },
     implementerAgent: { type: 'string' },
@@ -29,20 +27,10 @@ const CONTEXT_SCHEMA = {
     'architecturePrinciples',
     'cleanCodePrinciples',
     'testingPrinciples',
-    'architectAgent',
     'cleanCodeArchitectAgent',
     'testArchitectAgent',
     'implementerAgent',
   ],
-}
-
-const DESIGN_REVIEW_SCHEMA = {
-  type: 'object',
-  properties: {
-    ready: { type: 'boolean' },
-    gaps: { type: 'array', items: { type: 'string' } },
-  },
-  required: ['ready', 'gaps'],
 }
 
 const IMPL_SCHEMA = {
@@ -64,6 +52,9 @@ const FINDINGS_SCHEMA = {
   required: ['findings'],
 }
 
+const HEADLESS_NOTE =
+  'You are running headless inside a workflow, not as the named agent role via its normal invocation path. The persona/reference text below was written for that normal path and may tell you to "Read ../references/..." or similar — ignore those instructions, the paths won\'t resolve from here and the content is already included below. Also ignore any YAML frontmatter block (name/tools/model) — that\'s configuration for the normal invocation path, not relevant here. Also: never use AskUserQuestion, there is no user to answer.'
+
 phase('Load Context')
 if (!args?.pluginRoot) {
   throw new Error(
@@ -81,38 +72,16 @@ const ctx = await agent(
     `architecturePrinciples: ${args.pluginRoot}/references/architecture-principles.md\n` +
     `cleanCodePrinciples: ${args.pluginRoot}/references/clean-code-principles.md\n` +
     `testingPrinciples: ${args.pluginRoot}/references/testing-principles.md\n` +
-    `architectAgent: ${args.pluginRoot}/agents/architect.md\n` +
     `cleanCodeArchitectAgent: ${args.pluginRoot}/agents/clean-code-architect.md\n` +
     `testArchitectAgent: ${args.pluginRoot}/agents/test-architect.md\n` +
     `implementerAgent: ${args.pluginRoot}/agents/implementer.md`,
   { schema: CONTEXT_SCHEMA }
 )
 
-phase('Review Design')
-log('Sanity-checking the approved plan before implementation starts.')
-const designReview = await agent(
-  `${ctx.architectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n---\n\nSanity-check this already-approved plan for technical soundness and completeness before implementation starts. Don't re-litigate product decisions — those are already settled, out of scope for this review. Flag only real technical gaps or omissions.\n\nApproved plan:\n${args.plan}`,
-  { schema: DESIGN_REVIEW_SCHEMA }
-)
-
-if (!designReview.ready) {
-  log('Design review says not ready — stopping before implementation rather than building on a flagged plan.')
-  phase('Report')
-  return {
-    plan: args.plan,
-    designReview,
-    status: 'blocked-at-design-review',
-    implementation: null,
-  }
-}
-
 phase('Implement')
-const designNote = designReview.gaps.length
-  ? `Design review flagged before you started (resolve these as part of implementation, don't ignore them): ${JSON.stringify(designReview.gaps)}`
-  : ''
-log('Implementing the approved plan.')
+log('Implementing the approved plan. Plan already went through architect self-review before you approved it — this is straight execution, not a second design review.')
 let impl = await agent(
-  `${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nImplement this approved plan. Write the code, apply extraction judgment where it applies, write and run tests, add logs, loop fix → retest until green.\n\nApproved plan:\n${args.plan}\n\n${designNote}`,
+  `${HEADLESS_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nImplement this approved plan. Write the code, apply extraction judgment where it applies, write and run tests, add logs, loop fix → retest until green.\n\nApproved plan:\n${args.plan}`,
   { schema: IMPL_SCHEMA }
 )
 
@@ -124,12 +93,12 @@ while (round < MAX_ROUNDS) {
   const reviews = await parallel([
     () =>
       agent(
-        `${ctx.cleanCodeArchitectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n---\n\nReview this implementation for extraction/clean-code issues against the plan it was built from.\n\nPlan:\n${args.plan}\n\nImplementation summary:\n${JSON.stringify(impl)}`,
+        `${HEADLESS_NOTE}\n\n${ctx.cleanCodeArchitectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n---\n\nReview this implementation for extraction/clean-code issues against the plan it was built from.\n\nPlan:\n${args.plan}\n\nImplementation summary:\n${JSON.stringify(impl)}`,
         { schema: FINDINGS_SCHEMA }
       ),
     () =>
       agent(
-        `${ctx.testArchitectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nReview test coverage and quality for this implementation against the plan it was built from.\n\nPlan:\n${args.plan}\n\nImplementation summary:\n${JSON.stringify(impl)}`,
+        `${HEADLESS_NOTE}\n\n${ctx.testArchitectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nReview test coverage and quality for this implementation against the plan it was built from.\n\nPlan:\n${args.plan}\n\nImplementation summary:\n${JSON.stringify(impl)}`,
         { schema: FINDINGS_SCHEMA }
       ),
   ])
@@ -142,7 +111,7 @@ while (round < MAX_ROUNDS) {
 
   log(`${findings.length} finding(s) — sending back to implementer.`)
   impl = await agent(
-    `${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nFix these review findings, then re-run tests to confirm still green.\n\nFindings:\n${JSON.stringify(findings)}\n\nCurrent implementation state:\n${JSON.stringify(impl)}`,
+    `${HEADLESS_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nFix these review findings, then re-run tests to confirm still green.\n\nFindings:\n${JSON.stringify(findings)}\n\nCurrent implementation state:\n${JSON.stringify(impl)}`,
     { schema: IMPL_SCHEMA }
   )
   round++
@@ -155,7 +124,6 @@ if (round === MAX_ROUNDS) {
 phase('Report')
 return {
   plan: args.plan,
-  designReview,
   implementation: impl,
   reviewRounds: round,
   cappedOut: round === MAX_ROUNDS,

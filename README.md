@@ -29,10 +29,12 @@ you write a spec
  Workflow: build-product ────────────────────────────────────
       │   background, fully unattended. No mid-run human input — Claude Code
       │   workflows can't pause for it. Any real decision was already
-      │   resolved in /proxy:plan; ambiguity here gets the agent's best
-      │   judgment, noted in the report, not a blocked wait.
+      │   resolved in /proxy:plan (including architect's design review —
+      │   that already happened in plan's self-review loop, not repeated here).
+      │   Ambiguity here gets the agent's best judgment, noted in the report.
       │
-      ├─ Review Design   → sanity-check the approved plan, not re-litigate it
+      ├─ Load Context    → reads its own reference/agent files, given only
+      │                     the plugin's absolute path
       ├─ Implement        → implementer writes the code + tests + logs,
       │                     runs what it wrote, loops fix → retest until green
       ├─ Review Code      → clean-code-architect / test-architect pass,

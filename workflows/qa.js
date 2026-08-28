@@ -25,6 +25,9 @@ const QA_SCHEMA = {
   required: ['exercised', 'passed', 'failed', 'couldNotVerify'],
 }
 
+const HEADLESS_NOTE =
+  'You are running headless inside a workflow, not as the named agent role via its normal invocation path. The persona/reference text below was written for that normal path and may tell you to "Read ../references/..." or similar — ignore those instructions, the paths won\'t resolve from here and the content is already included below. Also ignore any YAML frontmatter block (name/tools/model) — that\'s configuration for the normal invocation path, not relevant here. Also: never use AskUserQuestion, there is no user to answer.'
+
 phase('Load Context')
 if (!args?.pluginRoot) {
   throw new Error(
@@ -46,7 +49,7 @@ const ctx = await agent(
 phase('Execute QA')
 log('Exercising the implementation against the approved QA plan.')
 const result = await agent(
-  `${ctx.qaTesterAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n---\n\nExecute this approved QA plan against the real, running implementation. Use only tools already available — never install new tooling to make something testable.\n\nApproved QA plan:\n${args.qaPlan}`,
+  `${HEADLESS_NOTE}\n\n${ctx.qaTesterAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n---\n\nExecute this approved QA plan against the real, running implementation. Use only tools already available — never install new tooling to make something testable.\n\nApproved QA plan:\n${args.qaPlan}`,
   { schema: QA_SCHEMA }
 )
 
