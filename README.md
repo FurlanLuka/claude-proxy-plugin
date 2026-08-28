@@ -60,6 +60,10 @@ you write a spec
       └─ Report: exercised / passed / failed / couldn't verify
 ```
 
+### Alternative: `/proxy:pair`
+
+Same planning process as `plan` (identical clarification/self-review, reused not duplicated), but skips the workflow handoff entirely — implements live in the main session instead, with him present. No headless constraint, so it can ask him something mid-build if it genuinely needs to. Default is still `plan` → `build-product` (write a spec, walk away); use `pair` when he wants to watch or the task needs his input partway through.
+
 ## Directory layout
 
 ```
@@ -70,6 +74,7 @@ proxy/
 │   └── hooks.json          SessionStart hook: dumps references/ into every session automatically
 ├── skills/
 │   ├── plan/               interactive planning skill — front door for building
+│   ├── pair/                same as plan, but implements live in main session, no workflow
 │   ├── qa-plan/             interactive QA-scoping skill — front door for testing
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── agents/
