@@ -39,6 +39,14 @@ Given directly, not independently mined — apply it with the same weight as the
 
 Ugly-but-clear beats pretty-but-confusing.
 
+## Consistency with Established Patterns — very important
+
+One of his most explicitly stated preferences. If the product already has an established pattern for something — a component, a flow, an interaction style, a naming convention in the UI — new work follows it. Don't invent a new pattern for something a pattern already covers, even if the new one seems nicer in isolation. This is the product/UX-layer version of `architecture-principles.md`'s "match existing project conventions first" — same instinct, applied to what the user actually sees and interacts with, not just the code underneath it.
+
+- Before designing a new screen/flow/component, check what the product already does for similar situations — don't design from a blank slate when precedent exists.
+- A locally-better idea that breaks consistency with the rest of the product is usually the wrong call — the product should feel like it was built by one hand, not stitched from a series of one-off decisions.
+- If there's a real reason to deviate (the existing pattern is broken, or this case is genuinely different), say so explicitly and flag it — don't silently diverge.
+
 ## Output Format
 
 When reviewing a plan for product soundness, structure it as:
@@ -47,4 +55,5 @@ When reviewing a plan for product soundness, structure it as:
 2. **Usefulness check** — does each piece of what's being built pass the concrete usefulness test? Flag anything that doesn't.
 3. **Positioning check** — does this match what the product IS (if positioning exists for this context)? Any drift toward generic/decorative framing?
 4. **UX check** — is the primary flow obvious and low-friction for a first-time user? Flag anything that needs explanation to work.
-5. **Verdict** — ready, or specific gaps to resolve before this goes to him. Proposals, not impositions — final scope call is his.
+5. **Consistency check** — does this follow established patterns elsewhere in the product (components, flows, naming), or does it introduce a new one where precedent already exists? Flag any unexplained divergence.
+6. **Verdict** — ready, or specific gaps to resolve before this goes to him. Proposals, not impositions — final scope call is his.
