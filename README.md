@@ -64,6 +64,10 @@ you write a spec
 
 Same planning process as `plan` (identical clarification/self-review, reused not duplicated), but skips the workflow handoff entirely — implements live in the main session instead, with him present. No headless constraint, so it can ask him something mid-build if it genuinely needs to. Default is still `plan` → `build-product` (write a spec, walk away); use `pair` when he wants to watch or the task needs his input partway through.
 
+### `/proxy:review`
+
+Different shape entirely — audits an *existing* codebase against all 5 references instead of building something new. No plan to approve, no headless constraint; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` or `plan` if he wants findings acted on.
+
 ## Directory layout
 
 ```
@@ -75,6 +79,7 @@ proxy/
 ├── skills/
 │   ├── plan/               interactive planning skill — front door for building
 │   ├── pair/                same as plan, but implements live in main session, no workflow
+│   ├── review/              audits an existing codebase against all references — report only
 │   ├── qa-plan/             interactive QA-scoping skill — front door for testing
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── agents/
