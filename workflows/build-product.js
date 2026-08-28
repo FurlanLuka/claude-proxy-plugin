@@ -95,6 +95,17 @@ const designReview = await agent(
   { schema: DESIGN_REVIEW_SCHEMA }
 )
 
+if (!designReview.ready) {
+  log('Design review says not ready — stopping before implementation rather than building on a flagged plan.')
+  phase('Report')
+  return {
+    plan: args.plan,
+    designReview,
+    status: 'blocked-at-design-review',
+    implementation: null,
+  }
+}
+
 phase('Implement')
 const designNote = designReview.gaps.length
   ? `Design review flagged before you started (resolve these as part of implementation, don't ignore them): ${JSON.stringify(designReview.gaps)}`
