@@ -1,0 +1,13 @@
+{
+  "name": "proxy-marketplace",
+  "owner": {
+    "name": "Luka Furlan"
+  },
+  "plugins": [
+    {
+      "name": "proxy",
+      "source": "./",
+      "description": "Spec to shipped, tested feature end-to-end. Plan and QA-plan run live with you; implementation, review, and testing run unattended in between."
+    }
+  ]
+}
