@@ -94,7 +94,8 @@ proxy/
 │   ├── product-principles.md       prioritization, feature yes/no, positioning, UX
 │   ├── architecture-principles.md  system design judgment (match-existing-conventions first)
 │   ├── clean-code-principles.md    extraction/refactor judgment
-│   └── testing-principles.md       test strategy judgment
+│   ├── testing-principles.md       test strategy judgment
+│   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 └── workflows/
     ├── build-product.js    unattended: review → implement → review → report
     └── qa.js                unattended: qa-tester executes the approved QA plan

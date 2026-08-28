@@ -90,6 +90,12 @@ More logs than feels natural. Optimize for debuggability: when something breaks,
 - Log at every meaningful boundary — request in, request out, external calls, state transitions, errors.
 - Prefer structured logs (fields, not just message strings) so they're actually queryable later.
 - This applies from day one, not just at launch-critical moments — logging is infrastructure, not an afterthought bolted on when something breaks.
+- **Log on both sides.** Client/mobile and server both get logged generously, not just the backend — "log almost everything" applies everywhere the system runs, not only where it's easiest to instrument.
+- **Centralize.** Client and server logs should end up queryable in one place, not siloed per-platform — a logs explorer someone can actually search across, not scattered raw output.
+- **Correlate across services.** Every request gets an ID (e.g. `x-request-id`) that propagates through every log line it touches, so a single user action can be traced as one causal chain across services — not reconstructed by eyeballing timestamps.
+- **Use event time, not write time, for ordering fields.** A field like `emitted_at_ms` (when the thing actually happened) is not the same as a batch-flush `timestamp` (when the log write landed) — the latter can misorder events that happened in a different sequence than they were flushed. Pick the field that reflects reality, not pipeline mechanics.
+- **Errors are not telemetry events.** Plain error logs and structured telemetry serve different purposes — errors are the ground-truth fallback for "what actually happened" when structured data lags or misses something; telemetry is for aggregate/queryable analysis. Don't conflate the two or assume one substitutes for the other.
+- **Debug immediately after every manual test.** The reflex after observing any live behavior (a bug, an unexpected result) is to check the logs tied to that specific moment right away — logs should make the immediately-prior behavior traceable, not just support after-the-fact aggregate analysis.
 
 ## Side Effects and Decoupling
 
