@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "for f in \"${CLAUDE_PLUGIN_ROOT}\"/references/*.md; do echo \"=== $f ===\"; cat \"$f\"; echo; done"
+      }
+    ]
+  }
+}

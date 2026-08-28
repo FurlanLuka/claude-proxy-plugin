@@ -1,0 +1,5 @@
+{
+  "name": "proxy",
+  "description": "Spec to shipped, tested feature end-to-end. Plan and QA-plan run live with you; implementation, review, and testing run unattended in between.",
+  "version": "0.1.0"
+}
