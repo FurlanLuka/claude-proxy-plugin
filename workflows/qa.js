@@ -43,14 +43,14 @@ const ctx = await agent(
     `philosophy: ${args.pluginRoot}/references/philosophy.md\n` +
     `architecturePrinciples: ${args.pluginRoot}/references/architecture-principles.md\n` +
     `qaTesterAgent: ${args.pluginRoot}/agents/qa-tester.md`,
-  { schema: CONTEXT_SCHEMA }
+  { schema: CONTEXT_SCHEMA, label: 'Load Context' }
 )
 
 phase('Execute QA')
 log('Exercising the implementation against the approved QA plan.')
 const result = await agent(
   `${HEADLESS_NOTE}\n\n${ctx.qaTesterAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n---\n\nExecute this approved QA plan against the real, running implementation. Use only tools already available — never install new tooling to make something testable.\n\nApproved QA plan:\n${args.qaPlan}`,
-  { schema: QA_SCHEMA }
+  { schema: QA_SCHEMA, label: 'QA Tester' }
 )
 
 phase('Report')

@@ -78,14 +78,14 @@ const ctx = await agent(
     `cleanCodeArchitectAgent: ${args.pluginRoot}/agents/clean-code-architect.md\n` +
     `testArchitectAgent: ${args.pluginRoot}/agents/test-architect.md\n` +
     `implementerAgent: ${args.pluginRoot}/agents/implementer.md`,
-  { schema: CONTEXT_SCHEMA }
+  { schema: CONTEXT_SCHEMA, label: 'Load Context' }
 )
 
 phase('Implement')
 log('Implementing the approved plan. Plan already went through architect self-review before you approved it — this is straight execution, not a second design review.')
 let impl = await agent(
   `${HEADLESS_NOTE}\n\n${EDIT_TOOL_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nImplement this approved plan. Write the code, apply extraction judgment where it applies, write and run tests, add logs, loop fix → retest until green.\n\nApproved plan:\n${args.plan}`,
-  { schema: IMPL_SCHEMA }
+  { schema: IMPL_SCHEMA, label: 'Implementer' }
 )
 
 phase('Review Code')
@@ -97,12 +97,12 @@ while (round < MAX_ROUNDS) {
     () =>
       agent(
         `${HEADLESS_NOTE}\n\n${ctx.cleanCodeArchitectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n---\n\nReview this implementation for extraction/clean-code issues against the plan it was built from.\n\nPlan:\n${args.plan}\n\nImplementation summary:\n${JSON.stringify(impl)}`,
-        { schema: FINDINGS_SCHEMA }
+        { schema: FINDINGS_SCHEMA, label: `Clean-Code Review (round ${round + 1})` }
       ),
     () =>
       agent(
         `${HEADLESS_NOTE}\n\n${ctx.testArchitectAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nReview test coverage and quality for this implementation against the plan it was built from.\n\nPlan:\n${args.plan}\n\nImplementation summary:\n${JSON.stringify(impl)}`,
-        { schema: FINDINGS_SCHEMA }
+        { schema: FINDINGS_SCHEMA, label: `Test Review (round ${round + 1})` }
       ),
   ])
 
@@ -115,7 +115,7 @@ while (round < MAX_ROUNDS) {
   log(`${findings.length} finding(s) — sending back to implementer.`)
   const fixResult = await agent(
     `${HEADLESS_NOTE}\n\n${EDIT_TOOL_NOTE}\n\n${ctx.implementerAgent}\n\n${ctx.philosophy}\n\n${ctx.architecturePrinciples}\n\n${ctx.cleanCodePrinciples}\n\n${ctx.testingPrinciples}\n\n---\n\nFix these review findings, then re-run tests to confirm still green.\n\nFindings:\n${JSON.stringify(findings)}\n\nCurrent implementation state:\n${JSON.stringify(impl)}`,
-    { schema: IMPL_SCHEMA }
+    { schema: IMPL_SCHEMA, label: `Implementer (fix round ${round + 1})` }
   )
   // Merge, don't replace — a round that makes no further edits (findings turned out
   // not to need code changes) would otherwise wipe out the file list from earlier
