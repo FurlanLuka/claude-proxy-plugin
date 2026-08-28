@@ -117,7 +117,7 @@ More logs than feels natural. Optimize for debuggability: when something breaks,
 
 - Named exports only. No default exports.
 - No barrel/index files. Import directly from source.
-- Minimal comments. Code should be self-documenting through clear naming. Inline comments only when logic is genuinely non-obvious.
+- **No useless comments — this is one of his strongest, most explicitly stated preferences.** Code should be self-describable through naming and structure, not narrated. A comment only earns its place when it adds something code genuinely can't express: product/business context, a non-obvious constraint, the reason a decision was made a certain way — not what the code does (the code already says that) or a restatement of the function name in prose.
 - Whitespace is communication. Use blank lines to separate logical blocks — before returns, before conditionals, after blocks. Group related declarations.
 
 ## When to Add Complexity

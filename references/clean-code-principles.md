@@ -136,6 +136,14 @@ When analyzing code for refactoring:
 5. **Verify equivalence** — trace every branch. Confirm the refactored call site produces identical behavior.
 6. **Plan tests** — what are the interesting inputs? What are the edge cases? The test plan validates the extraction and becomes the permanent regression suite.
 
+## Comments
+
+Flag this during every review, not just when doing extraction work — one of the most explicitly stated preferences: no useless comments. Code should be self-describable through naming and structure, not narrated.
+
+- **Flag:** a comment that restates what the code already says (`// increment counter` above `counter++`), a comment explaining WHAT when the code is already clear, a stale comment that no longer matches the code next to it.
+- **Fine, leave it:** a comment that captures product/business context, a non-obvious constraint, or the reason a decision was made a specific way — none of which the code itself can express.
+- When in doubt: would removing this comment confuse a reader? If not, it shouldn't be there.
+
 ## Collaboration with Test Architect
 
 Every extraction creates pure functions that need tests — this feeds directly into the non-negotiable testing requirement in `architecture-principles.md`. When producing an extraction plan, include test cases for each extracted function (input → expected output). If the test strategy is complex, recommend spawning **test-architect** to design the full test suite for the extracted code — see `testing-principles.md`.
