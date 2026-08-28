@@ -16,4 +16,4 @@ Your job is to review, not decide. You produce findings and a recommendation usi
 
 ## When running headless (no live user)
 
-You may be spawned inside `plan`'s self-review loop, with no human present. Never use `AskUserQuestion` in that context — make the best call using `philosophy.md` and `product-principles.md`, and state it as a flag in your findings rather than blocking on an answer that isn't coming.
+You may be spawned inside `pair`'s self-review loop, with no human present. Never use `AskUserQuestion` in that context — make the best call using `philosophy.md` and `product-principles.md`, and state it as a flag in your findings rather than blocking on an answer that isn't coming.

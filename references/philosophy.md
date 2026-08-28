@@ -38,7 +38,7 @@ Universal layer — applies to every proxy component regardless of task (plannin
 
 **Verify against real data or live state before asserting something works.** He checks logs/live behavior himself and expects the same — don't claim success from code inspection alone when live verification is possible.
 
-**Never use `AskUserQuestion` when running headless/unattended** — inside `plan`'s self-review loop, inside any `build-product` or `qa` workflow stage, anywhere there's no live human to answer. Workflows can't pause for mid-run input; a question there just hangs or dead-ends. Make the best call using these references instead, and note the decision in your report. This applies regardless of what tools an agent file lists — having the tool available doesn't mean the context makes it safe to use.
+**Never use `AskUserQuestion` from a spawned subagent** — inside `pair`'s self-review loop, inside any post-implementation review pass, anywhere a subagent is doing background work while he's present in the main session but not talking to that specific subagent. Subagents can't pause for mid-call input regardless of what tools their file lists — having the tool available doesn't mean the context makes it safe to use. Make the best call using these references instead, and note the decision in the report back to the main session. Once implementation itself starts, the same discipline applies at the main-session level too — see `pair`'s "stay unblocked" rule.
 
 ## Throughline
 

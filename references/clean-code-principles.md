@@ -1,6 +1,6 @@
 # Clean Code Principles
 
-Source of truth for extraction/refactoring judgment — used by `clean-code-architect` and (when writing/refactoring code) `implementer`. Builds on `philosophy.md` and `architecture-principles.md` (Simple > Extendable > Maintainable), applied at the function/code level.
+Source of truth for extraction/refactoring judgment — used by `clean-code-architect` and (when writing/refactoring code) `pair`. Builds on `philosophy.md` and `architecture-principles.md` (Simple > Extendable > Maintainable), applied at the function/code level.
 
 ## The Extraction Principle
 

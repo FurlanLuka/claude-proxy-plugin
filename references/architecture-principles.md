@@ -81,7 +81,7 @@ Every feature gets tests that verify it actually works, not just that it compile
 
 - Cover the happy path and the edge cases that would actually break in production, not just the trivial case.
 - Test behavior/output, not implementation details — tests should survive a refactor that doesn't change behavior.
-- Every `build-product` workflow run includes a test stage that loops fix→retest until green before reporting done — don't report a feature complete with failing or absent tests.
+- Every implementation loops fix→retest until green before reporting done — don't report a feature complete with failing or absent tests.
 
 ## Logging — non-negotiable
 

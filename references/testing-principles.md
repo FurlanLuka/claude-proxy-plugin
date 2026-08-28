@@ -1,6 +1,6 @@
 # Testing Principles
 
-Source of truth for test strategy — used by `test-architect` and (when writing tests) `implementer`. Tests are non-negotiable per `architecture-principles.md`; this file is the how.
+Source of truth for test strategy — used by `test-architect` and (when writing tests) `pair`. Tests are non-negotiable per `architecture-principles.md`; this file is the how.
 
 **Not TDD.** Tests verify that real behavior works, written alongside or after the implementation — not a test-first, red-green-refactor discipline driving the design. Write the code, then write tests that confirm it actually does what it's supposed to, then run them for real. Don't write a failing test first and implement to satisfy it.
 

@@ -1,72 +1,65 @@
 # proxy
 
-Personal Claude Code plugin. Turns a product spec into a shipped, tested feature end-to-end: you approve twice, live — once on the build plan, once on the QA plan — everything else runs unattended.
+Personal Claude Code plugin. Turns a product spec into a shipped, tested feature: you approve twice, live — once on the build plan, once on the QA plan — everything runs in this conversation, with you.
+
+There is no unattended/background mode. Earlier versions of this plugin used Claude Code Workflows to run implementation and QA headless in the background — that was dropped deliberately after real testing surfaced enough fragility (undefined args, wrong tool grants, wrong hooks schema, redundant review phases) that a simpler, fully live design won out. `pair` covers building; `qa-plan` covers testing; both run entirely in the main session.
 
 ## How it works
-
-Two skill → workflow pairs. Each skill is the human-in-the-loop boundary (research, draft, real plan mode, live iteration); each workflow is what runs unattended once you approve.
 
 ```
 you write a spec
       │
       ▼
- /proxy:plan ─────────────────────────────────────────────
-      │   main session, interactive. Loads philosophy.md + product-principles.md
-      │   always; architecture/clean-code/testing-principles.md for real specs.
-      │   Checks for missing infra (tests/logs/deploy) and flags it early,
-      │   as its own separate plan — never bolted onto the feature plan.
-      │   Asks ONE question at a time, early, product + major-technical only —
-      │   proposes a recommendation on technical calls rather than asking blind.
-      │   Self-reviews the draft against product/architect/clean-code-architect/
-      │   test-architect before you ever see it — loops fix → re-review →
-      │   ask-if-needed until it holds up.
+ /proxy:pair ────────────────────────────────────────────────
+      │   main session, interactive. Loads philosophy.md + product-
+      │   principles.md always; architecture/clean-code/testing-
+      │   principles.md for real specs.
+      │   Checks for missing infra (tests/logs/deploy) and flags it
+      │   early, as its own separate plan — never bolted onto the
+      │   feature plan.
+      │   Asks ONE question at a time, early, product + major-
+      │   technical only — proposes a recommendation on technical
+      │   calls rather than asking blind.
+      │   Self-reviews the draft against product/architect/clean-
+      │   code-architect/test-architect before you ever see it —
+      │   loops fix → re-review → ask-if-needed until it holds up.
       ▼
  real plan mode — you iterate live, same as normal Claude Code plan mode
       │
       ▼
- approved → immediately launches, no extra confirmation
-      ▼
- Workflow: build-product ────────────────────────────────────
-      │   background, fully unattended. No mid-run human input — Claude Code
-      │   workflows can't pause for it. Any real decision was already
-      │   resolved in /proxy:plan (including architect's design review —
-      │   that already happened in plan's self-review loop, not repeated here).
-      │   Ambiguity here gets the agent's best judgment, noted in the report.
+ approved → implements immediately, right here
       │
-      ├─ Load Context    → reads its own reference/agent files, given only
-      │                     the plugin's absolute path
-      ├─ Implement        → implementer writes the code + tests + logs,
-      │                     runs what it wrote, loops fix → retest until green
-      ├─ Review Code      → clean-code-architect / test-architect pass,
-      │                     findings loop until clean
-      └─ Report           → summary handed back to you
-
- build-product's report notification arrives → plan skill proceeds straight
- into qa-plan automatically — you don't have to remember to ask for QA
+      │   Writes the code, tests, logs. Runs what it wrote, loops
+      │   fix → retest until green. Stays unblocked through to the
+      │   end — no questions mid-build unless something is a
+      │   genuinely big blocker, not just a preference call.
+      │   Then a second pair of eyes: clean-code-architect +
+      │   test-architect review the diff, loop fix → re-review
+      │   until clean.
       ▼
- /proxy:qa-plan ──────────────────────────────────────────
-      │   main session, interactive. Researches what's actually available
-      │   to test with FIRST (running instance? curl-able endpoints?
-      │   browser tooling already set up?) — never plans around tooling
-      │   that isn't there. Drafts concrete QA cases from the real diff.
+ done → proceeds straight into qa-plan, no need to ask for it
+      ▼
+ /proxy:qa-plan ─────────────────────────────────────────────
+      │   main session, interactive. Researches what's actually
+      │   available to test with FIRST (running instance? curl-able
+      │   endpoints? browser tooling already set up?) — never plans
+      │   around tooling that isn't there. Drafts concrete QA cases
+      │   from the real diff.
       ▼
  real plan mode — same live iteration
       ▼
- approved → immediately launches
+ approved → executes immediately, right here
+      │
+      │   Hits real endpoints, drives the UI if browser tooling
+      │   exists, checks logs actually fire. Same "only use what's
+      │   already there" constraint, same "stay unblocked" rule.
       ▼
- Workflow: qa ────────────────────────────────────────────────
-      │   background. qa-tester exercises the feature like a real client —
-      │   curl, click-through if available — never installs new tooling.
-      └─ Report: exercised / passed / failed / couldn't verify
+ Report: exercised / passed / failed / couldn't verify
 ```
-
-### Alternative: `/proxy:pair`
-
-Same planning process as `plan` (identical clarification/self-review, reused not duplicated), but skips the workflow handoff entirely — implements live in the main session instead, with him present. No headless constraint, so it can ask him something mid-build if it genuinely needs to. Default is still `plan` → `build-product` (write a spec, walk away); use `pair` when he wants to watch or the task needs his input partway through.
 
 ### `/proxy:review`
 
-Different shape entirely — audits an *existing* codebase against all 5 references instead of building something new. No plan to approve, no headless constraint; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` or `plan` if he wants findings acted on.
+Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if he wants findings acted on.
 
 ## Directory layout
 
@@ -77,18 +70,15 @@ proxy/
 ├── hooks/
 │   └── hooks.json          SessionStart hook: dumps references/ into every session automatically
 ├── skills/
-│   ├── plan/               interactive planning skill — front door for building
-│   ├── pair/                same as plan, but implements live in main session, no workflow
+│   ├── pair/                the only build entry point — plan live, implement live, on approval
 │   ├── review/              audits an existing codebase against all references — report only
-│   ├── qa-plan/             interactive QA-scoping skill — front door for testing
+│   ├── qa-plan/             plan QA live, execute live, on approval
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── agents/
 │   ├── product.md                 scope/usefulness/positioning/UX — advisor, no Edit/Write
 │   ├── architect.md              system/module design — advisor, no Edit/Write
 │   ├── clean-code-architect.md   extraction/refactor plans — advisor, no Edit/Write
-│   ├── test-architect.md         test strategy — advisor, no Edit/Write
-│   ├── implementer.md            the only agent with Edit/Write — executes plans
-│   └── qa-tester.md              exercises the running feature live
+│   └── test-architect.md         test strategy — advisor, no Edit/Write
 ├── references/
 │   ├── philosophy.md               universal — product taste, communication, delegation
 │   ├── product-principles.md       prioritization, feature yes/no, positioning, UX
@@ -96,20 +86,19 @@ proxy/
 │   ├── clean-code-principles.md    extraction/refactor judgment
 │   ├── testing-principles.md       test strategy judgment
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
-└── workflows/
-    ├── build-product.js    unattended: review → implement → review → report
-    └── qa.js                unattended: qa-tester executes the approved QA plan
 ```
 
-Each workflow starts with a "Load Context" phase that reads its own reference/agent files itself, given only the plugin's absolute path (`pluginRoot`) — passed as `args` alongside the approved plan text. Plan/qa-plan skills don't assemble and pass file content themselves; that was the original design and it broke on first real use (too much to get right by hand every invocation). This also sidesteps a real name collision — this plugin's `architect`/`clean-code-architect`/`test-architect` share names with existing global agents at `~/.claude/agents/`, which win by default — since the workflow never relies on `agentType` resolution at all.
+All four advisor agents are pure — no Edit/Write, they produce findings/plans, never touch code. `pair` and `qa-plan` are the only places code actually gets written or exercised, and both do it directly in the main session, not by spawning a separate "implementer"/"qa-tester" agent — that split existed when a background workflow needed a headless executor; it doesn't anymore.
 
 ## Principles this plugin encodes
 
 Pulled from mining actual work history, not invented — see `~/.claude/projects/-Users-luka/memory/` for the source material.
 
 - Product decisions outrank specs — docs update to match decisions, never the reverse.
-- Match existing project conventions before applying any default in these references.
+- Match existing project conventions before applying any default in these references — for code AND for UX/product patterns.
 - Cut anything that doesn't earn its place — except tests and logs, which are never ceremony to cut.
+- No useless comments — code should be self-describable; comments only for context code genuinely can't express.
 - Reviewers own rigor; you own product judgment. Every implementation gets reviewed before it's "done," but scope calls stay yours.
 - One PR per repo touched, whole feature in one go — infra work is its own separate plan, never bolted onto a feature plan.
-- Real plan mode is the only place live human-in-the-loop happens. Everything past approval runs without you, by design.
+- Once implementation starts, stay unblocked through to the end — ask only for a genuinely big blocker, not a preference call.
+- Real plan mode is the only place live human-in-the-loop happens — twice, once for build, once for QA. Everything between those two approvals runs straight through, live, with you.
