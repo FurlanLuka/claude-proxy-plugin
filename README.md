@@ -61,6 +61,14 @@ you write a spec
 
 Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if he wants findings acted on.
 
+## Telegram notifications (optional)
+
+`hooks/scripts/notify-telegram.sh` pipes long responses to Telegram via a `Stop` hook — useful since `pair`/`qa-plan` can run a while unattended once approved (see the note above on that actually working, permission mode allowing). No-ops silently if unconfigured. To set up:
+
+1. Create a bot via [@BotFather](https://t.me/BotFather) on Telegram, get the bot token.
+2. Message your bot once, then get your chat ID (e.g. via `https://api.telegram.org/bot<TOKEN>/getUpdates`).
+3. Set two env vars on your machine (not in this repo): `PROXY_TELEGRAM_BOT_TOKEN`, `PROXY_TELEGRAM_CHAT_ID`. Optional: `PROXY_TELEGRAM_MIN_LENGTH` (default 400) — only notifies on responses at least this long, to filter out quick replies.
+
 ## Directory layout
 
 ```
@@ -68,7 +76,9 @@ proxy/
 ├── .claude-plugin/
 │   └── plugin.json        manifest — name/description/version only, rest auto-discovered
 ├── hooks/
-│   └── hooks.json          SessionStart hook: dumps references/ into every session automatically
+│   ├── hooks.json          SessionStart: dumps references/ into every session. Stop: Telegram notify (optional)
+│   └── scripts/
+│       └── notify-telegram.sh   pipes long responses to Telegram, no-ops if unconfigured
 ├── skills/
 │   ├── pair/                the only build entry point — plan live, implement live, on approval
 │   ├── review/              audits an existing codebase against all references — report only
