@@ -83,6 +83,7 @@ proxy/
 │   ├── pair/                the only build entry point — plan live, implement live, on approval
 │   ├── review/              audits an existing codebase against all references — report only
 │   ├── qa-plan/             plan QA live, execute live, on approval
+│   ├── pr-walkthrough/      visual before/after page for a structural PR, embedded in the description
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── agents/
 │   ├── product.md                 scope/usefulness/positioning/UX — advisor, no Edit/Write
