@@ -6,6 +6,12 @@ description: Builds a visual before/after page explaining what a PR changed, scr
 A reviewer reads a diff as a list of edits. This shows them the mechanism: what the
 old path was, what the new one is, and what decides between them.
 
+**Pitch it at architecture, not implementation.** The reader wants to know what
+moved and why, not how each piece works — the diff is right there for that. If a
+paragraph could only be written by someone who had read the file, it is probably
+too deep. Name the shape of the change, the decision it turned on, and the thing
+that would break if it were wrong.
+
 Only worth doing when the change is genuinely structural. A bug fix, a rename, a
 config bump — say it in the PR description and stop. If you can't name the
 before-state and the after-state in one sentence each, there's nothing to draw.
@@ -61,6 +67,17 @@ copy it rather than re-derive it. What must stay constant:
 - captions that state the claim, not the contents ("the asymmetry is the point",
   not "diagram of the gates")
 
+## Every figure is an SVG
+
+Not a mixture. A PR that has one hand-drawn diagram, one mermaid block and one
+markdown table reads as three different documents. Draw everything the same way —
+the pipeline panel, the state machine, and the before/after transcripts all as
+SVG figures in the same palette — and the description reads as one set.
+
+Markdown tables stay markdown when they are genuinely *data*: numbers a reader
+might sort, copy, or search. A table being used for side-by-side *layout* is a
+figure wearing a table costume; draw it.
+
 ## What GitHub will actually render
 
 Its sanitizer is stricter than it looks, and guessing wastes a round trip. Probe
@@ -85,7 +102,7 @@ Verified with that:
 - `<details>`, `<kbd>`, `<sub>`, `<ins>`, `<blockquote>` all work. So do GitHub's
   `> [!IMPORTANT]` / `> [!WARNING]` callouts.
 
-### Prefer hosted SVG over a screenshot
+### Hosted SVG is the format
 
 Sharper at any zoom, a few KB instead of a few MB, and it sits next to the prose
 it explains rather than as one enormous image at the top. Two constraints, both
@@ -99,10 +116,18 @@ from camo's CSP (`default-src 'none'`):
 Render one standalone before uploading. A missing font or an unresolved colour
 looks fine in the page it came from and wrong in the PR.
 
-## Capture it
+## The page and the PR are two outputs
 
-A full-page screenshot is still worth having as the opening summary — one image
-that shows the whole argument — even when the sections below use SVG.
+Author the page as normal HTML — real CSS, web fonts, whatever the subject wants.
+That is what gets published as an artifact and what a person reads.
+
+The PR gets the same figures exported to standalone SVG: literal colours, real
+font stacks, one file per theme. Write the page so that export is mechanical —
+keep each figure a self-contained `<svg>` whose only theme dependency is the
+token names, and the export is a find-and-replace rather than a redraw.
+
+A full-page screenshot is optional and usually unnecessary once the sections
+carry their own figures. It duplicates the argument at lower fidelity.
 
 `prefers-color-scheme` decides the theme, and headless Chromium defaults to dark.
 Confirm which one you're shipping before uploading — an embedded image is
