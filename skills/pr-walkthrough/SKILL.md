@@ -61,7 +61,48 @@ copy it rather than re-derive it. What must stay constant:
 - captions that state the claim, not the contents ("the asymmetry is the point",
   not "diagram of the gates")
 
+## What GitHub will actually render
+
+Its sanitizer is stricter than it looks, and guessing wastes a round trip. Probe
+it instead — `POST /markdown` with `mode: gfm` returns exactly what a PR body
+becomes:
+
+```bash
+gh api --method POST /markdown --input probe.json   # {"text": "...", "mode": "gfm"}
+```
+
+Verified with that:
+
+- **`<picture>` + `<source media="(prefers-color-scheme: dark)">` works.** GitHub
+  wraps it in `<themed-picture>`, so one embed follows the reader's theme. This is
+  the single biggest upgrade over a plain screenshot, which is fixed-theme forever.
+- **Inline `<svg>` is stripped entirely** — it becomes an empty paragraph. But an
+  SVG *file* referenced by `<img src>` survives, and camo serves it as
+  `image/svg+xml`. So vector diagrams are available; they just have to be hosted.
+- **`style=` is stripped; `align`, `width`, `valign` survive.** So `<table>` is the
+  only real layout control you get — and it is genuinely useful for before/after
+  panels side by side, which markdown alone cannot do.
+- `<details>`, `<kbd>`, `<sub>`, `<ins>`, `<blockquote>` all work. So do GitHub's
+  `> [!IMPORTANT]` / `> [!WARNING]` callouts.
+
+### Prefer hosted SVG over a screenshot
+
+Sharper at any zoom, a few KB instead of a few MB, and it sits next to the prose
+it explains rather than as one enormous image at the top. Two constraints, both
+from camo's CSP (`default-src 'none'`):
+
+- **No external fonts.** Google Fonts will not load — write real fallback stacks
+  into the SVG or it silently reflows into whatever the reader has.
+- **No CSS variables or `currentColor`.** They resolve against a stylesheet that
+  is not there. Bake literal hex per theme, and export a light and a dark file.
+
+Render one standalone before uploading. A missing font or an unresolved colour
+looks fine in the page it came from and wrong in the PR.
+
 ## Capture it
+
+A full-page screenshot is still worth having as the opening summary — one image
+that shows the whole argument — even when the sections below use SVG.
 
 `prefers-color-scheme` decides the theme, and headless Chromium defaults to dark.
 Confirm which one you're shipping before uploading — an embedded image is
