@@ -76,6 +76,8 @@ Different shape entirely — audits an *existing* codebase against all reference
 
 ```
 proxy/
+├── .github/workflows/
+│   └── release.yml        CI: validates the manifest, then releases whenever plugin.json's version changes
 ├── .claude-plugin/
 │   └── plugin.json        manifest — name/description/version/author, rest auto-discovered
 ├── skills/
