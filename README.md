@@ -72,24 +72,12 @@ you write a spec
 
 Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if he wants findings acted on.
 
-## Telegram notifications (optional)
-
-`hooks/scripts/notify-telegram.sh` pipes long responses to Telegram via a `Stop` hook — useful since `pair`/`qa-plan` can run a while unattended once approved (see the note above on that actually working, permission mode allowing). No-ops silently if unconfigured. To set up:
-
-1. Create a bot via [@BotFather](https://t.me/BotFather) on Telegram, get the bot token.
-2. Message your bot once, then get your chat ID (e.g. via `https://api.telegram.org/bot<TOKEN>/getUpdates`).
-3. Set two env vars on your machine (not in this repo): `PROXY_TELEGRAM_BOT_TOKEN`, `PROXY_TELEGRAM_CHAT_ID`. Optional: `PROXY_TELEGRAM_MIN_LENGTH` (default 400) — only notifies on responses at least this long, to filter out quick replies.
-
 ## Directory layout
 
 ```
 proxy/
 ├── .claude-plugin/
-│   └── plugin.json        manifest — name/description/version only, rest auto-discovered
-├── hooks/
-│   ├── hooks.json          SessionStart: dumps references/ into every session. Stop: Telegram notify (optional)
-│   └── scripts/
-│       └── notify-telegram.sh   pipes long responses to Telegram, no-ops if unconfigured
+│   └── plugin.json        manifest — name/description/version/author, rest auto-discovered
 ├── skills/
 │   ├── brainstorm/          bounce ideas, high level, no planning — react and push back, nothing written
 │   ├── pair/                the only build entry point — plan live, implement live, on approval
@@ -109,7 +97,7 @@ proxy/
 │   ├── architecture-principles.md  system design judgment (match-existing-conventions first)
 │   ├── clean-code-principles.md    extraction/refactor judgment
 │   ├── testing-principles.md       test strategy judgment
-│   ├── walkthrough-principles.md   what a change walkthrough says + its locked visual identity (not session-dumped)
+│   ├── walkthrough-principles.md   what a change walkthrough says + its locked visual identity
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 ```
 
