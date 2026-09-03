@@ -9,5 +9,6 @@
       "source": "./",
       "description": "Spec to shipped, tested feature. Plan, implement, review, QA — all live in the main session, with you, approving twice: once on the build plan, once on the QA plan."
     }
-  ]
+  ],
+  "description": "Luka's build loop for Claude Code — brainstorm, plan, implement, review, QA, all live in the main session."
 }
