@@ -44,7 +44,7 @@ Procedure:
 ## Drafting the plan
 
 - Product decisions made during clarification outrank any existing doc/spec — write the plan to match the decisions, don't hedge against them.
-- Plain, direct writing. No ceremony for its own sake — skip diagrams, feature flags, heavy formal structure unless the thing being built is meant to last, not a throwaway.
+- Plain, direct writing. No ceremony for its own sake — skip inline diagrams, feature flags, heavy formal structure unless the thing being built is meant to last, not a throwaway. (Architecture visuals live on the walkthrough page from the visual pass below, not in the plan prose.)
 - For anything sizeable, draft loosely first, then build it out section by section rather than dumping the whole thing at once — matches how he actually works through plans in conversation.
 - **A feature ships in one go, as one PR.** Don't scope the plan into a stack of incremental PRs unless he explicitly asks for that. If the work spans multiple projects/repos, that's one PR per project — not one PR per project per stage. Default assumption is "whole feature, done, in a single PR per repo touched." Infra work spun out per the gap check above is its own separate plan and PR by design — that's not a violation of "one PR," it's a different piece of work entirely.
 
@@ -57,11 +57,23 @@ Use the plugin-scoped names exactly as written (`proxy:architect`, not bare `arc
 - If a specialist flags a real gap, revise the draft and loop — don't present a plan a spawned architect-agent would immediately poke a hole in.
 - If review surfaces something that's genuinely a product or major-technical decision (not just a fixable gap), that goes back through the clarification procedure above — ONE question, same rules — even though initial clarification already happened. Don't silently resolve a real decision yourself just because you're past that phase.
 - Keep iterating — revise, re-review, ask if truly needed — until the draft holds up, or until further review isn't surfacing anything new. This is meant to catch obvious gaps before he sees the plan, not to chase perfection indefinitely.
-- Once it's solid, move to plan mode.
+- Once it's solid, move to the visual pass.
+
+## Visual pass — before plan mode
+
+Run `plan-walkthrough` on the settled draft. It builds a before/after page for the
+architecture and publishes it as an artifact, so he can see the shape of the change
+instead of reading the whole plan to find it.
+
+It gates itself and skips most plans — that's correct, not a failure. Don't argue
+with the skip and don't build a page to prove the step ran. Build it once, here, on
+a draft that already survived self-review; never on a first draft, and never
+re-rendered on each plan-mode edit.
 
 ## Enter plan mode
 
-Call `EnterPlanMode` with the draft. From here it's normal interactive plan mode — free-form iteration, not one-question-at-a-time (that rule is specific to the pre-plan clarification phase). Expect interruptions mid-explanation; read them as a steer, not a rejection, and adjust in place.
+Call `EnterPlanMode` with the draft — artifact link at the top if the visual pass
+produced one, one line naming what it shows. From here it's normal interactive plan mode — free-form iteration, not one-question-at-a-time (that rule is specific to the pre-plan clarification phase). Expect interruptions mid-explanation; read them as a steer, not a rejection, and adjust in place.
 
 ## On approval — implement directly, right here
 

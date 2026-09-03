@@ -7,6 +7,12 @@ There is no unattended/background mode. Earlier versions of this plugin used Cla
 ## How it works
 
 ```
+ /proxy:brainstorm ──────────────────────────────────────────
+      │   optional, and separate on purpose. You bring a
+      │   half-formed idea, it reacts — opinion first, ~200
+      │   words, no options menu, no plan, nothing written.
+      │   Ends only when you say "plan this".
+      ▼
 you write a spec
       │
       ▼
@@ -23,8 +29,13 @@ you write a spec
       │   Self-reviews the draft against product/architect/clean-
       │   code-architect/test-architect before you ever see it —
       │   loops fix → re-review → ask-if-needed until it holds up.
+      │   Then plan-walkthrough: if the change is structural, draws
+      │   the before/after architecture as an artifact page so you
+      │   can see the shape instead of reading for it. Skips most
+      │   plans on purpose.
       ▼
  real plan mode — you iterate live, same as normal Claude Code plan mode
+      │   (walkthrough link sits at the top of the plan)
       │
       ▼
  approved → implements immediately, right here
@@ -80,10 +91,12 @@ proxy/
 │   └── scripts/
 │       └── notify-telegram.sh   pipes long responses to Telegram, no-ops if unconfigured
 ├── skills/
+│   ├── brainstorm/          bounce ideas, high level, no planning — react and push back, nothing written
 │   ├── pair/                the only build entry point — plan live, implement live, on approval
 │   ├── review/              audits an existing codebase against all references — report only
 │   ├── qa-plan/             plan QA live, execute live, on approval
-│   ├── pr-walkthrough/      visual before/after page for a structural PR, embedded in the description
+│   ├── plan-walkthrough/    visual before/after page for a plan, published before approval
+│   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── agents/
 │   ├── product.md                 scope/usefulness/positioning/UX — advisor, no Edit/Write
@@ -96,6 +109,7 @@ proxy/
 │   ├── architecture-principles.md  system design judgment (match-existing-conventions first)
 │   ├── clean-code-principles.md    extraction/refactor judgment
 │   ├── testing-principles.md       test strategy judgment
+│   ├── walkthrough-principles.md   what a change walkthrough says + its locked visual identity (not session-dumped)
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 ```
 

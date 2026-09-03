@@ -1,82 +1,43 @@
 ---
 name: pr-walkthrough
-description: Builds a visual before/after page explaining what a PR changed, screenshots it, and embeds it at the top of the PR description. Use when a diff is hard to read from the diff — a pipeline reorder, a new decision path, a state machine — or when asked for a visual/diagram/walkthrough of a change.
+description: Turns a change walkthrough into hosted SVG figures embedded in a PR description, updating the plan's page in place so the diff between what was approved and what shipped is visible. Use when a diff is hard to read from the diff — a pipeline reorder, a new decision path, a state machine.
 ---
 
-A reviewer reads a diff as a list of edits. This shows them the mechanism: what the
-old path was, what the new one is, and what decides between them.
+Read `../../references/walkthrough-principles.md` first — it owns the content
+rules, the panel set, and the locked palette/type identity. This file is only the
+PR-moment specifics: what shipped, and what GitHub will actually render.
 
-**Pitch it at architecture, not implementation.** The reader wants to know what
-moved and why, not how each piece works — the diff is right there for that. If a
-paragraph could only be written by someone who had read the file, it is probably
-too deep. Name the shape of the change, the decision it turned on, and the thing
-that would break if it were wrong.
+## Start from the plan's page, if there is one
 
-Only worth doing when the change is genuinely structural. A bug fix, a rename, a
-config bump — say it in the PR description and stop. If you can't name the
-before-state and the after-state in one sentence each, there's nothing to draw.
+`plan-walkthrough` may already have published an artifact for this change. Find
+it (`action: "list"`, or the plan itself), read it, and **update that same URL** —
+don't publish a second page.
+
+The update is the drift check, and it's free. Every panel that showed a proposal
+now has to show what shipped. Where they differ, that difference is the most
+useful thing on the page — the reviewer is looking at exactly the part of the
+design that moved during implementation. Drop the "proposed" furniture and the
+conditional caption voice with it.
+
+If there's no plan page, build one now off the diff.
 
 ## Content comes from the code, not the plan
 
-Read the actual diff and the actual `develop` state. Plans describe intent, and
-intent drifts during implementation — a page built from the plan will confidently
-show a design that didn't ship. Every claim on the page should be one you just
-verified in a file.
+Read the actual diff and the actual base state. Intent drifts during
+implementation — a page built from the plan will confidently show a design that
+didn't ship. Every claim on the page should be one you just verified in a file.
 
 For a stacked PR, diff against its **immediate base**, not `develop`. The page
-should show what *this* PR changed, not what the stack changed.
+shows what *this* PR changed, not what the stack changed.
 
-## What earns a panel
+## The page and the PR are two outputs
 
-Load `artifact-design` (required) and `artifact-diagramming` before writing. They
-own the design and diagram judgment; everything below is what's specific to
-explaining a diff.
+The artifact stays normal HTML — real CSS, web fonts, whatever the subject wants.
+That's what a person reads, and it follows their theme.
 
-Four panels is a good target, and they're usually these:
-
-1. **The entry point that changed** — a new detector in a gather, a new branch, a
-   new caller. Draw before and after stacked, same geometry, so the added thing
-   is the only visual difference.
-2. **The decision** — if the change added a ranking, a ladder, or a state
-   machine, this is the panel that matters most. Show the fallthrough.
-3. **The bound** — what stops the new thing running away: gates, budgets, TTLs,
-   suppressions. Reviewers ask this second; answer it before they do.
-4. **What the user experiences** — real before/after transcripts or payloads,
-   verbatim from test fixtures or prod samples. Never invented. This is the panel
-   non-engineers read, and often the only one.
-
-Also worth a panel when it applies: **a design you rejected**, costed against the
-one you shipped. It makes a decision legible that would otherwise live only in a
-review thread.
-
-## Keep the pages a set
-
-PR pages accumulate. Two that don't match read as two one-offs; five that match
-read as a practice. Fix the identity on the first one and reuse it: same palette,
-same faces, same panel furniture, same caption voice. Vary the composition, never
-the identity.
-
-State the token system explicitly in the first page's CSS so the next one can
-copy it rather than re-derive it. What must stay constant:
-
-- one accent for **the thing this PR adds**, one for **what already existed**, one
-  for **suppression/failure**, and neutrals with a slight hue bias toward the
-  accent
-- a display face, a body face, and a mono face for identifiers — one superfamily
-  is the easy way to make three roles cohere
-- captions that state the claim, not the contents ("the asymmetry is the point",
-  not "diagram of the gates")
-
-## Every figure is an SVG
-
-Not a mixture. A PR that has one hand-drawn diagram, one mermaid block and one
-markdown table reads as three different documents. Draw everything the same way —
-the pipeline panel, the state machine, and the before/after transcripts all as
-SVG figures in the same palette — and the description reads as one set.
-
-Markdown tables stay markdown when they are genuinely *data*: numbers a reader
-might sort, copy, or search. A table being used for side-by-side *layout* is a
-figure wearing a table costume; draw it.
+The PR gets the same figures exported to standalone SVG files. Write the page so
+that export is mechanical: each figure a self-contained `<svg>` whose only theme
+dependency is the token names.
 
 ## What GitHub will actually render
 
@@ -97,8 +58,8 @@ Verified with that:
   SVG *file* referenced by `<img src>` survives, and camo serves it as
   `image/svg+xml`. So vector diagrams are available; they just have to be hosted.
 - **`style=` is stripped; `align`, `width`, `valign` survive.** So `<table>` is the
-  only real layout control you get — and it is genuinely useful for before/after
-  panels side by side, which markdown alone cannot do.
+  only real layout control you get — genuinely useful for before/after panels side
+  by side, which markdown alone cannot do.
 - `<details>`, `<kbd>`, `<sub>`, `<ins>`, `<blockquote>` all work. So do GitHub's
   `> [!IMPORTANT]` / `> [!WARNING]` callouts.
 
@@ -108,52 +69,14 @@ Sharper at any zoom, a few KB instead of a few MB, and it sits next to the prose
 it explains rather than as one enormous image at the top. Two constraints, both
 from camo's CSP (`default-src 'none'`):
 
-- **No external fonts.** Google Fonts will not load — write real fallback stacks
-  into the SVG or it silently reflows into whatever the reader has.
+- **No external fonts.** Google Fonts will not load — write the real fallback
+  stacks from the principles file into the SVG or it silently reflows into
+  whatever the reader has.
 - **No CSS variables or `currentColor`.** They resolve against a stylesheet that
   is not there. Bake literal hex per theme, and export a light and a dark file.
 
 Render one standalone before uploading. A missing font or an unresolved colour
 looks fine in the page it came from and wrong in the PR.
-
-## The page and the PR are two outputs
-
-Author the page as normal HTML — real CSS, web fonts, whatever the subject wants.
-That is what gets published as an artifact and what a person reads.
-
-The PR gets the same figures exported to standalone SVG: literal colours, real
-font stacks, one file per theme. Write the page so that export is mechanical —
-keep each figure a self-contained `<svg>` whose only theme dependency is the
-token names, and the export is a find-and-replace rather than a redraw.
-
-A full-page screenshot is optional and usually unnecessary once the sections
-carry their own figures. It duplicates the argument at lower fidelity.
-
-`prefers-color-scheme` decides the theme, and headless Chromium defaults to dark.
-Confirm which one you're shipping before uploading — an embedded image is
-fixed-theme forever, unlike the live page.
-
-There's no full-page flag: `--screenshot` grabs the viewport. Drive the DevTools
-protocol instead, measure the content, then capture beyond the viewport. Any
-Chromium works — Brave and Chrome both expose it.
-
-```bash
-"/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" \
-  --headless=new --disable-gpu --hide-scrollbars \
-  --remote-debugging-port=9222 --window-size=1500,1200 \
-  --user-data-dir=/tmp/shot-prof "file:///abs/path/page.html" &
-```
-
-Then over the socket from `http://127.0.0.1:9222/json`: `Page.enable`,
-`Runtime.enable`, **wait ~3s** for webfonts and any reveal animation to settle,
-read `document.documentElement.scrollHeight`, `Emulation.setDeviceMetricsOverride`
-to that height with `deviceScaleFactor: 2`, then `Page.captureScreenshot` with
-`captureBeyondViewport: true`.
-
-Two things that will bite: CDP nests its result (`msg.result.result.value` for an
-evaluate), and a page whose sections animate in will capture mid-fade if you don't
-wait. Look at the PNG before uploading — a silent font fallback or a half-faded
-section is invisible until someone opens the PR.
 
 ## Host it
 
@@ -173,9 +96,36 @@ Top of the description, above the prose, inside `<details open>` with a one-line
 `<sub>` caption naming the panels. `<img width="820">` keeps it scannable while
 staying clickable.
 
-Publish the page as an artifact too and keep the link for the person, not the PR:
-it follows the reader's own theme and stays live when the screenshot goes stale.
-A private artifact URL 404s for reviewers, so it never replaces the embed.
+Keep the artifact link for the person, not the PR: it follows the reader's own
+theme and stays live when the exported SVG goes stale. A private artifact URL 404s
+for reviewers, so it never replaces the embed.
+
+## Full-page screenshots, if you need one
+
+Usually unnecessary once the sections carry their own figures — it duplicates the
+argument at lower fidelity. If you do need one: `prefers-color-scheme` decides the
+theme and headless Chromium defaults to dark, so confirm which one you're shipping.
+
+There's no full-page flag — `--screenshot` grabs the viewport. Drive the DevTools
+protocol instead. Any Chromium works; Brave and Chrome both expose it.
+
+```bash
+"/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" \
+  --headless=new --disable-gpu --hide-scrollbars \
+  --remote-debugging-port=9222 --window-size=1500,1200 \
+  --user-data-dir=/tmp/shot-prof "file:///abs/path/page.html" &
+```
+
+Then over the socket from `http://127.0.0.1:9222/json`: `Page.enable`,
+`Runtime.enable`, **wait ~3s** for webfonts and any reveal animation to settle,
+read `document.documentElement.scrollHeight`, `Emulation.setDeviceMetricsOverride`
+to that height with `deviceScaleFactor: 2`, then `Page.captureScreenshot` with
+`captureBeyondViewport: true`.
+
+Two things that will bite: CDP nests its result (`msg.result.result.value` for an
+evaluate), and a page whose sections animate in will capture mid-fade if you don't
+wait. Look at the PNG before uploading — a silent font fallback or a half-faded
+section is invisible until someone opens the PR.
 
 ## After
 
