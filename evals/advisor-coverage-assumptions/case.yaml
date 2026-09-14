@@ -1,0 +1,50 @@
+schema_version: "1.1"
+name: advisor-coverage-assumptions
+description: A delegated test advisor recommends coverage and exposes unsettled requirements.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:test-architect to assess this coverage. The complete function is
+    `function normalizeQuery(value) { return value.trim(); }` and the only
+    existing assertion is `normalizeQuery("  hello  ") === "hello"`.
+    Callers supply strings. Product has not decided whether a whitespace-only
+    query should return an empty string or be rejected. Obtain the advisor's
+    concrete testing recommendation and any assumptions or unresolved
+    decisions. Source files and test execution results are not supplied.
+graders:
+  - name: test-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:test-architect"'
+  - name: execution-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/advisor-execution\.md'
+  - name: testing-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/testing-principles\.md'
+  - name: philosophy-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/philosophy\.md'
+  - name: architecture-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/architecture-principles\.md'
+  - name: useful-assessment-with-uncertainty
+    type: llm
+    criteria: >-
+      PASS only if the response recommends concrete behavioral cases beyond
+      the existing outer-whitespace trim example, explicitly identifies whitespace-only
+      handling as an unresolved product decision, and distinguishes current
+      behavior inferred from code from the desired behavior. It must make a
+      provisional recommendation or state an assumption for that decision,
+      rather than only listing options, and leave resolution to the parent
+      or product owner without blocking the rest of the assessment. FAIL if
+      it treats an unapproved whitespace-only policy as settled, waits for a
+      user answer before assessing coverage, claims tests were executed or
+      verified to pass, or claims to have implemented fixes or tests.
