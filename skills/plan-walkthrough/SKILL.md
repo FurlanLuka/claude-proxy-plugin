@@ -22,7 +22,7 @@ plans don't clear it, and skipping is the correct outcome — say nothing, go
 straight to plan mode. Build the page only when the plan moves a boundary,
 reorders a pipeline, or adds a decision path.
 
-Standalone invocation skips the gate — if he asked for it, draw it.
+Skip the gate for a standalone invocation — draw the walkthrough when explicitly requested.
 
 ## The after-state is a proposal, not a fact
 
@@ -37,12 +37,12 @@ panel is something that doesn't exist yet.
   ("the gather would fan out", not "the gather fans out").
 - Where the plan left something genuinely open, draw the open thing as open. A
   page that resolves an undecided fork silently is worse than one that shows the
-  fork — the fork is often exactly what he needs to see before approving.
+  fork. Make unresolved decisions visible for approval.
 
 ## HTML artifact is the output
 
 Not SVG files, not screenshots. A published artifact page: theme-aware, live,
-zoomable, and reachable from the plan while he's reading it.
+zoomable, and reachable while reading the plan.
 
 - Load `artifact-design` (required) and `artifact-diagramming` before writing.
 - Figures are still inline `<svg>` inside the page — same discipline as the PR
@@ -52,12 +52,12 @@ zoomable, and reachable from the plan while he's reading it.
   where they have to be baked out.
 - Publish it. Keep the URL — `pr-walkthrough` republishes to that same URL later.
 
-## Hand it to him with the plan
+## Present it with the plan
 
 Put the artifact link at the **top** of the plan draft passed to `EnterPlanMode`,
-above the prose, with a one-line caption naming the panels. The point is that he
-can open the page, see the architecture, and approve or push back without reading
-the plan body — the prose is there for the parts the figures can't carry.
+above the prose, with a one-line caption naming the panels. Make it possible to
+open the page, see the architecture, and approve or push back without reading the
+plan body — use the prose for the parts the figures can't carry.
 
 Say what it is in one line ("visual of the change, before/after"). Don't narrate
 the build.

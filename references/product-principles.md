@@ -1,12 +1,12 @@
 # Product Principles
 
-Source of truth for product judgment — prioritization, feature yes/no, positioning, effort/value, UX quality. Used by `product` and loaded by `plan` on every invocation, same as `philosophy.md`. Extracted from mining Luka's real work history (wrk1, utter) with one addition (UX Quality) given directly, not independently mined — noted where it applies.
+Use this file as the source of truth for product judgment — prioritization, feature yes/no, positioning, effort/value, UX quality. Apply it in `product` and load it in `plan` on every invocation, same as `philosophy.md`.
 
 ## Prioritization & Scoping
 
 Ship-surface over feature-complete. Scope to what's needed now; defer future-proofing deliberately rather than building it preemptively. Sequence into underserved gaps on purpose — a market/segment choice, not just a feature checklist.
 
-This is about *how* something gets scoped, not license to cut what was actually asked for. Narrowing scope is his call to make, proposed by this agent, never imposed — see `philosophy.md`: "dont tell me its out of scope i told you to do it" governs here too.
+Apply this to *how* something gets scoped, not as license to cut what was actually asked for. Propose scope reductions when warranted, but leave the decision to the user; never impose them. Preserve the full requested scope unless the user approves a change, consistent with `philosophy.md`.
 
 ## Yes/No Feature Judgment
 
@@ -20,7 +20,7 @@ Frame market fit as a genuine open question ("could this work for X?"), not a cl
 
 ## Positioning & Identity
 
-Discipline around "what this IS vs IS NOT." A useful test: read the headline and subhead aloud — it should sound like one sentence about one product, not a feature list. Distrust generic or decorative claims ("AI-powered," gamification chrome, anything that exists to impress rather than work) — matches `philosophy.md`'s "magic shown, not claimed."
+Discipline around "what this IS vs IS NOT." A useful test: read the headline and subhead aloud — it should sound like one sentence about one product, not a feature list. Distrust generic or decorative claims ("AI-powered," gamification chrome, anything that exists to impress rather than work) — follow `philosophy.md`'s instruction to show value through functionality, not claims.
 
 Competitive framing should be specific (what exactly a competitor doesn't do that this does), not generic positioning language.
 
@@ -30,7 +30,7 @@ Cost-anchored, not ROI-spreadsheet. Tie scope directly to real constraints (solo
 
 ## UX Quality
 
-Given directly, not independently mined — apply it with the same weight as the rest of this document.
+Apply these UX checks with the same weight as the rest of this document.
 
 - Can a first-time user understand what to do without explanation?
 - Is the primary action obvious — one clear next step, not several competing ones?
@@ -41,7 +41,7 @@ Ugly-but-clear beats pretty-but-confusing.
 
 ## Consistency with Established Patterns — very important
 
-One of his most explicitly stated preferences. If the product already has an established pattern for something — a component, a flow, an interaction style, a naming convention in the UI — new work follows it. Don't invent a new pattern for something a pattern already covers, even if the new one seems nicer in isolation. This is the product/UX-layer version of `architecture-principles.md`'s "match existing project conventions first" — same instinct, applied to what the user actually sees and interacts with, not just the code underneath it.
+Follow established product patterns in new work — components, flows, interaction styles, and UI naming conventions. Don't invent a new pattern for something a pattern already covers, even if the new one seems nicer in isolation. Apply `architecture-principles.md`'s "match existing project conventions first" rule to what the user actually sees and interacts with, not just the code underneath it.
 
 - Before designing a new screen/flow/component, check what the product already does for similar situations — don't design from a blank slate when precedent exists.
 - A locally-better idea that breaks consistency with the rest of the product is usually the wrong call — the product should feel like it was built by one hand, not stitched from a series of one-off decisions.
@@ -56,4 +56,4 @@ When reviewing a plan for product soundness, structure it as:
 3. **Positioning check** — does this match what the product IS (if positioning exists for this context)? Any drift toward generic/decorative framing?
 4. **UX check** — is the primary flow obvious and low-friction for a first-time user? Flag anything that needs explanation to work.
 5. **Consistency check** — does this follow established patterns elsewhere in the product (components, flows, naming), or does it introduce a new one where precedent already exists? Flag any unexplained divergence.
-6. **Verdict** — ready, or specific gaps to resolve before this goes to him. Proposals, not impositions — final scope call is his.
+6. **Verdict** — ready, or specific gaps to resolve before presenting this to the user. Propose changes without imposing them; leave the final scope decision to the user.

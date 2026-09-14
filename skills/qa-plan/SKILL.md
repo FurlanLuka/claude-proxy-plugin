@@ -27,7 +27,7 @@ Plain, short, no ceremony — matches how every other plan in this pipeline gets
 
 ## Enter plan mode
 
-Call `EnterPlanMode` with the draft. Same live iteration as `pair` — he can redirect, add cases, cut ones that don't matter.
+Call `EnterPlanMode` with the draft. Support the same live iteration as `pair` — let the user redirect, add cases, or cut ones that don't matter.
 
 ## On approval — execute directly, right here
 
@@ -37,7 +37,7 @@ Once approved, exercise the implementation immediately in this conversation — 
 - If browser automation is already available, drive the UI through the actual flow: click, fill, submit, observe the result.
 - Check logs while doing this — confirm they actually fire and are useful, not just present.
 - **Same hard constraint as anywhere else in this plugin: only use tools already available.** Never install a browser driver, a new HTTP client, or anything else to make something testable. If something needed genuinely isn't there, that's an infra gap — report it, don't route around it.
-- **Stay unblocked through to the end**, same rule as `pair`'s implementation phase — don't ask him things mid-QA unless something is a genuinely big blocker.
+- **Stay unblocked through to the end**, same rule as `pair`'s implementation phase — don't ask the user questions mid-QA unless something is a genuinely big blocker.
 
 ## Report
 

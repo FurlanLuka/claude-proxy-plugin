@@ -1,6 +1,6 @@
 # Data Analysis Principles
 
-General methodology for investigating data/logs/metrics — not tied to any specific tool (BigQuery, Postgres, GCP logs, whatever the project uses). Extracted from mining real work history. Complements `architecture-principles.md`'s Logging section, which covers what to log; this covers how to analyze what's there.
+Apply this general methodology when investigating data/logs/metrics, regardless of the specific tool (BigQuery, Postgres, GCP logs, whatever the project uses). It complements `architecture-principles.md`'s Logging section, which covers what to log; this covers how to analyze what's there.
 
 ## Population-level, not sampling
 

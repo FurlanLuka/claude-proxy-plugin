@@ -1,6 +1,6 @@
 ---
 name: context
-description: Load all proxy reference files (philosophy, architecture principles) into the current conversation. Use when Luka asks to load his standards/preferences, or wants them applied without going through the plan skill.
+description: Loads all proxy reference files (philosophy, architecture principles) into the current conversation. Use when the user asks to load these standards/preferences, or wants them applied without going through the plan skill.
 ---
 
 Read every `.md` file in `../../references/` (currently `philosophy.md`, `architecture-principles.md`, `clean-code-principles.md`, `testing-principles.md` — read whatever's actually there, don't hardcode this list, new files get added over time).
