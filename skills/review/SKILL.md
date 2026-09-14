@@ -24,8 +24,8 @@ Spawn the specialist agents against the **real, existing codebase** — not a dr
 
 Use the scoped names exactly as written — same collision reasoning as `plan`'s self-review: this plugin's agents share names with existing global ones.
 
-**Important nuance:** `architecture-principles.md`'s own top rule is "match existing project conventions first" — this review isn't about blindly flagging every divergence from proxy's defaults as wrong. An existing, consistent, intentional pattern that differs from a default here is not automatically a violation. Flag divergences for visibility so he can decide whether to conform or treat it as intentional house style for that project — don't present them as verdicts.
+**Important nuance:** `architecture-principles.md`'s own top rule is "match existing project conventions first" — this review isn't about blindly flagging every divergence from proxy's defaults as wrong. An existing, consistent, intentional pattern that differs from a default here is not automatically a violation. Flag divergences for visibility and leave the decision to conform or retain intentional house style to the user — don't present them as verdicts.
 
 ## Report
 
-Consolidate findings by category (Product, Architecture, Clean Code, Testing). For each finding: what, where, why it matters, suggested fix — but don't apply anything. This skill reports; it doesn't touch code. If he wants findings fixed, that's a separate follow-up (`pair` or `plan`), not something this skill does automatically.
+Consolidate findings by category (Product, Architecture, Clean Code, Testing). For each finding: what, where, why it matters, suggested fix — but don't apply anything. This skill reports; it doesn't touch code. Fix findings only in a separate follow-up (`pair` or `plan`) requested by the user, never automatically as part of this skill.

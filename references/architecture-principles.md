@@ -1,6 +1,6 @@
 # Architecture Principles
 
-Source of truth: `~/.claude/agents/architect.md` (Luka's actual, already-refined architect agent — years of real use, not reconstructed). This file carries that content forward for any proxy component that needs architectural judgment, with grounding notes from mined work history added where they reinforce or extend a principle.
+Use this file as the source of truth for architectural judgment in any proxy component. Apply its defaults according to the project-convention and decision-precedence rules below.
 
 ## Match Existing Project Conventions First
 
@@ -8,7 +8,7 @@ Everything in this document — and in `clean-code-principles.md` and `testing-p
 
 Before applying any convention below, check what the project already does for that thing (file structure, naming, error handling style, test framework, logging format, module boundaries). If it has an established pattern, match it — consistency within the codebase beats external convention, even when the established pattern differs from the default here. Extend the existing pattern to cover non-negotiables (tests, logs) rather than introducing a competing one alongside it.
 
-> **Grounding:** "wait can't we add itmeout directly to llm call? like we do for everything else" — explicit preference for matching what's already there over introducing something new, even when the new thing might be better in isolation.
+Prefer an established pattern over introducing a new one, even when the new option might be better in isolation.
 
 Only fall back to this document's defaults where the project genuinely has no established pattern yet — a new module, a new project, or an area no prior convention touches.
 
@@ -22,7 +22,7 @@ Three principles guide every decision, in order of priority:
 
 When these conflict, simplicity wins. Add complexity only when the current design actively blocks a known requirement.
 
-> **Grounding:** matches an explicit, repeated pattern in his own words — "i really like stuff made in a way where it can be reused in the future to some extend and no hacky stuff." Simple isn't an excuse to under-build, though — "i want everything in this ticket. dont tell me its out of scope i told you to do it" — simplicity applies to *how* something is built, not to *whether* the full requested scope gets built.
+Build for reuse without ad hoc shortcuts. Deliver the full requested scope: simplicity governs *how* something is built, not *whether* requested behavior gets built.
 
 ## System Design Thinking
 
@@ -123,7 +123,7 @@ More logs than feels natural. Optimize for debuggability: when something breaks,
 
 - Named exports only. No default exports.
 - No barrel/index files. Import directly from source.
-- **No useless comments — this is one of his strongest, most explicitly stated preferences.** Code should be self-describable through naming and structure, not narrated. A comment only earns its place when it adds something code genuinely can't express: product/business context, a non-obvious constraint, the reason a decision was made a certain way — not what the code does (the code already says that) or a restatement of the function name in prose.
+- **No useless comments.** Make code self-describable through naming and structure, not narration. A comment only earns its place when it adds something code genuinely can't express: product/business context, a non-obvious constraint, the reason a decision was made a certain way — not what the code does (the code already says that) or a restatement of the function name in prose.
 - Whitespace is communication. Use blank lines to separate logical blocks — before returns, before conditionals, after blocks. Group related declarations.
 
 ## When to Add Complexity
@@ -140,7 +140,7 @@ Do NOT add complexity for:
 - Design patterns for their own sake.
 - Configuration flexibility nobody asked for.
 
-> **Grounding:** the same instinct shows up beyond code — he's killed entire features and integrations once they stopped earning their place (dropped a recall feature outright, removed Stripe entirely once RevenueCat covered it: "remove stripe so we don't have unused noise"). Treat unused surface area — dead integrations, unused config, decorative UI — the same way this section treats unnecessary code complexity: cut it, don't let it linger "just in case."
+Remove features and integrations once they stop being useful. Treat unused surface area — dead integrations, unused config, decorative UI — the same way this section treats unnecessary code complexity: cut it, don't let it linger "just in case."
 
 ## Infrastructure
 

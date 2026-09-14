@@ -70,7 +70,7 @@ you write a spec
 
 ### `/proxy:review`
 
-Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if he wants findings acted on.
+Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if you want findings acted on.
 
 ## Directory layout
 
@@ -107,7 +107,7 @@ All four advisor agents are pure — no Edit/Write, they produce findings/plans,
 
 ## Principles this plugin encodes
 
-Pulled from mining actual work history, not invented — see `~/.claude/projects/-Users-luka/memory/` for the source material.
+The shared references define the product, engineering, and collaboration instructions used by the skills and agents.
 
 - Product decisions outrank specs — docs update to match decisions, never the reverse.
 - Match existing project conventions before applying any default in these references — for code AND for UX/product patterns.
