@@ -138,6 +138,7 @@ Add complexity only when at least one is true:
 4. **Cross-cutting concerns pollute core logic** — side effects that should be decoupled via events.
 
 Do NOT add complexity for:
+
 - "What if we need to..." — solve current problems.
 - Design patterns for their own sake.
 - Configuration flexibility nobody asked for.

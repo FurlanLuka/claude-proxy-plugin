@@ -40,6 +40,7 @@ Non-negotiables (tests, logs, and anything else `architecture-principles.md` req
 Reassess after each answer: a course correction can make later, pre-written questions irrelevant or wrong. Drop stale questions and proceed incrementally rather than skipping ahead.
 
 Procedure:
+
 1. Read the spec. Answer anything answerable yourself from the repo/context — don't ask questions you could resolve by reading code. Only ask about genuine forks in approach, product decisions, or major technical decisions that require the user's judgment.
 2. If something in that scope is unclear, ask ONE question — early, before drafting. For technical decisions, lead with a recommended option. You may use multiple-choice prompts when the options fit, but always allow a free-text answer or correction when none match the user's intent. Don't constrain the response to a pick-list.
 3. Take the answer. Re-assess: does this change what else needs asking? Drop any question that's now moot. If something genuinely still needs clarifying, ask ONE more question. Repeat.

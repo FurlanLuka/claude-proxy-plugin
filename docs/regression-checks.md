@@ -57,10 +57,13 @@ Capture the prompt, environment, tool calls, response, and target repository dif
 Run from the plugin checkout:
 
 ```sh
+npx --yes markdownlint-cli2@0.23.2 --config .markdownlint.json "**/*.md" "#node_modules/**" "#evals/results/**"
 claude plugin validate .claude-plugin/plugin.json --strict
 claude plugin validate .claude-plugin/marketplace.json --strict
 git diff --check
 ```
+
+The Markdown check requires Node.js 22+ and uses `.markdownlint.json` for spacing, heading syntax, and list indentation. It preserves YAML frontmatter, intentional hard line breaks, and code examples; it does not require an H1 or wrap long lines. Generated eval results are excluded. Add `--fix` to apply mechanical fixes, then review the diff for instruction and rendering changes.
 
 For changed scenarios, repeat runs in fresh sessions against the baseline and candidate with the same fixture, prompt, model, and permissions; retain each run's result.
 
