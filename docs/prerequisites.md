@@ -8,6 +8,8 @@ Check only the requirements for the active workflow. Missing capabilities do not
 
 When the interactive session or plan-mode approval tools are unavailable, report the blocked workflow before drafting or implementing. Describing a headless environment or saying "you decide the implementation details" does not waive the build or QA approval gate. A plain-text approval cannot replace the required plan-mode tools.
 
+When reporting this blocker, identify the missing capabilities and how to restore them; do not offer to waive approval or draft the blocked plan as a separate document.
+
 Follow `pair`'s infra-gap procedure, including explicit user overrides, for missing project infrastructure. Follow `qa-plan`'s reporting rules for cases it cannot exercise.
 
 ## Plan walkthrough
