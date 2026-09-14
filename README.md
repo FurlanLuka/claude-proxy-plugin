@@ -4,9 +4,34 @@ Personal Claude Code plugin. Turns a product spec into a shipped, tested feature
 
 There is no unattended/background mode. Earlier versions of this plugin used Claude Code Workflows to run implementation and QA headless in the background — that was dropped deliberately after real testing surfaced enough fragility (undefined args, wrong tool grants, wrong hooks schema, redundant review phases) that a simpler, fully live design won out. `pair` covers building; `qa-plan` covers testing; both run entirely in the main session.
 
+## Setup and prerequisites
+
+In Claude Code, add the marketplace and install the plugin:
+
+```text
+/plugin marketplace add FurlanLuka/claude-proxy-plugin
+/plugin install proxy@proxy-marketplace
+```
+
+Verify that the `proxy:` skills and four advisor agents appear in the session. For local development, start Claude Code with `claude --plugin-dir /absolute/path/to/claude-proxy-plugin` from the target project.
+
+See [Prerequisites](docs/prerequisites.md) for workflow requirements and [Artifact skill setup](docs/prerequisites.md#artifact-skill-setup) for access to Claude Code's built-in authoring skills.
+
+Walkthrough prerequisites apply when a walkthrough is needed. A required walkthrough with missing capabilities blocks at that step; it is not silently omitted. Ordinary brainstorming, advisory review, and QA do not require artifact publishing.
+
+## Advisor execution modes
+
+The four agents advise on product, architecture, extraction, and testing. Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
+
+An advisor launched as the interactive main session, for example `claude --agent proxy:architect`, can ask the user questions through `AskUserQuestion` when available. A spawned advisor returns assumptions and unresolved decisions to its parent without asking the user. Reading an agent's Markdown as guidance in an existing session does not itself apply its frontmatter tool configuration.
+
+## Regression checks
+
+Run the [regression scenarios](docs/regression-checks.md) when changing workflow or agent instructions. Manifest validation checks packaging; it does not prove approval boundaries, reference loading, or advisor behavior.
+
 ## How it works
 
-```
+```plaintext
  /proxy:brainstorm ──────────────────────────────────────────
       │   optional, and separate on purpose. You bring a
       │   half-formed idea, it reacts — opinion first, ~200
@@ -74,7 +99,7 @@ Different shape entirely — audits an *existing* codebase against all reference
 
 ## Directory layout
 
-```
+```plaintext
 proxy/
 ├── .github/workflows/
 │   └── release.yml        CI: validates the manifest, then releases whenever plugin.json's version changes
@@ -89,11 +114,12 @@ proxy/
 │   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── agents/
-│   ├── product.md                 scope/usefulness/positioning/UX — advisor, no Edit/Write
+│   ├── product.md                scope/usefulness/positioning/UX — advisor, no Edit/Write
 │   ├── architect.md              system/module design — advisor, no Edit/Write
 │   ├── clean-code-architect.md   extraction/refactor plans — advisor, no Edit/Write
 │   └── test-architect.md         test strategy — advisor, no Edit/Write
 ├── references/
+│   ├── advisor-execution.md        shared execution rules for advisor roles
 │   ├── philosophy.md               universal — product taste, communication, delegation
 │   ├── product-principles.md       prioritization, feature yes/no, positioning, UX
 │   ├── architecture-principles.md  system design judgment (match-existing-conventions first)
@@ -103,7 +129,10 @@ proxy/
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 ```
 
-All four advisor agents are pure — no Edit/Write, they produce findings/plans, never touch code. `pair` and `qa-plan` are the only places code actually gets written or exercised, and both do it directly in the main session, not by spawning a separate "implementer"/"qa-tester" agent — that split existed when a background workflow needed a headless executor; it doesn't anymore.
+- All four advisor agents produce findings/plans and leave implementation to the main session; see the execution boundaries above.
+- `pair` writes and tests application code in the main session.
+- `qa-plan` exercises the implementation directly in the main session.
+- The walkthrough skills create and publish visual artifacts under their own prerequisite rules.
 
 ## Principles this plugin encodes
 
@@ -116,4 +145,4 @@ The shared references define the product, engineering, and collaboration instruc
 - Reviewers own rigor; you own product judgment. Every implementation gets reviewed before it's "done," but scope calls stay yours.
 - One PR per repo touched, whole feature in one go — infra work is its own separate plan, never bolted onto a feature plan.
 - Once implementation starts, stay unblocked through to the end — ask only for a genuinely big blocker, not a preference call.
-- Real plan mode is the only place live human-in-the-loop happens — twice, once for build, once for QA. Everything between those two approvals runs straight through, live, with you.
+- Use real plan mode for the two execution approvals: once for build, once for QA. Clarify decisions before drafting; after each approval, proceed through execution and ask only for a genuine blocker.

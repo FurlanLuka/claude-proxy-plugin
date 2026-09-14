@@ -1,6 +1,6 @@
 # Product Principles
 
-Use this file as the source of truth for product judgment — prioritization, feature yes/no, positioning, effort/value, UX quality. Apply it in `product` and load it in `plan` on every invocation, same as `philosophy.md`.
+Use this file as the source of truth for product judgment — prioritization, feature yes/no, positioning, effort/value, UX quality. Apply it in `product` and `pair` on every invocation, same as `philosophy.md`.
 
 ## Prioritization & Scoping
 

@@ -3,13 +3,17 @@ name: pair
 description: Guides collaborative planning and implementation — clarifies one question at a time, enters real plan mode for live iteration, then implements directly in this conversation on approval. The only build entry point in this plugin; there is no separate unattended workflow.
 ---
 
+Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
+
 Runs in the main session (not a subagent) so it can call `EnterPlanMode` directly. Front door for all building in this plugin.
+
+Read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and check its **Planning and implementation** requirements. Check visual prerequisites only when `plan-walkthrough`'s gate requires that step.
 
 ## Load context first
 
-Read `../../references/philosophy.md` and `../../references/product-principles.md` — always, every invocation. Product judgment applies to basically every plan, even copy/content-only ones, unlike the architecture-side references below which are conditional.
+Use `${CLAUDE_PLUGIN_ROOT}/references/philosophy.md` and `${CLAUDE_PLUGIN_ROOT}/references/product-principles.md` on every invocation. Product judgment applies to basically every plan, even copy/content-only ones, unlike the architecture-side references below which are conditional.
 
-If the spec involves any new module, new API surface, new data shape, or changes to more than a couple of existing files, also read `../../references/architecture-principles.md`, `../../references/clean-code-principles.md`, and `../../references/testing-principles.md` before drafting — together they're the source of truth for architectural, refactor, and test judgment. Every real feature plan needs test scope decided up front (tests are non-negotiable), and most touch existing code enough that extraction judgment matters too — so treat these three as a set, not architecture-principles.md alone. Skip all three for specs that are purely copy/content/config with no structural decisions.
+If the spec involves any new module, new API surface, new data shape, or changes to more than a couple of existing files, also read `${CLAUDE_PLUGIN_ROOT}/references/architecture-principles.md`, `${CLAUDE_PLUGIN_ROOT}/references/clean-code-principles.md`, and `${CLAUDE_PLUGIN_ROOT}/references/testing-principles.md` before drafting — together they're the source of truth for architectural, refactor, and test judgment. Every real feature plan needs test scope decided up front (tests are non-negotiable), and most touch existing code enough that extraction judgment matters too — so treat these three as a set, not architecture-principles.md alone. Skip all three for specs that are purely copy/content/config with no structural decisions.
 
 ## Infra gap check — before drafting
 
@@ -79,10 +83,11 @@ produced one, one line naming what it shows. From here it's normal interactive p
 
 Once `ExitPlanMode` is approved, implement immediately in this conversation — don't ask first, that's what approving means.
 
-- Apply `architecture-principles.md`, `clean-code-principles.md`, and `testing-principles.md` yourself — already loaded during planning, no need to re-read.
+- Apply the references required by the context-loading rules above. If the scope has grown to require architecture/clean-code/testing guidance that was skipped during planning, ensure that set is loaded before implementing, using the same reference-loading rule.
 - Write the code with Edit/Write, run tests with Bash, loop fix → retest until green. Tests and logs are non-negotiable, match existing project conventions first.
 - **Stay unblocked once implementation starts.** Don't ask the user questions during implementation — proceed straight through to the end, same as if this were headless. The clarification phase already happened; that's where questions belong. **The only exception is a genuinely big blocker** — something that actually stops progress (a hard infra gap discovered mid-build, a decision with no reasonable default that materially changes scope) — not a preference call or something with a sensible default. When truly blocked, ask ONE question, same rules as clarification; otherwise make the call yourself and note it when reporting done.
-- After implementing, still get a second pair of eyes before calling it done — spawn `proxy:clean-code-architect` and `proxy:test-architect` (scoped names, same collision-avoidance reasoning as self-review above) to review the diff, loop fix → re-review until clean.
+- After implementing, still get a second pair of eyes before calling it done — spawn `proxy:clean-code-architect` and `proxy:test-architect` (scoped names, same collision-avoidance reasoning as self-review above) to review the diff.
+- After addressing review findings, rerun the relevant checks and return the updated diff and verification results to the reviewers. Repeat fix → verify → re-review until the reviewers confirm no actionable findings remain. Passing tests alone does not complete re-review; finish this loop before reporting implementation done or proceeding to QA.
 - Report done directly in chat when finished, including any decisions made without asking and why.
 
 ## After implementation: QA

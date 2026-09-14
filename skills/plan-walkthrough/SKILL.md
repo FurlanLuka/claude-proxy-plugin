@@ -3,11 +3,13 @@ name: plan-walkthrough
 description: Builds a visual before/after page for a plan and publishes it as an artifact, so the architectural change can be seen instead of read. Runs inside `pair` just before plan mode, and standalone when asked for a visual of a proposed change.
 ---
 
+Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
+
 A plan is a wall of prose you have to read linearly to find the one decision you
 actually care about. This puts the shape of the change on a page: what the system
 looks like today, what it looks like after, and what decides between them.
 
-Read `../../references/walkthrough-principles.md` first — it owns the content
+Read `${CLAUDE_PLUGIN_ROOT}/references/walkthrough-principles.md` first — it owns the content
 rules, the panel set, and the locked palette/type identity. This file is only the
 plan-moment specifics.
 
@@ -23,6 +25,10 @@ straight to plan mode. Build the page only when the plan moves a boundary,
 reorders a pipeline, or adds a decision path.
 
 Skip the gate for a standalone invocation — draw the walkthrough when explicitly requested.
+
+## Check prerequisites
+
+When the gate requires a walkthrough, or immediately for a standalone invocation, read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and apply its **Plan walkthrough** requirements. A missing prerequisite blocks the required visual step; it does not make the gate skip. Follow that document's failure path before authoring or publishing.
 
 ## The after-state is a proposal, not a fact
 
@@ -44,7 +50,7 @@ panel is something that doesn't exist yet.
 Not SVG files, not screenshots. A published artifact page: theme-aware, live,
 zoomable, and reachable while reading the plan.
 
-- Load `artifact-design` (required) and `artifact-diagramming` before writing.
+- Use the authoring skills loaded during the prerequisite check.
 - Figures are still inline `<svg>` inside the page — same discipline as the PR
   page, so the later export is a find-and-replace rather than a redraw. Keep each
   figure self-contained and its only theme dependency the token names.

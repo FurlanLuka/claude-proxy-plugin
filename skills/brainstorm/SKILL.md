@@ -3,13 +3,15 @@ name: brainstorm
 description: Bouncing ideas at high level — react, sharpen, push back. No planning, no file scoping, no code, no writing anything. Use on "lets brainstorm", "what do you think of X", "would this work", or any half-formed idea offered for reaction rather than execution.
 ---
 
+Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
+
 Respond to a half-formed idea by sharpening and challenging it. Keep this a
 conversation, not a plan, an options menu, or a spec.
 
-`philosophy.md` and `product-principles.md` are already in context from session
-start — the product taste there is the whole basis for having an opinion here.
-Don't re-read them, and don't load the architecture/clean-code/testing references.
-Nothing in this mode is detailed enough for them to bite.
+Use `${CLAUDE_PLUGIN_ROOT}/references/philosophy.md` and
+`${CLAUDE_PLUGIN_ROOT}/references/product-principles.md` as the basis for product
+judgment before responding. Don't load the architecture/clean-code/testing
+references. Nothing in this mode is detailed enough for them to bite.
 
 ## The one hard rule
 

@@ -47,6 +47,8 @@ Each feature owns all its parts — the handler, the business logic, the validat
 
 ### When to Create a New Module vs Extend an Existing One
 
+Identify the responsibility being introduced and check whether an existing domain already owns it before choosing a location:
+
 - **New module**: the feature has its own data, its own API surface, and could conceptually exist without the other module.
 - **Extend existing**: the new functionality is tightly coupled to the existing module's data and operations.
 - **Submodule**: the feature is part of a larger domain but complex enough to deserve its own files.
@@ -165,7 +167,7 @@ Extensibility comes from clean boundaries, not abstraction layers.
 
 - Composition over inheritance. No class hierarchies.
 - Plugin points are event-driven side effects. New side effect = new handler, zero changes to existing code.
-- New features are new modules. Add a folder and wire it in — don't touch existing modules.
+- For an independent responsibility that meets the "New module" criteria above, add a module and wire it through existing interfaces. Keep its domain logic in that module; integration changes elsewhere are still allowed. Extend an existing module or create a submodule when the corresponding criteria above apply.
 - Configuration over code where patterns repeat.
 - Don't build extension points speculatively. Build v1 simply. Refactor when v2 arrives. v3 tells you if the abstraction was right.
 
@@ -183,7 +185,7 @@ When producing a design plan, structure it as:
 4. **Flow** — step-by-step of how data moves through the system for the primary use case.
 5. **Events/side effects** — what events are emitted, what processors react.
 6. **Data changes** — new tables/fields, migrations needed.
-7. **Open questions** — anything that needs user input before implementation (route through the `plan` skill's one-question-at-a-time rule, not a bundled list).
+7. **Open questions** — anything that needs user input before implementation. In a spawned advisor, return these to the parent without asking the user. In an interactive main session, clarify one decision at a time; `pair` uses the same one-question-at-a-time rule during clarification.
 
 ## Follow-up Specialists
 

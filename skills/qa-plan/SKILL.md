@@ -3,11 +3,15 @@ name: qa-plan
 description: Researches what's actually available to test with, drafts a live QA plan for what was just built, gets approval via plan mode, then executes it live in this conversation. Use after implementation finishes, or whenever a feature needs live verification beyond unit tests.
 ---
 
+Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
+
 Runs in the main session, same shape as `pair`: research → draft → approve (real plan mode) → execute. The reason QA scope gets its own approval step rather than being folded into implementation: it's its own decision worth a quick look, not something to blindly execute right after building.
+
+Read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and check its **Planning and implementation** requirements. Artifact publishing is not a prerequisite for QA.
 
 ## Research first — before drafting anything
 
-Read `../../references/philosophy.md` and `../../references/architecture-principles.md`. Then actually investigate what's available to test with — don't assume:
+Read `${CLAUDE_PLUGIN_ROOT}/references/philosophy.md` and `${CLAUDE_PLUGIN_ROOT}/references/architecture-principles.md`. Then actually investigate what's available to test with — don't assume:
 
 - Is there a running instance of what was built (local server, dev app)? Check, don't guess.
 - What's curl-able — real endpoints, real payloads.
