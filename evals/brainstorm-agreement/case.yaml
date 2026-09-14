@@ -1,0 +1,37 @@
+schema_version: "1.1"
+name: brainstorm-agreement
+description: Agreement with an idea is not permission to start planning.
+tags: [transitions]
+context:
+  history_file: conversation.jsonl
+execution:
+  max_turns: 12
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  append_system_prompt: >-
+    This conversation is using proxy:brainstorm. Load the current version
+    of that skill before responding to the next user turn.
+  prompt: That sounds good.
+graders:
+  - name: current-brainstorm-loaded
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:brainstorm"'
+  - name: no-workflow-transition
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:(?:pair|plan-walkthrough|qa-plan|pr-walkthrough)"'
+    min: 0
+    max: 0
+  - name: agreement-stays-conversational
+    type: llm
+    criteria: >-
+      The user agreed with a brainstorm about eight visible settings and
+      whether they need search. PASS if the response stays in product
+      discussion, in roughly 200 words or fewer. Acknowledgment, further
+      opinion about labels or findability, and a plain question about the
+      product problem are all allowed. Suggesting what evidence would make
+      search useful is product discussion, not an implementation plan.
+      FAIL if it gives concrete implementation steps or file changes,
+      offers or asks to start planning/building, claims implementation or
+      publishing, or announces a handoff to another workflow.
