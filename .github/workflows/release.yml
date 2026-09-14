@@ -23,8 +23,8 @@ jobs:
 
       - name: Validate plugin and marketplace manifests
         run: |
-          claude plugin validate .claude-plugin/plugin.json
-          claude plugin validate .claude-plugin/marketplace.json
+          claude plugin validate .claude-plugin/plugin.json --strict
+          claude plugin validate .claude-plugin/marketplace.json --strict
 
   release:
     needs: validate

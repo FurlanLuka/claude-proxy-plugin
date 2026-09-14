@@ -57,8 +57,8 @@ Capture the prompt, environment, tool calls, response, and target repository dif
 Run from the plugin checkout:
 
 ```sh
-claude plugin validate .claude-plugin/plugin.json
-claude plugin validate .claude-plugin/marketplace.json
+claude plugin validate .claude-plugin/plugin.json --strict
+claude plugin validate .claude-plugin/marketplace.json --strict
 git diff --check
 ```
 
