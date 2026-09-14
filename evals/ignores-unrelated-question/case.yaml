@@ -1,0 +1,32 @@
+schema_version: "1.1"
+name: ignores-unrelated-question
+description: An unrelated factual question does not start a plugin workflow.
+tags: [routing]
+execution:
+  max_turns: 6
+  timeout_seconds: 120
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: What is the chemical symbol for gold?
+graders:
+  - name: no-proxy-skill
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:'
+    min: 0
+    max: 0
+    arm: both
+  - name: no-proxy-agent
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:'
+    min: 0
+    max: 0
+  - name: correct-answer
+    type: regex
+    pattern: '\bAu\b'
+  - name: direct-answer
+    type: llm
+    criteria: >-
+      PASS if the response directly identifies Au as gold's chemical symbol
+      in one or two sentences. FAIL if it adds a product opinion, planning,
+      a code review, a workflow, or an unrelated clarification question.
