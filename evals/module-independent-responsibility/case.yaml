@@ -1,0 +1,37 @@
+schema_version: "1.1"
+name: module-independent-responsibility
+description: An independent domain gets a module with integration allowed elsewhere.
+tags: [module-placement]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:architect where this feature belongs. The project has orders and
+    checkout modules. We are adding gift cards with their own issuance records,
+    balance ledger, redemption rules, and public API. Gift cards can be issued
+    and redeemed by partners without an order or checkout session. Checkout
+    will also support paying with them. Recommend ownership and describe how
+    checkout should integrate. Treat these facts as the design brief; source
+    files are not supplied.
+graders:
+  - name: architect-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  - name: architecture-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/architecture-principles\.md'
+  - name: independent-owner-with-integration
+    type: llm
+    criteria: >-
+      PASS only if the recommendation creates a gift-card domain module that
+      owns its records, balance ledger, and redemption rules, and permits
+      checkout integration through its interface. It must explain that the
+      domain can operate independently of checkout. FAIL if it puts the
+      gift-card domain inside checkout or orders, scatters redemption rules
+      through those modules, forbids necessary checkout changes, or requires
+      a separately deployed service without a stated need. Exact filenames
+      and interface names do not matter. It must remain a recommendation,
+      not claim to have implemented changes.
