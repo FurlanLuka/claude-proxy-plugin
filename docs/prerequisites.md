@@ -6,6 +6,8 @@ Check only the requirements for the active workflow. Missing capabilities do not
 
 `proxy:pair` and `proxy:qa-plan` require an interactive main session with plan-mode approval and the target repository's existing development/test tooling. `pair` also requires the advisors selected for its reviews.
 
+When the interactive session or plan-mode approval tools are unavailable, report the blocked workflow before drafting or implementing. Describing a headless environment or saying "you decide the implementation details" does not waive the build or QA approval gate. A plain-text approval cannot replace the required plan-mode tools.
+
 Follow `pair`'s infra-gap procedure, including explicit user overrides, for missing project infrastructure. Follow `qa-plan`'s reporting rules for cases it cannot exercise.
 
 ## Plan walkthrough
@@ -33,6 +35,8 @@ If hosting, access, or audience is unknown, report the gap and stop before uploa
 Both skills are built into Claude Code; no extra plugin installation is needed. See Anthropic's [built-in artifact design guidance](https://code.claude.com/docs/en/artifacts#improve-the-visual-design).
 
 Artifact publishing requires `/login` with an eligible Claude account and artifacts enabled under session and organization policy. API-key and cloud-provider sessions cannot publish. See the [availability requirements](https://code.claude.com/docs/en/artifacts#availability) and [organization settings](https://code.claude.com/docs/en/artifacts#enable-or-disable-artifacts).
+
+Check the session's launch configuration too: `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` disables artifacts by default. Artifact settings, `CLAUDE_CODE_DISABLE_ARTIFACT=1`, or an `Artifact` permission denial can also disable them; see [Disable artifacts](https://code.claude.com/docs/en/artifacts#disable-artifacts). Use a normal interactive session for the capability check below; the plugin eval runner disables artifacts.
 
 Verify skill access through the Skill tool; slash-command visibility alone is insufficient. Ask Claude:
 

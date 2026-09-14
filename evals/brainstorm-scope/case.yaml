@@ -1,0 +1,37 @@
+schema_version: "1.1"
+name: brainstorm-scope
+description: A product opinion stays within brainstorming.
+execution:
+  max_turns: 12
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: >-
+    Use proxy:brainstorm. Our settings page has eight options, all visible on
+    one screen. Would adding a search box help? I'm looking for your opinion.
+graders:
+  - name: brainstorm-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:brainstorm"'
+  - name: philosophy-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/philosophy\.md'
+  - name: product-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/product-principles\.md'
+  - name: stays-in-brainstorm
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:(?:pair|plan-walkthrough|qa-plan)"'
+    min: 0
+    max: 0
+  - name: useful-opinion
+    type: llm
+    criteria: >-
+      PASS if the response gives a direct recommendation about search for
+      eight visible settings, explains its product tradeoff, and stays a
+      concise opinion of roughly 200 words or fewer. FAIL if it drafts an
+      implementation plan, presents a pick-list question, or claims to have
+      implemented or published anything.

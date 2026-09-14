@@ -17,6 +17,9 @@ Read `${CLAUDE_PLUGIN_ROOT}/references/philosophy.md` and `${CLAUDE_PLUGIN_ROOT}
 - What's curl-able — real endpoints, real payloads.
 - Is browser automation already set up (check for a `run`-style skill or existing tooling)?
 - What logs exist to watch while exercising the feature?
+- For a library or CLI, can the existing runtime exercise its public entry points with representative inputs? For copy/config changes, what existing viewer, parser, or inspection tools can verify the result?
+
+Match QA to the change's actual interface. A missing server or UI narrows the scope; it does not waive QA planning. Keep small changes small, and name any behavior that available tools cannot verify.
 
 **Same hard constraint as the execution step below: only plan around tools that already exist.** Don't propose a QA plan that needs something to be installed first (a browser driver, a new client) — if the tooling genuinely isn't there, that's an infra gap, flag it the same way `pair`'s infra-gap-check does, don't paper over it with a plan that can't actually execute.
 
@@ -26,6 +29,8 @@ A QA plan is concrete, not aspirational — each item is a specific action with 
 
 - "POST /api/foo with {x, y} → expect 200, {z}" not "test the API."
 - "Click through signup flow with valid input → expect redirect to dashboard" not "test signup."
+- "Call the exported filter with a mixed-case query → expect the matching items in their original order."
+- "Inspect the README heading → expect the approved wording and the surrounding content unchanged."
 
 Plain, short, no ceremony — matches how every other plan in this pipeline gets written. Pull from what was actually implemented (the plan/diff/summary from the build that just happened) so the QA plan tests the real feature, not a guess at what it might do.
 
@@ -39,6 +44,7 @@ Once approved, exercise the implementation immediately in this conversation — 
 
 - Hit real endpoints with curl (or whatever HTTP client is already set up in the project) — real requests, real responses, not mocked.
 - If browser automation is already available, drive the UI through the actual flow: click, fill, submit, observe the result.
+- For a library or CLI, exercise real public entry points through the existing runtime. For copy/config, use the available viewer, parser, or inspection tools and report exactly what that verifies.
 - Check logs while doing this — confirm they actually fire and are useful, not just present.
 - **Same hard constraint as anywhere else in this plugin: only use tools already available.** Never install a browser driver, a new HTTP client, or anything else to make something testable. If something needed genuinely isn't there, that's an infra gap — report it, don't route around it.
 - **Stay unblocked through to the end**, same rule as `pair`'s implementation phase — don't ask the user questions mid-QA unless something is a genuinely big blocker.
