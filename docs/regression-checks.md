@@ -1,20 +1,24 @@
 # Regression checks
 
-These are behavioral acceptance scenarios, not a record of passing runs. The small [eval suite](../evals/) automates brainstorm scope and the headless approval/artifact prerequisite checks. Use the live scenarios below for interactive workflows and publishing.
+These are behavioral acceptance scenarios, not a record of passing runs. The [eval suite](../evals/) automates routing, brainstorm scope and transitions, module placement, advisor recommendations, and headless prerequisite checks. Use the live scenarios below for interactive workflows and publishing.
 
 ## Automated checks
 
 Claude Code v2.1.269+ includes [plugin evals](https://code.claude.com/docs/en/plugin-evals). From a trusted plugin checkout, run:
 
 ```sh
-claude plugin eval . --ablation none --no-publish
+claude plugin eval . --ablation none --judge-model sonnet --no-publish
 ```
 
 Each case runs three times in a disposable workspace, using your Claude account. Results and a local HTML report go to `evals/results/`, which is ignored by git. These cases need no installs, scaffold scripts, or extra tool grants. For a quick iteration, add `--case <name> --runs 1`; use the default three runs to confirm it.
 
-The suite explicitly invokes this plugin to check its contracts, so it disables the no-plugin comparison. Keep the Skill-call checks alongside the outcome graders: a plausible answer alone does not prove the plugin ran. Inspect failed grader evidence before changing instructions.
+The suite checks this plugin's contracts, so the command disables the no-plugin comparison and scores every grader. Routing cases use natural prompts to check both selection and non-selection; the other cases explicitly select a skill or agent. Keep the Skill/Agent-call checks alongside the outcome graders: a plausible answer alone does not prove the plugin ran. Inspect failed grader evidence before changing instructions.
 
-Eval sessions are non-interactive and have artifacts disabled. They cannot validate real build/QA approvals, successful publishing, or same-URL updates. Keep those as live checks; a passing eval suite does not replace them.
+Use the stronger judge for confirmation: the default judge has accepted QA responses that report a blocker and then offer a workaround forbidden by the rubric. Inspect passing evidence as well, especially approval and execution claims; a green score is not conclusive on its own.
+
+Use `--tag routing`, `--tag transitions`, `--tag module-placement`, `--tag advisors`, or `--tag prerequisites` to select those groups. The two transition cases resume a synthetic conversation and load the current brainstorm skill; the fixtures contain dialogue, not a frozen copy of the skill's instructions. Claude also writes UUID-named session transcripts beside these fixtures; git ignores those generated files.
+
+Eval sessions are non-interactive and have artifacts disabled. They cannot validate real build/QA approvals, successful publishing, or same-URL updates. Native tool graders include delegated reads, but these cases omit shell/write grants and `AskUserQuestion` is unavailable in the eval session. The advisor case therefore checks recommendations, assumptions, and reference loading; it does not prove that an advisor would refrain from using unavailable tools. Keep those execution boundaries as live checks too; a passing eval suite does not replace them.
 
 ## Live scenarios
 
