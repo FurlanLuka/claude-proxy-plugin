@@ -1,0 +1,38 @@
+schema_version: "1.1"
+name: module-owned-subdomain
+description: A complex part of a larger domain becomes an owned submodule.
+tags: [module-placement]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:architect where this responsibility belongs. The orders module
+    owns the complete order lifecycle. Its returns logic now spans eligibility
+    rules, partial-return calculations, and several order-state transitions;
+    keeping these distinct concerns together in one file has become difficult
+    to maintain. Returns only act on order records and have no independent
+    identity, storage, API consumers, or lifecycle outside orders. The domain
+    ownership is settled. Recommend how to organize the returns logic without
+    changing that ownership. Treat these facts as the design brief; source
+    files are not supplied.
+graders:
+  - name: architect-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  - name: architecture-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/architecture-principles\.md'
+  - name: owned-submodule
+    type: llm
+    criteria: >-
+      PASS if the recommendation separates the complex returns concerns into
+      a submodule or cohesive group of files within orders, keeping order
+      lifecycle ownership there. It should connect the extraction to the
+      distinct concerns and existing maintenance problem. FAIL if it creates
+      an independent top-level returns domain or service, leaves all the
+      concerns in the same oversized file, or gives generic criteria without
+      deciding this case. Exact directory depth and filenames do not matter.
+      It must remain a recommendation, not claim implementation is complete.
