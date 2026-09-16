@@ -1,0 +1,36 @@
+schema_version: "1.1"
+name: module-existing-responsibility
+description: A new operation on existing domain data extends its current owner.
+tags: [module-placement]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:architect where this feature belongs. The project is organized
+    by domain. The orders module owns order records, their status transitions,
+    and the API used to retrieve and update them. We need an operation that
+    cancels an unfulfilled order by checking its current status and recording
+    its cancellation reason. There is no new data store, lifecycle, or API
+    consumer outside the orders domain. Recommend placement and explain why.
+    Treat these facts as the design brief; source files are not supplied.
+graders:
+  - name: architect-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  - name: architecture-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/architecture-principles\.md'
+  - name: extends-existing-owner
+    type: llm
+    criteria: >-
+      PASS if the recommendation keeps cancellation within the existing orders
+      module because it uses that module's records and status operations.
+      Adding an internal handler or helper is fine; exact filenames do not
+      matter. FAIL if it creates a separate cancellation module merely because
+      cancellation is a new feature, introduces a new independent owner or
+      service without a requirement, or gives only generic placement criteria
+      without deciding this case. It must remain a recommendation, not claim
+      to have implemented changes.

@@ -1,0 +1,29 @@
+{
+  "default": false,
+  "heading-style": {
+    "style": "atx"
+  },
+  "ul-style": {
+    "style": "dash"
+  },
+  "list-indent": true,
+  "ul-indent": {
+    "indent": 2
+  },
+  "no-trailing-spaces": {
+    "br_spaces": 2,
+    "code_blocks": false
+  },
+  "no-hard-tabs": {
+    "code_blocks": false
+  },
+  "no-multiple-blanks": true,
+  "no-missing-space-atx": true,
+  "no-multiple-space-atx": true,
+  "blanks-around-headings": true,
+  "heading-start-left": true,
+  "list-marker-space": true,
+  "blanks-around-fences": true,
+  "blanks-around-lists": true,
+  "single-trailing-newline": true
+}

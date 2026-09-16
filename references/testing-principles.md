@@ -15,17 +15,20 @@ Three principles guide every decision, in order of priority:
 ## What to Test
 
 ### Always Test (high value, low cost)
+
 - **Pure functions** — any function that takes inputs and returns outputs without side effects. These are the core of the test suite.
 - **Algorithm output** — scheduling, sorting, scoring, conflict detection, or whatever business logic makes the app valuable.
 - **Edge cases in domain logic** — zero values, empty inputs, boundary conditions, off-by-one scenarios.
 - **Deterministic snapshots** — capture exact output for fixed inputs. When the algorithm changes, the snapshot breaks, forcing explicit acknowledgement.
 
 ### Test Selectively (moderate value, moderate cost)
+
 - **Integration between pure functions** — run the full pipeline with realistic data to catch composition bugs.
 - **Performance guardrails** — assert that operations complete within a time budget. Keep limits tight (3-5x observed time) so regressions are caught early.
 - **Data transformation chains** — multi-step pipelines where an intermediate bug wouldn't show up in a unit test of any single step.
 
 ### Don't Test (low value, high cost)
+
 - **Framework wiring** — decorators, module imports, DI registration. The framework tests this.
 - **Database queries in isolation** — test the logic that uses query results, not the query itself.
 - **Private methods directly** — if a private method needs its own tests, extract it to a pure helper.
@@ -45,12 +48,14 @@ This is always preferred over mocking. Mocks test that you called the right func
 ## Test Structure
 
 ### File Organization
+
 - Test files live next to the code they test: `foo.helpers.ts` → `foo.helpers.spec.ts`
 - One spec file per helpers file. Algorithm tests get their own spec file.
 - Snapshot files are auto-generated in `__snapshots__/` directories.
 - Shared test utilities (factories, helpers) go in a common test-support location.
 
 ### Test File Layout
+
 ```
 imports
 factories / helpers (local to this file)
@@ -63,11 +68,13 @@ describe('functionName', () => {
 ```
 
 ### Naming
+
 - Describe blocks: function name or feature area.
 - Test names: `input condition → expected outcome` using arrow notation.
 - Example: `'frozenDaysCount=0 → returns start of day'`.
 
 ### Factories
+
 - Build domain objects with sensible defaults and surgical overrides.
 - Only specify what matters for this test — e.g. `makeOperation(machineId, shiftId, { duration: 120 })`.
 - Use a deterministic anchor date/seed for anything time- or randomness-dependent — same input, same result, every run.
@@ -75,11 +82,13 @@ describe('functionName', () => {
 ## Snapshot Tests
 
 ### When to Use
+
 - **Algorithm output** — capture the exact result for fixed inputs. If ordering logic changes, the snapshot breaks.
 - **Generated structures** — anything with many interacting fields where a full-object diff catches subtle bugs a spot-check would miss.
 - **Cascading state changes** — capture how a system responds when one upstream value changes.
 
 ### How to Use
+
 1. Serialize results to a stable, readable format (strip non-serializable objects, use unix timestamps).
 2. Call `expect(serialized).toMatchSnapshot()`.
 3. First run auto-creates snapshot files. Subsequent runs compare against stored snapshots.

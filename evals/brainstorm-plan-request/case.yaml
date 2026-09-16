@@ -1,0 +1,37 @@
+schema_version: "1.1"
+name: brainstorm-plan-request
+description: An explicit planning request hands brainstorming over to pair.
+tags: [transitions]
+context:
+  history_file: conversation.jsonl
+execution:
+  max_turns: 12
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  append_system_prompt: >-
+    This conversation is using proxy:brainstorm. Load the current version
+    of that skill before responding to the next user turn.
+  prompt: Please plan it.
+graders:
+  - name: brainstorm-before-pair
+    type: tool_order
+    before:
+      tool: Skill
+      input_match: '"skill"\s*:\s*"proxy:brainstorm"'
+    after:
+      tool: Skill
+      input_match: '"skill"\s*:\s*"proxy:pair"'
+  - name: prerequisites-read
+    type: tool_used
+    tool: Read
+    input_match: 'docs/prerequisites\.md'
+  - name: approval-gap-reported
+    type: llm
+    criteria: >-
+      PASS only if the response treats missing interactive plan-mode approval
+      as a blocker in its own right, requiring an interactive session with
+      those tools before the pair workflow can proceed. It may also report
+      missing files or other prerequisites. FAIL if it refuses to transition
+      solely because brainstorming forbids planning, says approval was waived
+      by the headless setup, offers text approval or delegation as a
+      substitute, drafts a build plan, or claims implementation is complete.

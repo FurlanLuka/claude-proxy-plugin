@@ -3,13 +3,17 @@ name: pair
 description: Guides collaborative planning and implementation — clarifies one question at a time, enters real plan mode for live iteration, then implements directly in this conversation on approval. The only build entry point in this plugin; there is no separate unattended workflow.
 ---
 
+Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
+
 Runs in the main session (not a subagent) so it can call `EnterPlanMode` directly. Front door for all building in this plugin.
+
+Read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and check its **Planning and implementation** requirements. Check visual prerequisites only when `plan-walkthrough`'s gate requires that step.
 
 ## Load context first
 
-Read `../../references/philosophy.md` and `../../references/product-principles.md` — always, every invocation. Product judgment applies to basically every plan, even copy/content-only ones, unlike the architecture-side references below which are conditional.
+Use `${CLAUDE_PLUGIN_ROOT}/references/philosophy.md` and `${CLAUDE_PLUGIN_ROOT}/references/product-principles.md` on every invocation. Product judgment applies to basically every plan, even copy/content-only ones, unlike the architecture-side references below which are conditional.
 
-If the spec involves any new module, new API surface, new data shape, or changes to more than a couple of existing files, also read `../../references/architecture-principles.md`, `../../references/clean-code-principles.md`, and `../../references/testing-principles.md` before drafting — together they're the source of truth for architectural, refactor, and test judgment. Every real feature plan needs test scope decided up front (tests are non-negotiable), and most touch existing code enough that extraction judgment matters too — so treat these three as a set, not architecture-principles.md alone. Skip all three for specs that are purely copy/content/config with no structural decisions.
+If the spec involves any new module, new API surface, new data shape, or changes to more than a couple of existing files, also read `${CLAUDE_PLUGIN_ROOT}/references/architecture-principles.md`, `${CLAUDE_PLUGIN_ROOT}/references/clean-code-principles.md`, and `${CLAUDE_PLUGIN_ROOT}/references/testing-principles.md` before drafting — together they're the source of truth for architectural, refactor, and test judgment. Every real feature plan needs test scope decided up front (tests are non-negotiable), and most touch existing code enough that extraction judgment matters too — so treat these three as a set, not architecture-principles.md alone. Skip all three for specs that are purely copy/content/config with no structural decisions.
 
 ## Infra gap check — before drafting
 
@@ -36,6 +40,7 @@ Non-negotiables (tests, logs, and anything else `architecture-principles.md` req
 Reassess after each answer: a course correction can make later, pre-written questions irrelevant or wrong. Drop stale questions and proceed incrementally rather than skipping ahead.
 
 Procedure:
+
 1. Read the spec. Answer anything answerable yourself from the repo/context — don't ask questions you could resolve by reading code. Only ask about genuine forks in approach, product decisions, or major technical decisions that require the user's judgment.
 2. If something in that scope is unclear, ask ONE question — early, before drafting. For technical decisions, lead with a recommended option. You may use multiple-choice prompts when the options fit, but always allow a free-text answer or correction when none match the user's intent. Don't constrain the response to a pick-list.
 3. Take the answer. Re-assess: does this change what else needs asking? Drop any question that's now moot. If something genuinely still needs clarifying, ask ONE more question. Repeat.
@@ -79,12 +84,14 @@ produced one, one line naming what it shows. From here it's normal interactive p
 
 Once `ExitPlanMode` is approved, implement immediately in this conversation — don't ask first, that's what approving means.
 
-- Apply `architecture-principles.md`, `clean-code-principles.md`, and `testing-principles.md` yourself — already loaded during planning, no need to re-read.
+- Apply the references required by the context-loading rules above. If the scope has grown to require architecture/clean-code/testing guidance that was skipped during planning, ensure that set is loaded before implementing, using the same reference-loading rule.
 - Write the code with Edit/Write, run tests with Bash, loop fix → retest until green. Tests and logs are non-negotiable, match existing project conventions first.
 - **Stay unblocked once implementation starts.** Don't ask the user questions during implementation — proceed straight through to the end, same as if this were headless. The clarification phase already happened; that's where questions belong. **The only exception is a genuinely big blocker** — something that actually stops progress (a hard infra gap discovered mid-build, a decision with no reasonable default that materially changes scope) — not a preference call or something with a sensible default. When truly blocked, ask ONE question, same rules as clarification; otherwise make the call yourself and note it when reporting done.
-- After implementing, still get a second pair of eyes before calling it done — spawn `proxy:clean-code-architect` and `proxy:test-architect` (scoped names, same collision-avoidance reasoning as self-review above) to review the diff, loop fix → re-review until clean.
-- Report done directly in chat when finished, including any decisions made without asking and why.
+- After implementing, still get a second pair of eyes before calling it done — spawn `proxy:clean-code-architect` and `proxy:test-architect` (scoped names, same collision-avoidance reasoning as self-review above) to review the diff.
+- Both reviewers must confirm no actionable findings remain on the current revision. Any edit after a review, including test or comment changes, makes both confirmations pending again. Rerun the relevant checks and return the updated diff and verification results to both reviewers; their follow-up can focus on what changed. Repeat fix → verify → re-review until both confirmations cover the latest revision. Passing tests or an earlier clean review does not close this loop.
 
 ## After implementation: QA
 
-Don't just relay the report and stop. Proceed straight into `qa-plan` (research what's testable, draft the QA plan) and present it for approval — same live checkpoint shape as this skill, just for QA scope instead of build scope. Initiate this step without waiting for a separate QA request.
+Once verification and both current reviews are complete, invoke `proxy:qa-plan` through the Skill tool in this main session. Research what's testable, draft the QA plan, and present it for approval without waiting for a separate QA request. Include a brief implementation summary and any decisions made without asking, with their reasons, in this handoff.
+
+This step applies to copy/config changes and features without a server or UI too; scale the QA scope to what can actually be checked. Build approval does not authorize QA execution. Wait for the separate QA approval, then execute and report through `qa-plan`. Give the final completion report after QA, including any failed or unverified behavior; do not stop at an implementation-complete message or offer QA as an optional next step.

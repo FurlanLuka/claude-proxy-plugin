@@ -3,9 +3,13 @@ name: pr-walkthrough
 description: Turns a change walkthrough into hosted SVG figures embedded in a PR description, updating the plan's page in place so the diff between what was approved and what shipped is visible. Use when a diff is hard to read from the diff — a pipeline reorder, a new decision path, a state machine.
 ---
 
-Read `../../references/walkthrough-principles.md` first — it owns the content
+Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
+
+Read `${CLAUDE_PLUGIN_ROOT}/references/walkthrough-principles.md` first — it owns the content
 rules, the panel set, and the locked palette/type identity. This file is only the
 PR-moment specifics: what shipped, and what GitHub will actually render.
+
+Before authoring, exporting, uploading, or editing a PR, read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and apply its **PR walkthrough** requirements. Use its failure path when a requirement is missing.
 
 ## Start from the plan's page, if there is one
 
@@ -85,10 +89,9 @@ naming rule, and committing images into the repo is almost never it. Upload unde
 a content hash rather than a descriptive filename, and check the URL resolves
 before editing the PR.
 
-In this org that's `gs://speak-dev-agent-upload-bucket`, public, hashed names,
-documented in speak-ios `agent_docs/skills/artifact-upload`. Public means public:
-routine internal engineering material is fine, anything with PII or customer
-content is not.
+Use the destination and audience verified during the prerequisite check. Follow
+the target repository's policy for public engineering material; never upload PII
+or customer content to a public destination.
 
 ## Put it in the PR
 

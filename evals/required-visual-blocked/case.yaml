@@ -1,0 +1,32 @@
+schema_version: "1.1"
+name: required-visual-blocked
+description: A requested walkthrough reports missing artifact capabilities.
+tags: [prerequisites]
+execution:
+  max_turns: 12
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: >-
+    Use proxy:plan-walkthrough to visualize this proposed structural change:
+    move receipt delivery out of synchronous checkout into a separate worker.
+    Today checkout charges the card and sends the receipt before returning;
+    the proposal returns after payment and queues receipt delivery with retry
+    handling. Please create the before/after walkthrough artifact.
+graders:
+  - name: walkthrough-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:plan-walkthrough"'
+  - name: prerequisites-read
+    type: tool_used
+    tool: Read
+    input_match: 'docs/prerequisites\.md'
+  - name: blocked-not-skipped
+    type: llm
+    criteria: >-
+      PASS if the response reports the requested walkthrough as blocked by
+      missing artifact publishing or authoring capabilities. FAIL if it
+      describes the structural gate as a reason to skip, claims an artifact
+      was created or published, substitutes a local page or inline diagram,
+      or silently waives the required visual. It may also identify missing
+      source code needed to verify the before-state.
