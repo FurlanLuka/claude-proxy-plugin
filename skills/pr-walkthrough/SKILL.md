@@ -93,17 +93,6 @@ Use the destination and audience verified during the prerequisite check. Follow
 the target repository's policy for public engineering material; never upload PII
 or customer content to a public destination.
 
-### Speak repositories
-
-For Speak repositories, read the upload instructions at
-`agent_docs/skills/artifact-upload` in the `speak-ios` repository. The documented
-shared destination is the public bucket `gs://speak-dev-agent-upload-bucket`.
-Routine internal engineering material may be published to this public bucket,
-subject to any stricter policy in the target repository.
-Verify the current instructions, access, and permitted audience during the
-prerequisite check. Follow any destination specified by the target repository's
-own convention.
-
 ## Put it in the PR
 
 Top of the description, above the prose, inside `<details open>` with a one-line
