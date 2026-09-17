@@ -12,6 +12,8 @@ When reporting this blocker, identify the missing capabilities and how to restor
 
 Follow `pair`'s infra-gap procedure, including explicit user overrides, for missing project infrastructure. Follow `qa-plan`'s reporting rules for cases it cannot exercise.
 
+`proxy:solo` has the same requirements. Its approvals are answered by the plugin's hooks rather than by the user (invoking the skill arms a per-session marker; `ExitPlanMode` is approved while it exists), but the plan-mode tools must still exist and the hooks must be loaded; when they are not, the normal approval dialog appears and the run waits for it. A non-interactive session blocks `solo` exactly as it blocks `pair`.
+
 ## Plan walkthrough
 
 Check artifact prerequisites only when the structural gate requires a walkthrough or the user requests one directly.

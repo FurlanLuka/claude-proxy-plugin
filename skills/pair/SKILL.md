@@ -1,6 +1,6 @@
 ---
 name: pair
-description: Guides collaborative planning and implementation — clarifies one question at a time, enters real plan mode for live iteration, then implements directly in this conversation on approval. The only build entry point in this plugin; there is no separate unattended workflow.
+description: Guides collaborative planning and implementation — clarifies one question at a time, enters real plan mode for live iteration, then implements directly in this conversation on approval. The default build entry point in this plugin; `solo` is the autonomous variant. There is no background/headless workflow.
 ---
 
 Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
@@ -8,6 +8,8 @@ Read the required references unless their full, unchanged contents are already a
 Runs in the main session (not a subagent) so it can call `EnterPlanMode` directly. Front door for all building in this plugin.
 
 Read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and check its **Planning and implementation** requirements. Check visual prerequisites only when `plan-walkthrough`'s gate requires that step.
+
+`solo` runs this file with overrides layered on top; any new step added here that pauses for the user needs a matching override there.
 
 ## Load context first
 

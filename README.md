@@ -1,8 +1,8 @@
 # proxy
 
-Personal Claude Code plugin. Turns a product spec into a shipped, tested feature: you approve twice, live — once on the build plan, once on the QA plan — everything runs in this conversation, with you.
+Personal Claude Code plugin. Turns a product spec into a shipped, tested feature — everything runs in this conversation, with you. `pair` has you approve twice, live — once on the build plan, once on the QA plan. `solo` runs the same loop for bug fixes and small features and makes the calls itself.
 
-There is no unattended/background mode. Earlier versions of this plugin used Claude Code Workflows to run implementation and QA headless in the background — that was dropped deliberately after real testing surfaced enough fragility (undefined args, wrong tool grants, wrong hooks schema, redundant review phases) that a simpler, fully live design won out. `pair` covers building; `qa-plan` covers testing; both run entirely in the main session.
+There is no background/headless mode. Earlier versions of this plugin used Claude Code Workflows to run implementation and QA headless in the background — that was dropped deliberately after real testing surfaced enough fragility (undefined args, wrong tool grants, wrong hooks schema, redundant review phases) that a simpler, fully live design won out. `pair` covers building; `qa-plan` covers testing; `solo` is autonomous but still runs in the same live session, same loop, and you can interrupt it to steer at any point.
 
 ## Setup and prerequisites
 
@@ -93,6 +93,12 @@ you write a spec
  Report: exercised / passed / failed / couldn't verify
 ```
 
+### `/proxy:solo`
+
+Same pipeline as `pair`, minus every stop. No clarification questions, no plan approval click, no QA approval click — the agent decides, logs each decision, and the final report leads with that list. Plan mode is still real (read-only exploration, plan file); the approval is answered by a plugin hook instead of you. Interrupt anytime to steer; it takes the redirect and keeps going.
+
+This is not the same as `pair` with "you decide": that skips the questions but still stops for both approvals. `solo` stops for none, and bounces to `pair` the moment scope grows — new module, new API surface, new data shape, cross-repo, infra gap, schema migration, auth/billing/permissions code, destructive data ops, or a product fork that changes what the thing is or who it's for.
+
 ### `/proxy:review`
 
 Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if you want findings acted on.
@@ -102,17 +108,24 @@ Different shape entirely — audits an *existing* codebase against all reference
 ```plaintext
 proxy/
 ├── .github/workflows/
-│   └── release.yml        CI: validates the manifest, then releases whenever plugin.json's version changes
+│   └── release.yml        CI: validates both manifests, tests the hooks, then releases whenever plugin.json's version changes
 ├── .claude-plugin/
 │   └── plugin.json        manifest — name/description/version/author, rest auto-discovered
 ├── skills/
 │   ├── brainstorm/          bounce ideas, high level, no planning — react and push back, nothing written
-│   ├── pair/                the only build entry point — plan live, implement live, on approval
+│   ├── pair/                default build entry point — plan live, implement live, on approval
+│   ├── solo/                pair with overrides — no questions, no approval clicks, bounces to pair if scope grows
 │   ├── review/              audits an existing codebase against all references — report only
 │   ├── qa-plan/             plan QA live, execute live, on approval
 │   ├── plan-walkthrough/    visual before/after page for a plan, published before approval
 │   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
 │   └── context/             loads all references/ into the current chat on demand (manual)
+├── hooks/
+│   ├── hooks.json                 PreToolUse on Skill, PermissionRequest on ExitPlanMode, UserPromptSubmit — see Hooks below
+│   ├── arm-solo-marker.sh         creates the session marker when proxy:solo is invoked, removes it on proxy:pair
+│   ├── approve-solo-plan.sh       approves ExitPlanMode only while the marker exists
+│   ├── clear-solo-marker.sh       removes the marker on any prompt outside plan mode
+│   └── solo-hooks.test.sh         black-box tests for all three hooks and the wiring, run in CI
 ├── agents/
 │   ├── product.md                scope/usefulness/positioning/UX — advisor, no Edit/Write
 │   ├── architect.md              system/module design — advisor, no Edit/Write
@@ -130,9 +143,24 @@ proxy/
 ```
 
 - All four advisor agents produce findings/plans and leave implementation to the main session; see the execution boundaries above.
-- `pair` writes and tests application code in the main session.
+- `pair` and `solo` write and test application code in the main session.
 - `qa-plan` exercises the implementation directly in the main session.
 - The walkthrough skills create and publish visual artifacts under their own prerequisite rules.
+
+## Hooks
+
+These are the first hooks since the original two were dropped, and they exist only so `solo` can pass through plan mode without a click. All three are no-ops unless a solo run is active, so `pair` and everything else are unaffected. The switch is a per-session marker file, `/tmp/claude-proxy-solo-<session_id>`, and only hooks ever touch it — the model never does.
+
+- **`PreToolUse` on `Skill`** — invoking `proxy:solo` creates the marker; invoking `proxy:pair` removes it. The marker is created by the harness, not by a model-issued write. That matters: the auto-mode classifier denies a model creating its own approval switch as self-modification, which is exactly what happened when this was first tried.
+- **`PermissionRequest` on `ExitPlanMode`** — the plan-approval dialog is this permission prompt. The hook answers "allow" only if the marker exists; otherwise it stays silent and the normal dialog appears.
+- **`UserPromptSubmit`** — removes the marker on any prompt you send outside plan mode. That closes the window after an Esc, a Ctrl-C + `--resume`, or you entering plan mode yourself later. A prompt sent *inside* plan mode leaves it armed, because that is you steering the plan solo is writing. After a steer outside plan mode, `solo` re-invokes itself through the Skill tool before its next plan mode, which re-arms.
+
+Things to know:
+
+- It fails safe. Hooks not yet loaded, a missing `session_id`, an unwritable `/tmp` — all mean the dialog shows and you click. Never the other way round.
+- Approval restores whatever permission mode was active before plan mode. `solo` removes only the two plan approvals; every Edit and Bash call still follows your session mode.
+- Subagents share the session id, so a subagent calling `ExitPlanMode` during the window would also be approved. None of this plugin's agents enter plan mode.
+- Hooks load at session start. After installing or updating the plugin, run `/reload-plugins` or restart for them to take effect.
 
 ## Principles this plugin encodes
 
@@ -145,4 +173,4 @@ The shared references define the product, engineering, and collaboration instruc
 - Reviewers own rigor; you own product judgment. Every implementation gets reviewed before it's "done," but scope calls stay yours.
 - One PR per repo touched, whole feature in one go — infra work is its own separate plan, never bolted onto a feature plan.
 - Once implementation starts, stay unblocked through to the end — ask only for a genuinely big blocker, not a preference call.
-- Use real plan mode for the two execution approvals: once for build, once for QA. Clarify decisions before drafting; after each approval, proceed through execution and ask only for a genuine blocker.
+- Use real plan mode for the two execution approvals: once for build, once for QA. Clarify decisions before drafting; after each approval, proceed through execution and ask only for a genuine blocker. In `solo`, a hook answers both approvals and there is no clarification phase.

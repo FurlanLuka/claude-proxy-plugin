@@ -29,6 +29,9 @@ jobs:
           claude plugin validate .claude-plugin/plugin.json --strict
           claude plugin validate .claude-plugin/marketplace.json --strict
 
+      - name: Test solo hooks
+        run: sh hooks/solo-hooks.test.sh
+
   release:
     needs: validate
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
