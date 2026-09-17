@@ -121,10 +121,11 @@ proxy/
 │   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── hooks/
-│   ├── hooks.json                 PermissionRequest on ExitPlanMode + UserPromptSubmit — see Hooks below
-│   ├── approve-solo-plan.sh       approves ExitPlanMode only while the solo marker exists
+│   ├── hooks.json                 PreToolUse on Skill, PermissionRequest on ExitPlanMode, UserPromptSubmit — see Hooks below
+│   ├── arm-solo-marker.sh         creates the session marker when proxy:solo is invoked, removes it on proxy:pair
+│   ├── approve-solo-plan.sh       approves ExitPlanMode only while the marker exists
 │   ├── clear-solo-marker.sh       removes the marker on any prompt outside plan mode
-│   └── solo-hooks.test.sh         black-box tests for both hooks and the wiring, run in CI
+│   └── solo-hooks.test.sh         black-box tests for all three hooks and the wiring, run in CI
 ├── agents/
 │   ├── product.md                scope/usefulness/positioning/UX — advisor, no Edit/Write
 │   ├── architect.md              system/module design — advisor, no Edit/Write
@@ -148,16 +149,17 @@ proxy/
 
 ## Hooks
 
-These are the first hooks since the original two were dropped, and they exist only so `solo` can pass through plan mode without a click. Both are no-ops unless a solo run is active, so `pair` and everything else are unaffected.
+These are the first hooks since the original two were dropped, and they exist only so `solo` can pass through plan mode without a click. All three are no-ops unless a solo run is active, so `pair` and everything else are unaffected. The switch is a per-session marker file, `/tmp/claude-proxy-solo-<session_id>`, and only hooks ever touch it — the model never does.
 
-- **`PermissionRequest` on `ExitPlanMode`** — the plan-approval dialog is this permission prompt. The hook answers "allow" only if `<session scratchpad>/proxy-solo` exists; otherwise it stays silent and the normal dialog appears. `solo` creates that marker right before each `EnterPlanMode` and deletes it right after the exit is approved, so the marker lives for exactly one plan-mode window.
-- **`UserPromptSubmit`** — removes the marker on any prompt you send outside plan mode. That closes the window after an Esc, a Ctrl-C + `--resume`, or you entering plan mode yourself later. A prompt sent *inside* plan mode leaves it armed, because that is you steering the plan solo is writing.
+- **`PreToolUse` on `Skill`** — invoking `proxy:solo` creates the marker; invoking `proxy:pair` removes it. The marker is created by the harness, not by a model-issued write. That matters: the auto-mode classifier denies a model creating its own approval switch as self-modification, which is exactly what happened when this was first tried.
+- **`PermissionRequest` on `ExitPlanMode`** — the plan-approval dialog is this permission prompt. The hook answers "allow" only if the marker exists; otherwise it stays silent and the normal dialog appears.
+- **`UserPromptSubmit`** — removes the marker on any prompt you send outside plan mode. That closes the window after an Esc, a Ctrl-C + `--resume`, or you entering plan mode yourself later. A prompt sent *inside* plan mode leaves it armed, because that is you steering the plan solo is writing. After a steer outside plan mode, `solo` re-invokes itself through the Skill tool before its next plan mode, which re-arms.
 
 Things to know:
 
-- It fails safe. Missing `scratchpad_dir` in the hook input (Claude Code older than 2.1.257, or a feature gate), an unwritable marker, hooks not yet loaded — all mean the dialog shows and you click. Never the other way round.
-- Approval restores whatever permission mode was active before plan mode. `solo` removes only the two plan approvals; every Edit and Bash call still follows your session mode. `solo` is meant to be run in auto mode — in `default` or `acceptEdits`, the marker `touch`/`rm` on a `/tmp` path prompts like any other write outside the working directory.
-- Subagents share the session scratchpad, so a subagent calling `ExitPlanMode` during the window would also be approved. None of this plugin's agents enter plan mode.
+- It fails safe. Hooks not yet loaded, a missing `session_id`, an unwritable `/tmp` — all mean the dialog shows and you click. Never the other way round.
+- Approval restores whatever permission mode was active before plan mode. `solo` removes only the two plan approvals; every Edit and Bash call still follows your session mode.
+- Subagents share the session id, so a subagent calling `ExitPlanMode` during the window would also be approved. None of this plugin's agents enter plan mode.
 - Hooks load at session start. After installing or updating the plugin, run `/reload-plugins` or restart for them to take effect.
 
 ## Principles this plugin encodes

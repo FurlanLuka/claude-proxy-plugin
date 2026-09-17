@@ -7,6 +7,7 @@ input=$(cat)
 field() { printf '%s' "$input" | sed -n "s/.*\"$1\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p"; }
 
 [ "$(field permission_mode)" = "plan" ] && exit 0
-dir=$(field scratchpad_dir)
-[ -n "$dir" ] && rm -f "$dir/proxy-solo"
+sid=$(field session_id)
+case "$sid" in ''|*[!A-Za-z0-9-]*) exit 0 ;; esac
+rm -f "/tmp/claude-proxy-solo-$sid"
 exit 0

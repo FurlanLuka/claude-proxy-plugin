@@ -1,6 +1,18 @@
 {
-  "description": "solo: auto-approve ExitPlanMode only while a solo run has armed the session marker; disarm on any prompt outside plan mode.",
+  "description": "solo: arm the session marker when proxy:solo is invoked, auto-approve ExitPlanMode while it exists, disarm on any prompt outside plan mode or when proxy:pair is invoked.",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/arm-solo-marker.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
         "matcher": "ExitPlanMode",
