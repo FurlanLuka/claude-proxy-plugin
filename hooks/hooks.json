@@ -1,5 +1,5 @@
 {
-  "description": "solo: arm the session marker when proxy:solo is invoked, auto-approve ExitPlanMode while it exists, disarm on any prompt outside plan mode or when proxy:pair is invoked.",
+  "description": "solo: arm the session marker when proxy:solo is invoked (typed slash command or Skill tool), auto-approve ExitPlanMode while it exists, disarm on any other prompt outside plan mode or when proxy:pair is invoked.",
   "hooks": {
     "PreToolUse": [
       {
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/clear-solo-marker.sh\"",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-solo-marker.sh\"",
             "timeout": 5
           }
         ]

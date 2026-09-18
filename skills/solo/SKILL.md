@@ -15,13 +15,13 @@ Open with one line so the user knows what they are watching:
 
 Plan mode stays real — read-only exploration, plan file, `EnterPlanMode`/`ExitPlanMode`. Three plugin hooks handle the approval, and none of them need anything from you:
 
-- Invoking this skill through the Skill tool armed a per-session marker (`/tmp/claude-proxy-solo-<session_id>`). Invoking `proxy:pair` disarms it.
-- `ExitPlanMode` is auto-approved while the marker exists.
-- Any user prompt outside plan mode removes the marker.
+- Invoking this skill, by typing `/proxy:solo` or through the Skill tool, armed a per-session marker (`/tmp/claude-proxy-solo-<session_id>`). Invoking `proxy:pair` disarms it.
+- `ExitPlanMode` is auto-approved while the marker exists (needs `jq` or `python3` on the machine).
+- Any other user prompt outside plan mode removes the marker.
 
 Never create, touch, or remove that file yourself — the permission classifier treats a model writing its own approval switch as self-modification and denies it. The hooks own the marker.
 
-Plan mode itself: `EnterPlanMode`, write the plan file, `ExitPlanMode` immediately — no narration, the plan file is the record. Same for `qa-plan`'s plan mode. If the dialog appears anyway (plugin not reloaded since install, older Claude Code), that is the safe direction — proceed when the user approves. Never work around it. Without an interactive session and the plan-mode tools, solo is blocked exactly like `pair`; report it per `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md`.
+Plan mode itself: `EnterPlanMode`, write the plan file, `ExitPlanMode` immediately — no narration, the plan file is the record. Same for `qa-plan`'s plan mode. If the dialog appears anyway (plugin not reloaded since install, older Claude Code, neither `jq` nor `python3` available), that is the safe direction — proceed when the user approves. Never work around it. Without an interactive session and the plan-mode tools, solo is blocked exactly like `pair`; report it per `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md`.
 
 ## Scope gate — whenever it trips
 

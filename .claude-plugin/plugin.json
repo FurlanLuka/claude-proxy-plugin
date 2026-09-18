@@ -1,7 +1,7 @@
 {
   "name": "proxy",
   "description": "Spec to shipped, tested feature. Plan, implement, review, QA — all live in the main session. pair has you approve twice (build plan, QA plan); solo runs the same loop and makes the calls itself.",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "author": {
     "name": "Luka Furlan",
     "url": "https://github.com/FurlanLuka"
