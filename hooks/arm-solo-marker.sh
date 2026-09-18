@@ -1,7 +1,8 @@
 #!/bin/sh
-# Invoking proxy:solo arms the session marker that lets ExitPlanMode auto-approve;
-# invoking proxy:pair disarms it. The model never writes the marker itself, so no
-# permission classifier has to judge that write.
+# Invoking proxy:solo through the Skill tool arms the session marker that lets
+# ExitPlanMode auto-approve; invoking proxy:pair disarms it. (A typed /proxy:solo
+# bypasses the Skill tool; prompt-solo-marker.sh handles that path.) The model never
+# writes the marker itself, so no permission classifier has to judge that write.
 # Always exit 0: this hook must never block a skill invocation.
 
 input=$(cat)
