@@ -67,6 +67,8 @@ typed_solo_bare='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/pr
 typed_solo_lookalike='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/proxy:solomon"}'
 typed_mention='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"please use /proxy:solo for this"}'
 typed_solo_multiline='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/proxy:solo\nfix the login bug"}'
+task_notice='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"<task-notification>\n<task-id>a1</task-id>\n<status>completed</status>\n</task-notification>"}'
+task_notice_mention='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"see <task-notification> above"}'
 typed_solo_in_plan='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:solo take over"}'
 
 run "$arm_cmd" "$skill_solo";        assert_eq "arm: proxy:solo -> marker created, silent" "present//0" "$(state)/$out/$rc"
@@ -115,6 +117,9 @@ run "$prompt_cmd" "$typed_mention";        assert_eq "prompt: prose mentioning /
 run "$prompt_cmd" "$typed_solo_multiline"; assert_eq "prompt: typed '/proxy:solo' + newline -> arms" "present//0" "$(state)/$out/$rc"
 rm -f "$marker"
 run "$prompt_cmd" "$typed_solo_in_plan";   assert_eq "prompt: typed '/proxy:solo' while in plan mode -> arms" "present//0" "$(state)/$out/$rc"
+touch "$marker"
+run "$prompt_cmd" "$task_notice";          assert_eq "prompt: background task notification -> kept, silent" "present//0" "$(state)/$out/$rc"
+run "$prompt_cmd" "$task_notice_mention";  assert_eq "prompt: prose mentioning <task-notification> -> clears" "removed//0" "$(state)/$out/$rc"
 
 assert_eq "hooks.json: PreToolUse matcher is Skill" "Skill" "$arm_matcher"
 assert_eq "hooks.json: PermissionRequest matcher is ExitPlanMode" "ExitPlanMode" "$approve_matcher"

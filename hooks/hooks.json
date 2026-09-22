@@ -1,5 +1,5 @@
 {
-  "description": "solo: arm the session marker when proxy:solo is invoked (typed slash command or Skill tool), auto-approve ExitPlanMode while it exists, disarm on any other prompt outside plan mode or when proxy:pair is invoked.",
+  "description": "solo: arm the session marker when proxy:solo is invoked (typed slash command or Skill tool), auto-approve ExitPlanMode while it exists, disarm on any other prompt outside plan mode (background task notifications excepted) or when proxy:pair is invoked.",
   "hooks": {
     "PreToolUse": [
       {
