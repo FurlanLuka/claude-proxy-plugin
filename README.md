@@ -103,6 +103,10 @@ This is not the same as `pair` with "you decide": that skips the questions but s
 
 Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if you want findings acted on.
 
+### `/proxy:typescript-style`
+
+How TypeScript and React get written, distilled from the Decentrl codebase: blank lines that separate decisions, names that say what they return (`checkX`, `planX`, `xOf`), terse comments that give the reason, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, and `situation → outcome` test names. It triggers on its own whenever code is written or reviewed in a TypeScript repo, and defers to a repo's existing formatter and conventions. References for React, tests, commits and one worked example sit under `skills/typescript-style/references/`.
+
 ## Directory layout
 
 ```plaintext
@@ -116,6 +120,7 @@ proxy/
 │   ├── pair/                default build entry point — plan live, implement live, on approval
 │   ├── solo/                pair with overrides — no questions, no approval clicks, bounces to pair if scope grows
 │   ├── review/              audits an existing codebase against all references — report only
+│   ├── typescript-style/    how TS and React get written: rhythm, naming, comments, errors, logs, tests
 │   ├── qa-plan/             plan QA live, execute live, on approval
 │   ├── plan-walkthrough/    visual before/after page for a plan, published before approval
 │   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
