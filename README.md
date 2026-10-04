@@ -105,7 +105,7 @@ Different shape entirely — audits an *existing* codebase against all reference
 
 ### `/proxy:typescript-style`
 
-How TypeScript and React get written, distilled from the Decentrl codebase: blank lines that separate decisions, names that say what they return (`checkX`, `planX`, `xOf`), terse comments that give the reason, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, and `situation → outcome` test names. It triggers on its own whenever code is written or reviewed in a TypeScript repo, and defers to a repo's existing formatter and conventions. References for React, tests, commits and one worked example sit under `skills/typescript-style/references/`.
+How TypeScript and React get written, distilled from the Decentrl codebase: blank lines that separate decisions, names that say what they return (`checkX`, `planX`, `xOf`), terse comments that give the reason, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, and `situation → outcome` test names. It triggers on its own whenever code is written or reviewed in a TypeScript repo, and defers to a repo's existing formatter and conventions. References for React, tests, commits and one worked example sit under `skills/typescript-style/references/`. For TypeScript and React code, `pair` follows it while implementing, `review` audits against it, and the clean-code and test advisors shape their plans with it.
 
 ## Directory layout
 

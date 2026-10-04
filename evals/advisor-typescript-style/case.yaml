@@ -1,0 +1,42 @@
+schema_version: "1.1"
+name: advisor-typescript-style
+description: A delegated clean-code advisor reviewing TypeScript loads typescript-style and plans in its shapes.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code-architect to plan a cleanup of this TypeScript
+    service method. No other files are supplied and the project has no
+    established style guide of its own:
+    `async function joinTeam(teamId: string, userId: string, code: string, now: Date) {
+    const invite = await db.invite.find(code); const count = await db.member.count(teamId);
+    if (!invite || invite.teamId !== teamId || now.getTime() - invite.createdAt.getTime() > 604800000) throw new Error('bad invite');
+    if (count >= 50) throw new Error('full'); await db.member.create(teamId, userId); }`.
+    Obtain the advisor's extraction plan.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code-architect"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: typescript-style-read
+    type: tool_used
+    tool: Read
+    input_match: 'skills/typescript-style/SKILL\.md'
+  - name: plan-in-house-style
+    type: llm
+    criteria: >-
+      PASS only if the extraction plan pulls the invite and capacity decisions
+      into a pure function that takes pre-resolved facts and returns an error
+      code or undefined (or a discriminated result) instead of throwing, names
+      it with a check/plan/is-style verb, uses a named params object for three
+      or more inputs, and replaces the magic numbers with named constants that
+      carry their unit. FAIL if the plan keeps the decisions inside the IO
+      method, keeps throwing for expected refusals without justification,
+      claims to have edited files or run tests, or ignores TypeScript style
+      entirely.

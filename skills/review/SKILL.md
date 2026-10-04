@@ -11,6 +11,8 @@ Runs in the main session, live — not a workflow. There's nothing being built a
 
 Read every `.md` file in `${CLAUDE_PLUGIN_ROOT}/references/`. Discover the current files rather than relying on a fixed list. Apply each standard to the parts of the project it governs; loading walkthrough or data-analysis guidance does not require creating artifacts or running data queries for an unrelated audit.
 
+When the code is TypeScript, JavaScript or React, also read `${CLAUDE_PLUGIN_ROOT}/skills/typescript-style/SKILL.md` and its references, pass them to `proxy:clean-code-architect` and `proxy:test-architect`, and report style conformance as its own area. Where the project has an established convention of its own, report drift from that instead.
+
 ## Scope
 
 If what to review isn't already clear from the request (whole project vs. a specific directory/feature), ask ONE question — same rule as everywhere else in this plugin. Otherwise proceed directly.
