@@ -103,6 +103,10 @@ This is not the same as `pair` with "you decide": that skips the questions but s
 
 Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if you want findings acted on.
 
+### `/proxy:review-pr`
+
+Reviews someone else's GitHub PR against its actual target branch. Combines `proxy:review`'s four advisors with a local correctness review, verifies findings against the captured commits, and presents a concise main review plus inline comments in chat. Posting requires an explicit go-ahead; if the PR head or target changes, it refreshes the review and returns for approval. See [PR review prerequisites](docs/prerequisites.md#pr-review).
+
 ### `/proxy:typescript-style`
 
 How TypeScript and React get written, distilled from the Decentrl codebase: blank lines that separate decisions, names that say what they return (`checkX`, `planX`, `xOf`), terse comments that give the reason, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, and `situation → outcome` test names. It triggers on its own whenever code is written or reviewed in a TypeScript repo, and defers to a repo's existing formatter and conventions. References for React, tests, commits and one worked example sit under `skills/typescript-style/references/`. For TypeScript and React code, `pair` follows it while implementing, `review` audits against it, and the clean-code and test advisors shape their plans with it.
@@ -120,6 +124,7 @@ proxy/
 │   ├── pair/                default build entry point — plan live, implement live, on approval
 │   ├── solo/                pair with overrides — no questions, no approval clicks, bounces to pair if scope grows
 │   ├── review/              audits an existing codebase against all references — report only
+│   ├── review-pr/           reviews another author's GitHub PR — draft locally, post on approval
 │   ├── typescript-style/    how TS and React get written: rhythm, naming, comments, errors, logs, tests
 │   ├── qa-plan/             plan QA live, execute live, on approval
 │   ├── plan-walkthrough/    visual before/after page for a plan, published before approval
@@ -151,6 +156,7 @@ proxy/
 - `pair` and `solo` write and test application code in the main session.
 - `qa-plan` exercises the implementation directly in the main session.
 - The walkthrough skills create and publish visual artifacts under their own prerequisite rules.
+- `review-pr` drafts PR reviews in the main session and posts only the approved draft; its advisors remain read-only.
 
 ## Hooks
 

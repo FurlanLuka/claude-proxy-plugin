@@ -14,6 +14,17 @@ Follow `pair`'s infra-gap procedure, including explicit user overrides, for miss
 
 `proxy:solo` has the same requirements plus `jq` or `python3` on the machine. Its approvals are answered by the plugin's hooks rather than by the user (invoking the skill arms a per-session marker; `ExitPlanMode` is approved while it exists), but the plan-mode tools must still exist and the hooks must be loaded; when they are not, the normal approval dialog appears and the run waits for it. A non-interactive session blocks `solo` exactly as it blocks `pair`.
 
+## PR review
+
+`proxy:review-pr` requires:
+
+- Git and a clone of the PR's repository in the cwd or a child of the current workspace, with network access to fetch its target branch and head. No checkout or clean working tree is required; review the captured commits rather than local files.
+- GitHub CLI (`gh`) authenticated to an account that can read the PR and repository. Posting also needs permission to submit reviews/comments; read access alone is enough to prepare a draft.
+- The plugin's four advisors and Claude Code's bundled `code-review` skill available through the Skill tool. Use a local review without `--fix`, `--comment` or `--post`; see [local code review](https://code.claude.com/docs/en/code-review#review-a-diff-locally).
+- Existing Python or another JSON-capable runtime to build a posting payload safely. This is needed for posting, not for gathering or drafting.
+
+If a gathering or review capability is unavailable, report it before claiming a complete review. Missing posting access does not block a local draft. Do not install tools, change permissions or substitute a cloud/posting review automatically. An explicit user go-ahead is required before any GitHub write, including creating a pending review or a standalone file-level comment.
+
 ## Plan walkthrough
 
 Check artifact prerequisites only when the structural gate requires a walkthrough or the user requests one directly.
