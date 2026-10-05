@@ -1,5 +1,5 @@
 ---
-name: review-pr
+name: pr-review
 description: Review someone else's GitHub pull request using proxy's advisors and a correctness review. Verify findings, present a concise main review and inline comments locally, and post only after explicit approval. Use when asked to review a PR, prepare a review for a PR link, or draft comments on a teammate's PR. Not for reviewing your own branch or diff (use /code-review) or for opening a PR.
 ---
 
