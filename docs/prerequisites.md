@@ -18,7 +18,7 @@ Follow `pair`'s infra-gap procedure, including explicit user overrides, for miss
 
 `proxy:review-pr` requires:
 
-- Git and a clone of the PR's repository in the cwd or a child of the current workspace, with network access to fetch its target branch and head. No checkout or clean working tree is required; review the captured commits rather than local files.
+- Git and an existing local clone of the PR's repository, either in the current directory or a child directory, with network access to fetch its target branch and head. Review the captured commits without changing the current branch, worktrees or uncommitted files; Git objects/fetch metadata and scratch files may be written locally.
 - GitHub CLI (`gh`) authenticated to an account that can read the PR and repository. Posting also needs permission to submit reviews/comments; read access alone is enough to prepare a draft.
 - The plugin's four advisors and Claude Code's bundled `code-review` skill available through the Skill tool. Use a local review without `--fix`, `--comment` or `--post`; see [local code review](https://code.claude.com/docs/en/code-review#review-a-diff-locally).
 - Existing Python or another JSON-capable runtime to build a posting payload safely. This is needed for posting, not for gathering or drafting.
