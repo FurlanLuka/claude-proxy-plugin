@@ -30,7 +30,7 @@ Skip `pair`'s clarification procedure entirely. Resolve forks yourself:
 - Technical forks: take the option you would have recommended.
 - Product forks, including ones that change what the feature is or who it is for: decide using `philosophy.md` and `product-principles.md`, and take the reading closest to the request.
 - Anything the references already have a default for: use it.
-- Infra gaps from `pair`'s gap check: close them yourself. The infra stays its own plan-mode pass and its own PR, done first; then plan the feature on top of it.
+- Infra gaps from `pair`'s gap check: close repo-local ones yourself — test framework, logging setup, CI or deploy config committed to the repo. The infra stays its own plan-mode pass and its own PR, done first; then plan the feature on top of it. Session tooling and access are not infra gaps: installing tools on the machine, changing permissions, or adding hosting or external credentials still follow `docs/prerequisites.md` and need the user. Report them as a blocker under Implementation below.
 
 Keep a running **Decisions made** list — one line each, with the reason. Mark the big ones (new module or API surface, schema migration, auth/billing/permissions, destructive data operations, product forks) so they stand out. It leads the final report.
 

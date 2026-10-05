@@ -1,6 +1,6 @@
 # proxy
 
-Personal Claude Code plugin. Turns a product spec into a shipped, tested feature — everything runs in this conversation, with you. `pair` has you approve twice, live — once on the build plan, once on the QA plan. `solo` runs the same loop for bug fixes and small features and makes the calls itself.
+Personal Claude Code plugin. Turns a product spec into a shipped, tested feature — everything runs in this conversation, with you. `pair` has you approve twice, live — once on the build plan, once on the QA plan. `solo` runs the same loop for work of any size and makes the calls itself.
 
 There is no background/headless mode. Earlier versions of this plugin used Claude Code Workflows to run implementation and QA headless in the background — that was dropped deliberately after real testing surfaced enough fragility (undefined args, wrong tool grants, wrong hooks schema, redundant review phases) that a simpler, fully live design won out. `pair` covers building; `qa-plan` covers testing; `solo` is autonomous but still runs in the same live session, same loop, and you can interrupt it to steer at any point.
 
