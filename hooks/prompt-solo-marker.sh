@@ -2,7 +2,7 @@
 # UserPromptSubmit owns the typed path. A typed /proxy:solo never reaches the Skill
 # tool (the command expands straight into the prompt), so that prompt arms the
 # marker. Any other prompt outside plan mode ends the auto-approval window. A prompt
-# inside plan mode is the user steering the plan solo is writing, so the marker stays.
+# inside plan mode keeps the marker, except a typed /proxy:pair handoff disarms it.
 # A background agent or workflow reporting back also fires UserPromptSubmit, with the
 # report as the prompt. That is not the user speaking, so it leaves the marker alone.
 # Always exit 0: a non-zero UserPromptSubmit hook would block the prompt.
@@ -16,6 +16,7 @@ case "$sid" in ''|*[!A-Za-z0-9-]*) exit 0 ;; esac
 case "$(field prompt)" in
   "<task-notification>"*) exit 0 ;;
   /proxy:solo|"/proxy:solo "*|"/proxy:solo\\n"*|"/proxy:solo\\t"*) touch "/tmp/claude-proxy-solo-$sid"; exit 0 ;;
+  /proxy:pair|"/proxy:pair "*|"/proxy:pair\\n"*|"/proxy:pair\\t"*) rm -f "/tmp/claude-proxy-solo-$sid"; exit 0 ;;
 esac
 [ "$(field permission_mode)" = "plan" ] && exit 0
 rm -f "/tmp/claude-proxy-solo-$sid"
