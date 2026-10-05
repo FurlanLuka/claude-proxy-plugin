@@ -97,7 +97,7 @@ you write a spec
 
 Same pipeline as `pair`, minus every stop. No clarification questions, no plan approval click, no QA approval click — the agent decides, logs each decision, and the final report leads with that list. Plan mode is still real (read-only exploration, plan file); the approval is answered by a plugin hook instead of you. Interrupt anytime to steer; it takes the redirect and keeps going.
 
-This is not the same as `pair` with "you decide": that skips the questions but still stops for both approvals. `solo` stops for none, and bounces to `pair` the moment scope grows — new module, new API surface, new data shape, cross-repo, infra gap, schema migration, auth/billing/permissions code, destructive data ops, or a product fork that changes what the thing is or who it's for.
+This is not the same as `pair` with "you decide": that skips the questions but still stops for both approvals. `solo` stops for none, whatever the scope — new modules, schema migrations, infra gaps and product forks included. It makes those calls itself and flags the big ones at the top of the final report.
 
 ### `/proxy:review`
 
@@ -118,7 +118,7 @@ proxy/
 ├── skills/
 │   ├── brainstorm/          bounce ideas, high level, no planning — react and push back, nothing written
 │   ├── pair/                default build entry point — plan live, implement live, on approval
-│   ├── solo/                pair with overrides — no questions, no approval clicks, bounces to pair if scope grows
+│   ├── solo/                pair with overrides — no questions, no approval clicks, decides everything itself
 │   ├── review/              audits an existing codebase against all references — report only
 │   ├── typescript-style/    how TS and React get written: rhythm, naming, comments, errors, logs, tests
 │   ├── qa-plan/             plan QA live, execute live, on approval
