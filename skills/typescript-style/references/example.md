@@ -3,19 +3,24 @@
 A server command that redeems a team invite. Three files: the pure rules, the thin service, the
 tests. Read it for the rhythm as much as the content.
 
-The service uses Prisma ORM 7 and PostgreSQL, with a unique invite code and a unique
-`(teamId, userId)` membership. All operations that change a team's membership or invite
-eligibility must lock the same team row before reading those facts, keeping the lock through
-commit. Adapt the table names and locking mechanism to the target project's schema and
-established concurrency controls. A transaction around writes alone does not protect prior
-eligibility reads. See [Prisma transactions](https://www.prisma.io/docs/orm/v7/prisma-client/queries/transactions)
-and [PostgreSQL row locks](https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-ROWS).
+## Example assumptions
 
-The service imports the application's shared logger. Its API is `(message, fields)` and its
-request-scoped infrastructure attaches request correlation automatically. `TeamContext` carries
-only domain inputs; do not add logger or request-ID parameters when the existing logging
-infrastructure already provides them. Match the target project's logger module, signature and
-context propagation rather than creating a new logging convention.
+This example uses Prisma and PostgreSQL, with a unique invite code and a unique
+`(teamId, userId)` membership. Its concurrency guarantee depends on every operation that changes
+a team's membership or invite eligibility acquiring the same team-row lock before reading
+those facts and holding it through commit, with the shown `ReadCommitted` isolation level.
+These are assumptions of this implementation, not required database or ORM choices.
+
+When adapting the example, protect eligibility checks and related writes under concurrent
+calls using the target project's schema and established concurrency controls. A transaction
+around writes alone does not protect prior eligibility reads. Adapt ORM imports and transaction
+APIs to the installed version. Consult matching [Prisma documentation](https://www.prisma.io/docs)
+and [PostgreSQL row-lock documentation](https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-ROWS).
+
+The logger import path, `(message, fields)` API and automatic request correlation below are
+also example assumptions. Match the target project's logger module, signature and context
+propagation. `TeamContext` carries only domain inputs here because the shared logger already
+provides correlation; preserve explicit context or logger injection where the project uses it.
 
 ## `invite-rules.ts`
 
@@ -176,9 +181,10 @@ describe('isInviteLapsed', () => {
 
 ## Service regression checks
 
-Run these against a disposable PostgreSQL database using the target project's real service and
-schema, with separate connections so the transactions actually contend. Keep the pure rule
-tests above; they cannot verify locking or rollback.
+For the implementation shown above, run these against a disposable PostgreSQL database. For
+an adapted implementation, use the target project's database, real service and schema, with
+separate connections so the transactions actually contend. Keep the pure rule tests above;
+they cannot verify concurrency protection or rollback.
 
 - Two users redeem the same live invite concurrently: exactly one succeeds, one receives
   `NO_INVITE`, one membership is created, and the invite is spent once.
