@@ -1,15 +1,15 @@
 ---
 name: typescript-style
-description: Luka's house style for TypeScript and React, distilled from the Decentrl codebase - blank-line rhythm, naming, terse "why" comments, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, arrow-named tests. Use it whenever you write, edit, refactor or review TypeScript, JavaScript or React code, add a service, hook, component, schema, reducer or test, or write a commit message in a TS repo, even if the user never mentions style. Also use when the user asks for code that "reads like Decentrl", "matches our style" or "looks clean".
+description: TypeScript and React style conventions, distilled from the Decentrl codebase - blank-line rhythm, naming, terse "why" comments, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, arrow-named tests. Use it whenever you write, edit, refactor or review TypeScript, JavaScript or React code, add a service, hook, component, schema, reducer or test, or write a commit message in a TS repo, even if the user never mentions style. Also use when the user asks for code that "reads like Decentrl", "matches our style" or "looks clean".
 ---
 
 # TypeScript style
 
 Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
 
-Distilled from the Decentrl codebase. Code that reads like a careful spec: short declarative
-sentences, one idea per block, nothing that doesn't earn its place. Every rule below exists so a
-reader can skim top to bottom and know what each block decides and why.
+Write code that reads like a careful spec: short declarative sentences, one idea per block,
+and nothing that doesn't earn its place. Make each block's decision and reason clear when
+reading top to bottom. These conventions are distilled from the Decentrl codebase.
 
 **Match the repo you're in first.** If the project already has a formatter, lint rules or a clear
 house pattern, follow it; apply this style where the repo has no opinion. Formatting itself
