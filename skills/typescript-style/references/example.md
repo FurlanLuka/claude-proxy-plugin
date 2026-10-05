@@ -11,6 +11,12 @@ established concurrency controls. A transaction around writes alone does not pro
 eligibility reads. See [Prisma transactions](https://www.prisma.io/docs/orm/v7/prisma-client/queries/transactions)
 and [PostgreSQL row locks](https://www.postgresql.org/docs/17/explicit-locking.html#LOCKING-ROWS).
 
+The service imports the application's shared logger. Its API is `(message, fields)` and its
+request-scoped infrastructure attaches request correlation automatically. `TeamContext` carries
+only domain inputs; do not add logger or request-ID parameters when the existing logging
+infrastructure already provides them. Match the target project's logger module, signature and
+context propagation rather than creating a new logging convention.
+
 ## `invite-rules.ts`
 
 ```ts
@@ -60,6 +66,7 @@ export const checkRedeem = ({
 
 ```ts
 import { Prisma } from '@prisma/client';
+import { logger } from '@/helpers/logger.js';
 import type {
 	RedeemInvitePayload,
 	RedeemInviteResponse,
@@ -102,12 +109,12 @@ export const redeemInvite = async (
 	}, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
 
 	if (result.type === 'ERROR') {
-		console.info(`[Teams] Invite ${payload.code} in ${team.id} by ${senderId} refused: ${result.code}`);
+		logger.info('[Teams] Invite redemption refused', { teamId: team.id, senderId, code: result.code });
 
 		return result;
 	}
 
-	console.log(`[Teams] ${senderId} joined ${team.id} with invite ${payload.code}`);
+	logger.info('[Teams] Member joined', { teamId: team.id, senderId });
 
 	return result;
 };
@@ -163,7 +170,10 @@ describe('isInviteLapsed', () => {
 - Declarations run together; each decision gets its own block; a blank line before every
   `return`.
 - Comments explain caller-visible constraints and why the lock is necessary.
-- The log lines alone tell the story: who, where, what happened, and why it was refused.
+- The log message and structured fields tell the story: who, where, what happened, why it was
+  refused, and which request caused it. The shared logger attaches request correlation from the
+  active context; service parameters remain domain inputs. Invite codes are credentials, so
+  they stay out of logs.
 
 ## Service regression checks
 

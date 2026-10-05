@@ -49,7 +49,11 @@ export function MembersPage() {
   `useAction` hook once two components repeat it.
 - User actions go through a logging wrapper with a dotted action name:
   `logged('group.remove', { groupDid, did }, () => client.groups.remove(groupDid, did))`.
-- Quiet failures: `console.warn('[App] <lowercase gerund phrase> failed', { ...ids, error })`.
+- Quiet failures use the project's structured logger with action/request correlation:
+  `logger.warn('[App] Removing member failed', { ...ids, error: serializeError(error) })`.
+  Use the project's redacted serializer and existing logger/context as described in `SKILL.md`.
+  Preserve the application's action/request-ID propagation through the API call so client and
+  server logs describe the same action; do not assume browser code has server async context.
 - Hooks are `useX`, wrap callbacks in `useCallback` with complete deps, and expose state as
   booleans: `isPending`, `isSuccess`, `isError`.
 
