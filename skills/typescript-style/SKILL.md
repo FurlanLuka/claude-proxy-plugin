@@ -159,12 +159,16 @@ export const checkApproval = ({
 
 - **Pure rules beside thin services.** Decisions live in pure, synchronous, IO-free functions in a
   `*-rules.ts` (or sibling) module. The service gathers facts, often booleans like `hasRequest` and
-  `isMember`, passes them in, and acts on the answer. A service reads top to bottom:
+  `isMember`, passes them in, and acts on the answer. For mutations, use the project's
+  established concurrency controls to keep eligibility checks valid when the writes execute.
+  When this relies on a transaction or lock, protect eligibility reads as well as writes;
+  starting a writes-only transaction after those reads is insufficient. Keep that orchestration
+  in the service and decision helpers pure. A service reads top to bottom:
   1. fetch, with `Promise.all` for independent reads;
   2. call the rule;
   3. on a refusal, log it and return the code;
   4. write atomically (one transaction);
-  5. log the success;
+  5. after commit, log the success;
   6. return the result.
 - Results that branch are discriminated unions: `{ status: 'ok'; view } | { status:
   'rejected'; reason }`. Wire responses use `type: 'SUCCESS' | 'ERROR'`.
