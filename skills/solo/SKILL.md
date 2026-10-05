@@ -1,6 +1,6 @@
 ---
 name: solo
-description: Autonomous variant of `pair` — same loop, but the agent makes every call itself. No clarification questions, no plan approval click, no QA approval click; the user can interrupt anytime to steer. For bug fixes and small features. Use on "just fix it", "bug fix, don't ask", "you decide and run it", "solo this". Not `pair` + "you decide" — that skips questions but still stops for two approvals; solo stops for none and bounces to `pair` if scope grows.
+description: Autonomous variant of `pair` — same loop, but the agent makes every call itself. No clarification questions, no plan approval click, no QA approval click; the user can interrupt anytime to steer. Any size of work. Use on "just fix it", "bug fix, don't ask", "you decide and run it", "solo this". Not `pair` + "you decide" — that skips questions but still stops for two approvals; solo stops for none, whatever the scope.
 ---
 
 Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
@@ -9,7 +9,7 @@ Read `${CLAUDE_PLUGIN_ROOT}/skills/pair/SKILL.md` and follow it end to end, incl
 
 Open with one line so the user knows what they are watching:
 
-> solo: no questions, plan mode auto-approves, bounces to pair if scope grows. Interrupt anytime to steer.
+> solo: no questions, plan mode auto-approves, every decision is mine. Interrupt anytime to steer.
 
 ## How the approval click disappears
 
@@ -23,35 +23,24 @@ Never create, touch, or remove that file yourself — the permission classifier 
 
 Plan mode itself: `EnterPlanMode`, write the plan file, `ExitPlanMode` immediately — no narration, the plan file is the record. Same for `qa-plan`'s plan mode. If the dialog appears anyway (plugin not reloaded since install, older Claude Code, neither `jq` nor `python3` available), that is the safe direction — proceed when the user approves. Never work around it. Without an interactive session and the plan-mode tools, solo is blocked exactly like `pair`; report it per `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md`.
 
-## Scope gate — whenever it trips
-
-Stop and hand off to `pair` the moment any of these shows up, before drafting *or* mid-implementation:
-
-- new module, new API surface, new data shape
-- spans more than one repo
-- infra gap (no test framework, no logging setup, no deploy pipeline — `pair`'s gap check)
-- schema migration, auth/billing/permissions code, destructive data operations
-- a product fork that changes what the feature *is* or who it is *for*, with no obvious answer in the spec
-
-Before implementation: one message — what was found, why it is pair territory. Mid-implementation: stop, leave the working tree as it is (do not revert silently), say what is partial. Either way, end with: "run `/proxy:pair`, context is already loaded." Never ask, never keep building.
-
 ## No clarification phase
 
 Skip `pair`'s clarification procedure entirely. Resolve forks yourself:
 
 - Technical forks: take the option you would have recommended.
-- Product forks smaller than the gate above: decide using `philosophy.md` and `product-principles.md`.
+- Product forks, including ones that change what the feature is or who it is for: decide using `philosophy.md` and `product-principles.md`, and take the reading closest to the request.
 - Anything the references already have a default for: use it.
+- Infra gaps from `pair`'s gap check: close repo-local ones yourself — test framework, logging setup, CI or deploy config committed to the repo. The infra stays its own plan-mode pass and its own PR, done first; then plan the feature on top of it. Session tooling and access are not infra gaps: installing tools on the machine, changing permissions, or adding hosting or external credentials still follow `docs/prerequisites.md` and need the user. Report them as a blocker under Implementation below.
 
-Keep a running **Decisions made** list — one line each, with the reason. It leads the final report.
+Keep a running **Decisions made** list — one line each, with the reason. Mark the big ones (new module or API surface, schema migration, auth/billing/permissions, destructive data operations, product forks) so they stand out. It leads the final report.
 
 ## Self-review
 
-Same specialists as `pair`. If one surfaces a genuine decision, apply the rules above — decide it or bounce — never route it back to the user.
+Same specialists as `pair`. If one surfaces a genuine decision, apply the rules above and decide it — never route it back to the user.
 
 ## Visual pass
 
-Skip `plan-walkthrough`. Anything structural enough to draw bounces anyway.
+Skip `plan-walkthrough`. Nobody is waiting to approve the plan, so the page has no reader; the plan file is the record.
 
 ## Steering
 
@@ -63,14 +52,14 @@ The user may interrupt with a redirect at any point. Take it, adjust in place, c
 
 ## Implementation
 
-As `pair`, with zero questions. There is no "one question for a genuinely big blocker" exception — a hard blocker is a scope-gate stop.
+As `pair`, with zero questions. There is no "one question for a genuinely big blocker" exception — make the call, log it, keep building. Only something you cannot do at all (missing credentials, a service you cannot reach) stops the run: leave the working tree as it is, and say what is partial and what is needed.
 
 ## QA
 
 Invoke `proxy:qa-plan` as `pair` does. Two overrides for `qa-plan` itself:
 
 - No questions at all, including its "genuinely big blocker" clause.
-- Missing QA tooling does not trip the scope gate — the build is done. It goes under **Couldn't verify**; it never stops the run.
+- Missing QA tooling never stops the run — the build is done. It goes under **Couldn't verify**; it never stops the run.
 
 ## Final report — one message
 
