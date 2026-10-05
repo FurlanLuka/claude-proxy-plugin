@@ -1,15 +1,15 @@
 ---
 name: typescript-style
-description: Luka's house style for TypeScript and React, distilled from the Decentrl codebase - blank-line rhythm, naming, terse "why" comments, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, arrow-named tests. Use it whenever you write, edit, refactor or review TypeScript, JavaScript or React code, add a service, hook, component, schema, reducer or test, or write a commit message in a TS repo, even if the user never mentions style. Also use when the user asks for code that "reads like Decentrl", "matches our style" or "looks clean".
+description: TypeScript and React style conventions, distilled from the Decentrl codebase - blank-line rhythm, naming, terse "why" comments, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, arrow-named tests. Use it whenever you write, edit, refactor or review TypeScript, JavaScript or React code, add a service, hook, component, schema, reducer or test, or write a commit message in a TS repo, even if the user never mentions style. Also use when the user asks for code that "reads like Decentrl", "matches our style" or "looks clean".
 ---
 
 # TypeScript style
 
 Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
 
-Distilled from the Decentrl codebase. Code that reads like a careful spec: short declarative
-sentences, one idea per block, nothing that doesn't earn its place. Every rule below exists so a
-reader can skim top to bottom and know what each block decides and why.
+Write code that reads like a careful spec: short declarative sentences, one idea per block,
+and nothing that doesn't earn its place. Make each block's decision and reason clear when
+reading top to bottom. These conventions are distilled from the Decentrl codebase.
 
 **Match the repo you're in first.** If the project already has a formatter, lint rules or a clear
 house pattern, follow it; apply this style where the repo has no opinion. Formatting itself
@@ -41,13 +41,13 @@ const joinedAfterSeq = await lastGroupSeq(group.did);
 const code = checkApproval({ hasRequest, isMember, memberCount, maxMembers });
 
 if (code) {
-	console.info(`[Mediator] Approval of ${requesterDid} in ${group.did} refused: ${code}`);
+	logger.info('[Mediator] Approval refused', { requesterDid, groupDid: group.did, code });
 
 	return { type: 'ERROR', code };
 }
 
 await prisma.$transaction([...memberOps, ...parcelOps]);
-console.log(`[Mediator] ${requesterDid} approved into ${group.did} by ${senderDid}`);
+logger.info('[Mediator] Member approved', { requesterDid, groupDid: group.did, senderDid });
 
 return { type: 'SUCCESS' };
 ```
@@ -91,15 +91,18 @@ Names say what a thing decides or returns, so call sites read as sentences.
 Comments are the code's second voice. They state an invariant, a reason or a consequence, never
 what the next line obviously does.
 
-- JSDoc on every exported function, public method, component and hook: one or two declarative
-  sentences. Often a noun phrase, a colon, then the detail. Never "This function…".
+- Add JSDoc to exported functions, public methods, components and hooks when callers need a
+  contract, business rule, external constraint or gotcha that the name and types cannot express.
+  Omit it when it would only restate the code. Use one or two declarative sentences, often a
+  noun phrase, a colon, then the detail. Never "This function…".
 - `//` comments sit directly above the line they justify.
 - Plain and terse: colons and semicolons, no "we", no "should", no TODOs, no commented-out code.
 - Identifiers in backticks.
 - Full JSDoc sentences end with a period. One-line field docs and `//` comments don't.
 - When a rule comes from a spec, RFC or ticket, cite it in parentheses: `(DCTRL-0006 §4.7)`.
-- A pure module opens with a short prose block after its imports: what it decides, and from which
-  spec section.
+- Add a short prose block after a pure module's imports only when a shared business rule or spec
+  constraint would otherwise be lost. Cite the relevant spec section when one exists; don't
+  add a block merely to describe the module's implementation.
 - No banner comments. In long classes, `// --- Helpers ---` style dividers separate public steps
   from private helpers; nothing else.
 
@@ -156,12 +159,16 @@ export const checkApproval = ({
 
 - **Pure rules beside thin services.** Decisions live in pure, synchronous, IO-free functions in a
   `*-rules.ts` (or sibling) module. The service gathers facts, often booleans like `hasRequest` and
-  `isMember`, passes them in, and acts on the answer. A service reads top to bottom:
+  `isMember`, passes them in, and acts on the answer. For mutations, use the project's
+  established concurrency controls to keep eligibility checks valid when the writes execute.
+  When this relies on a transaction or lock, protect eligibility reads as well as writes;
+  starting a writes-only transaction after those reads is insufficient. Keep that orchestration
+  in the service and decision helpers pure. A service reads top to bottom:
   1. fetch, with `Promise.all` for independent reads;
   2. call the rule;
   3. on a refusal, log it and return the code;
   4. write atomically (one transaction);
-  5. log the success;
+  5. after commit, log the success;
   6. return the result.
 - Results that branch are discriminated unions: `{ status: 'ok'; view } | { status:
   'rejected'; reason }`. Wire responses use `type: 'SUCCESS' | 'ERROR'`.
@@ -195,25 +202,42 @@ throw new DecentrlSDKError(`${did} is not a member`, 'GROUP_REFUSED', { did });
 - The message is a short sentence fragment. When wrapping an IO failure, keep the original in
   details: `{ eventId, error }`.
 - `try`/`catch` only around IO, and only where you can handle or translate the failure. Never
-  swallow: a fire-and-forget call is `void promise.catch((error) => console.warn(...))`.
+  swallow: a fire-and-forget call reports the error through the structured logger, for example
+  `void promise.catch((error) => logger.warn('Optional cleanup failed', { error: serializeError(error) }))`.
 
 ## 6. Logging
 
-Log lines are full plain-English sentences that name the entities involved, so a log alone tells
-the story.
+Follow `${CLAUDE_PLUGIN_ROOT}/references/architecture-principles.md`'s logging contract:
+structured fields, centralized collection, and a request ID propagated across client, server
+and external calls. Use the project's existing logger and transport. Where neither exists,
+establish that baseline before shipping; plain `console.*` strings are not a substitute.
 
-- A bracketed component prefix: `[Mediator]`, `[EventStore]`, `[Decentrl]`, `[Communities]`.
-- Template literals naming the ids, then `: <code or detail>`.
-- `console.log` for a state change that happened, `console.info` for a refusal or a duplicate,
-  `console.warn` for something dropped or failed, with the error as a second argument.
-- Fixed verbs: "refused", "dropped", "Duplicate … : seq N", "under v3".
-- Counters and summaries as `JSON.stringify(counts)`.
+Inspect the logger implementation and representative call sites before using it. Import the
+shared application logger when that is the repo's pattern; do not add an injected logger or
+request-ID parameter to domain functions merely to satisfy these examples. Reuse the existing
+request-scoped context or child logger for correlation. Carry and restore context explicitly
+where an actual boundary, such as a queued job, loses it; do not assume every runtime has an
+active HTTP request. Preserve injection when the project already uses it.
+
+Messages are short plain-English sentences; entity ids, refusal codes, counters and errors are
+queryable fields. Keep the bracketed component voice (`[Mediator]`, `[EventStore]`) where it
+fits the project's log format. Use info for a committed state change, refusal or duplicate,
+and warn for something dropped or failed, following the project's severity conventions.
+Keep counters as numeric fields rather than embedding `JSON.stringify(counts)` in the message.
+
+The examples use an imported application logger with `(message, fields)` and automatic request
+correlation. Match the actual logger's import, argument order and context mechanism, preserving
+structured fields and correlation. Use the project's configured error field,
+serializer and redaction rules; `serializeError` below stands for that redacted serializer.
+Preserve useful error codes, type and safe cause details. Never dump raw transport errors,
+request configs, headers or bodies that may contain credentials, tokens, invite codes or
+customer content.
 
 ```ts
-console.info(`[Mediator] Approval of ${requesterDid} in ${group.did} by ${senderDid} refused: ${code}`);
-console.log(`[Mediator] Grant in ${group.did} for ${granteeDid} from seq ${fromSeq}`);
-console.warn(`[EventStore] Group event ${row.seq} in ${groupDid} dropped: ${verdict.reason}`);
-console.warn('[Communities] marking read failed', { groupDid, error });
+logger.info('[Mediator] Approval refused', { requesterDid, groupDid: group.did, senderDid, code });
+logger.info('[Mediator] Grant issued', { groupDid: group.did, granteeDid, fromSeq });
+logger.warn('[EventStore] Group event dropped', { seq: row.seq, groupDid, reason: verdict.reason });
+logger.warn('[Communities] Marking read failed', { groupDid, error: serializeError(error) });
 ```
 
 ## 7. Types, imports, exports

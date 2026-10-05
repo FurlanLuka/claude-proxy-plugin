@@ -40,8 +40,9 @@ const vet = (overrides: Partial<Parameters<typeof vetMembers>[0]> = {}) =>
   column is a readable label bound as `_name`. Keep one shared table when two implementations
   (reader and server) must agree on a rule.
 - Arrange and act, a blank line, then the `expect`s. A tiny test is a single `expect`.
-- A file-level `/** … */` says what the suite proves, citing the spec. `//` comments explain why a
-  case exists.
+- Add file-level `/** … */` only for a shared invariant or spec constraint that the test names
+  cannot express, citing the spec when relevant. `//` comments explain a non-obvious reason a
+  case exists; omit them when the inputs, assertions and name already explain it.
 
 ## What to test
 
@@ -65,6 +66,10 @@ const vet = (overrides: Partial<Parameters<typeof vetMembers>[0]> = {}) =>
 - Collapse a result into one comparable value in tables:
   `expect(result.status === 'ok' ? 'ok' : result.reason).toBe(expected)`.
 - Several `expect`s are fine when they show both sides of one rule.
-- Logs: spy, assert a substring, restore:
-  `const warn = vi.spyOn(console, 'warn'); … expect(warn).toHaveBeenCalledWith(expect.stringContaining('NOT_AN_EXTENSION')); warn.mockRestore();`
+- Logs: spy, assert decision fields, restore:
+  `const warn = vi.spyOn(logger, 'warn'); … expect(warn).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ code: 'NOT_AN_EXTENSION' })); warn.mockRestore();`
+  Follow the project's logger signature; assert decision fields rather than an exact prose
+  message. When the logger attaches request correlation automatically, verify it on emitted
+  records through the logging infrastructure's tests rather than requiring domain code to pass
+  the same request ID explicitly.
 - Narrow with an explicit guard (`if (!key) throw new Error('dave holds no key')`) rather than `!`.

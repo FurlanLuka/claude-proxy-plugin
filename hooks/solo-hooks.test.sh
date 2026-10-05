@@ -70,6 +70,12 @@ typed_solo_multiline='{"session_id":"'"$sid"'","permission_mode":"auto","prompt"
 task_notice='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"<task-notification>\n<task-id>a1</task-id>\n<status>completed</status>\n</task-notification>"}'
 task_notice_mention='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"see <task-notification> above"}'
 typed_solo_in_plan='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:solo take over"}'
+typed_pair_in_plan='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair take over"}'
+typed_pair_bare='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair"}'
+typed_pair_multiline='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair\nreview this plan"}'
+typed_pair_tab='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair\treview this plan"}'
+typed_pair_lookalike='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pairing"}'
+typed_pair_mention='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"please consider /proxy:pair later"}'
 
 run "$arm_cmd" "$skill_solo";        assert_eq "arm: proxy:solo -> marker created, silent" "present//0" "$(state)/$out/$rc"
 run "$arm_cmd" "$skill_other";       assert_eq "arm: proxy:qa-plan -> marker untouched" "present//0" "$(state)/$out/$rc"
@@ -117,6 +123,13 @@ run "$prompt_cmd" "$typed_mention";        assert_eq "prompt: prose mentioning /
 run "$prompt_cmd" "$typed_solo_multiline"; assert_eq "prompt: typed '/proxy:solo' + newline -> arms" "present//0" "$(state)/$out/$rc"
 rm -f "$marker"
 run "$prompt_cmd" "$typed_solo_in_plan";   assert_eq "prompt: typed '/proxy:solo' while in plan mode -> arms" "present//0" "$(state)/$out/$rc"
+run "$prompt_cmd" "$typed_pair_lookalike"; assert_eq "prompt: '/proxy:pairing' in plan mode -> keeps" "present//0" "$(state)/$out/$rc"
+run "$prompt_cmd" "$typed_pair_mention";   assert_eq "prompt: mentioning pair in plan mode -> keeps" "present//0" "$(state)/$out/$rc"
+for pair_prompt in "$typed_pair_in_plan" "$typed_pair_bare" "$typed_pair_multiline" "$typed_pair_tab"; do
+  touch "$marker"
+  run "$prompt_cmd" "$pair_prompt"; assert_eq "prompt: typed pair in plan mode -> disarms" "removed//0" "$(state)/$out/$rc"
+  run "$approve_cmd" "$compact";   assert_eq "approve: typed pair handoff -> normal dialog" "/0" "$out/$rc"
+done
 touch "$marker"
 run "$prompt_cmd" "$task_notice";          assert_eq "prompt: background task notification -> kept, silent" "present//0" "$(state)/$out/$rc"
 run "$prompt_cmd" "$task_notice_mention";  assert_eq "prompt: prose mentioning <task-notification> -> clears" "removed//0" "$(state)/$out/$rc"
