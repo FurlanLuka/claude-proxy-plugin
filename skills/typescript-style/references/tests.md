@@ -40,8 +40,9 @@ const vet = (overrides: Partial<Parameters<typeof vetMembers>[0]> = {}) =>
   column is a readable label bound as `_name`. Keep one shared table when two implementations
   (reader and server) must agree on a rule.
 - Arrange and act, a blank line, then the `expect`s. A tiny test is a single `expect`.
-- A file-level `/** … */` says what the suite proves, citing the spec. `//` comments explain why a
-  case exists.
+- Add file-level `/** … */` only for a shared invariant or spec constraint that the test names
+  cannot express, citing the spec when relevant. `//` comments explain a non-obvious reason a
+  case exists; omit them when the inputs, assertions and name already explain it.
 
 ## What to test
 

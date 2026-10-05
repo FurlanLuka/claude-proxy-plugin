@@ -91,15 +91,18 @@ Names say what a thing decides or returns, so call sites read as sentences.
 Comments are the code's second voice. They state an invariant, a reason or a consequence, never
 what the next line obviously does.
 
-- JSDoc on every exported function, public method, component and hook: one or two declarative
-  sentences. Often a noun phrase, a colon, then the detail. Never "This function…".
+- Add JSDoc to exported functions, public methods, components and hooks when callers need a
+  contract, business rule, external constraint or gotcha that the name and types cannot express.
+  Omit it when it would only restate the code. Use one or two declarative sentences, often a
+  noun phrase, a colon, then the detail. Never "This function…".
 - `//` comments sit directly above the line they justify.
 - Plain and terse: colons and semicolons, no "we", no "should", no TODOs, no commented-out code.
 - Identifiers in backticks.
 - Full JSDoc sentences end with a period. One-line field docs and `//` comments don't.
 - When a rule comes from a spec, RFC or ticket, cite it in parentheses: `(DCTRL-0006 §4.7)`.
-- A pure module opens with a short prose block after its imports: what it decides, and from which
-  spec section.
+- Add a short prose block after a pure module's imports only when a shared business rule or spec
+  constraint would otherwise be lost. Cite the relevant spec section when one exists; don't
+  add a block merely to describe the module's implementation.
 - No banner comments. In long classes, `// --- Helpers ---` style dividers separate public steps
   from private helpers; nothing else.
 

@@ -24,7 +24,7 @@ import type { TeamErrorCode } from './team.schema';
 
 /**
  * Who may redeem an invite (TEAMS-0002 §3): a live invite, unused, for someone not already in a
- * team that has room. Pure: the service gathers the facts.
+ * team that has room.
  */
 
 /** An invite lapses after 7 days: the inviter sends a new one. */
@@ -53,7 +53,6 @@ export const checkRedeem = ({
 		return 'NO_INVITE';
 	}
 
-	// Redeeming twice is a no-op for the caller, not a second seat
 	if (isMember) {
 		return 'ALREADY_A_MEMBER';
 	}
