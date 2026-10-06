@@ -105,7 +105,7 @@ Different shape entirely — audits an *existing* codebase against all reference
 
 ### `/proxy:pr-review`
 
-Reviews someone else's GitHub PR against its actual target branch. Combines `proxy:review`'s four advisors with a local correctness review, verifies findings against the captured commits, and presents a concise main review plus inline comments in chat. Posting requires an explicit go-ahead. A changed head or target branch requires a refreshed draft and approval; a target-tip advance requires a compatibility check and renewed approval if the draft or recommendation changes. The review preserves your current checkout and uncommitted files. See [PR review prerequisites](docs/prerequisites.md#pr-review).
+Reviews someone else's GitHub PR against its actual target using four advisors and a local correctness review, then presents verified findings and draft comments in chat. Preserves your checkout and uncommitted files; posting requires an explicit go-ahead ([prerequisites](docs/prerequisites.md#pr-review)).
 
 ### `/proxy:typescript-style`
 
