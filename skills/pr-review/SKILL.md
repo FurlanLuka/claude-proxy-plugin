@@ -1,13 +1,13 @@
 ---
 name: pr-review
-description: Review someone else's GitHub pull request with proxy's four advisors and a correctness review. Verify findings, present a main review and inline comments locally, and post only after explicit approval. Use when asked to review a PR, prepare a review for a PR link, or draft comments on a teammate's PR. Not for your own branch or diff (use /code-review) or for opening a PR.
+description: Review someone else's GitHub pull request with proxy's advisors and a correctness review. Verify findings, present a main review and inline comments locally, and post only after explicit approval. Use when asked to review a PR, prepare a review for a PR link, or draft comments on a teammate's PR. Not for your own branch or diff (use /code-review) or for opening a PR.
 ---
 
 # Review a PR
 
 Gather → review → present → post. No GitHub writes, including pending reviews, replies or resolutions, until the user explicitly says to post. Approval of wording alone is not permission to post.
 
-Invoking this skill requests the four proxy advisors. The main session gathers, verifies and posts; advisors remain read-only. First check the PR review requirements in `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md`.
+Invoking this skill requests the proxy advisors listed below. The main session gathers, verifies and posts; advisors remain read-only. First check the PR review requirements in `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md`.
 
 ## 1. Gather
 

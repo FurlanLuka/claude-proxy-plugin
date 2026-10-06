@@ -13,7 +13,7 @@ In Claude Code, add the marketplace and install the plugin:
 /plugin install proxy@proxy-marketplace
 ```
 
-Verify that the `proxy:` skills and four advisor agents appear in the session. For local development, start Claude Code with `claude --plugin-dir /absolute/path/to/claude-proxy-plugin` from the target project.
+Verify that the `proxy:` skills and advisor agents appear in the session. For local development, start Claude Code with `claude --plugin-dir /absolute/path/to/claude-proxy-plugin` from the target project.
 
 See [Prerequisites](docs/prerequisites.md) for workflow requirements and [Artifact skill setup](docs/prerequisites.md#artifact-skill-setup) for access to Claude Code's built-in authoring skills.
 
@@ -21,7 +21,7 @@ Walkthrough prerequisites apply when a walkthrough is needed. A required walkthr
 
 ## Advisor execution modes
 
-The four agents advise on product, architecture, extraction, and testing. Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
+The advisors cover product, architecture, extraction, and testing. Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
 
 An advisor launched as the interactive main session, for example `claude --agent proxy:architect`, can ask the user questions through `AskUserQuestion` when available. A spawned advisor returns assumptions and unresolved decisions to its parent without asking the user. Reading an agent's Markdown as guidance in an existing session does not itself apply its frontmatter tool configuration.
 
@@ -105,7 +105,7 @@ Different shape entirely — audits an *existing* codebase against all reference
 
 ### `/proxy:pr-review`
 
-Reviews someone else's GitHub PR against its actual target using four advisors and a local correctness review, then presents verified findings and draft comments in chat. Preserves your checkout and uncommitted files; posting requires an explicit go-ahead ([prerequisites](docs/prerequisites.md#pr-review)).
+Reviews someone else's GitHub PR against its actual target using proxy's advisors and a local correctness review, then presents verified findings and draft comments in chat. Preserves your checkout and uncommitted files; posting requires an explicit go-ahead ([prerequisites](docs/prerequisites.md#pr-review)).
 
 ### `/proxy:typescript-style`
 
@@ -152,7 +152,7 @@ proxy/
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 ```
 
-- All four advisor agents produce findings/plans and leave implementation to the main session; see the execution boundaries above.
+- All advisor agents produce findings/plans and leave implementation to the main session; see the execution boundaries above.
 - `pair` and `solo` write and test application code in the main session.
 - `qa-plan` exercises the implementation directly in the main session.
 - The walkthrough skills create and publish visual artifacts under their own prerequisite rules.

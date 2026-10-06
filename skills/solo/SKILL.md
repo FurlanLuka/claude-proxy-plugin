@@ -13,7 +13,7 @@ Open with one line so the user knows what they are watching:
 
 ## How the approval click disappears
 
-Plan mode stays real — read-only exploration, plan file, `EnterPlanMode`/`ExitPlanMode`. Three plugin hooks handle the approval, and none of them need anything from you:
+Plan mode stays real — read-only exploration, plan file, `EnterPlanMode`/`ExitPlanMode`. Plugin hooks handle the approval, and none of them need anything from you:
 
 - Invoking this skill, by typing `/proxy:solo` or through the Skill tool, armed a per-session marker (`/tmp/claude-proxy-solo-<session_id>`). Invoking `proxy:pair` disarms it.
 - `ExitPlanMode` is auto-approved while the marker exists (needs `jq` or `python3` on the machine).
