@@ -18,12 +18,14 @@ Follow `pair`'s infra-gap procedure, including explicit user overrides, for miss
 
 `proxy:pr-review` requires:
 
-- Git and an existing local clone of the PR's repository, either in the current directory or a child directory, with network access to fetch its target branch and head. Review the captured commits without changing the current branch, worktrees or uncommitted files; Git objects/fetch metadata and scratch files may be written locally.
+- Git with `merge-tree --write-tree` support and an existing local clone of the PR's repository, either in the current directory or a child directory, with network access to fetch its target branch and head. Review the captured commits without changing the current branch, worktrees or uncommitted files; Git objects/fetch metadata and scratch files may be written locally.
 - GitHub CLI (`gh`) authenticated to an account that can read the PR and repository. Posting also needs permission to submit reviews/comments; read access alone is enough to prepare a draft.
 - The advisor agents listed in `pr-review` available, and Claude Code's bundled `code-review` skill available through the Skill tool. Use a local review without `--fix`, `--comment` or `--post`; see [local code review](https://code.claude.com/docs/en/code-review#review-a-diff-locally).
 - Existing Python or another JSON-capable runtime to build a posting payload safely. This is needed for posting, not for gathering or drafting.
 
 If a gathering or review capability is unavailable, report it before claiming a complete review. Missing posting access does not block a local draft. Do not install tools, change permissions or substitute a cloud/posting review automatically. An explicit user go-ahead is required before any GitHub write, including creating a pending review or a standalone file-level comment.
+
+During setup, install the updated plugin as a unit: `pr-review`, its GitHub reference and these requirements ship together. After verifying the replacement is available, users with the legacy standalone `proxy-review-pr` skill should retire it from `~/.claude/skills/` to avoid competing triggers. This is a separate setup task, not permission to install or remove skills during a review.
 
 ## Plan walkthrough
 
