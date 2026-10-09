@@ -4,21 +4,43 @@ Use these commands inside the `pr-review` workflow. Its snapshot, evidence and a
 
 ## Capture the snapshot
 
+Read PR metadata, then fetch the target branch separately so its fetched tip is unambiguous, even with custom remote-tracking configuration:
+
 ```bash
 gh pr view <N> --repo <owner/repo> --json title,body,author,baseRefName,baseRefOid,headRefName,headRefOid,files,comments,reviews
-git -C <clone> fetch origin <baseRefName> pull/<N>/head
+git -C <clone> fetch origin "refs/heads/<baseRefName>"
+targetTipOid=$(git -C <clone> rev-parse --verify "FETCH_HEAD^{commit}")
+git -C <clone> fetch origin "refs/pull/<N>/head"
 ```
 
-Confirm the captured commits are available locally, then repeat the metadata read before saving the diff. Refresh the snapshot if either commit or the target branch changed.
+Record `targetTipOid` before the head fetch overwrites `FETCH_HEAD`. Confirm the captured head is available locally. GitHub’s `baseRefOid` is PR-associated metadata and can lag behind the actual target branch; do not substitute it for the fetched tip.
+
+Recheck head, target name and live tip in one response during gathering and immediately before every posting operation:
 
 ```bash
-git -C <clone> diff <baseRefOid>...<headRefOid> > <scratchpad>/pr.diff
-git -C <clone> show "<headRefOid>:<path>"
-git -C <clone> merge-tree --write-tree <baseRefOid> <headRefOid>
-git -C <clone> log --oneline <headRefOid>..<baseRefOid> -- <relevant-paths>
+gh api graphql -f owner=<owner> -f repo=<repo> -F n=<N> -f query='
+  query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$n){
+    baseRefName headRefOid baseRef{target{oid}}}}}'
 ```
 
-On a successful merge check, read the returned tree with `git -C <clone> show "<treeOid>:<path>"`. A conflict is not a successful integration check. Use quoted, braced shell variables when substituting commit IDs, e.g. `"${headRefOid}:<path>"`.
+`baseRef.target.oid` is the live target tip. Compare it with `targetTipOid`, not `baseRefOid`. If the ref is missing or movement prevents a consistent snapshot, report the blocker.
+
+Compute the review base from the captured live tip and head:
+
+```bash
+reviewBaseOid=$(git -C <clone> merge-base <targetTipOid> <headRefOid>)
+git -C <clone> diff <reviewBaseOid>...<headRefOid> > <scratchpad>/pr.diff
+gh pr diff <N> --repo <owner/repo> > <scratchpad>/github-pr.diff
+git -C <clone> show "<headRefOid>:<path>"
+git -C <clone> merge-tree --write-tree <targetTipOid> <headRefOid>
+git -C <clone> log --oneline <headRefOid>..<targetTipOid> -- <relevant-paths>
+```
+
+Compare the saved files/changes with GitHub’s diff, ignoring formatting differences; recheck the snapshot after retrieving it. Reconcile mismatches before relying on its posting anchors. A target update can change the merge base, so recompute the diff as well as the integration check.
+
+On a successful merge check, read its returned tree with `git -C <clone> show "<treeOid>:<path>"`; conflicts are not a successful check. For a tip change, also inspect `git -C <clone> diff <previousTargetTipOid> <targetTipOid> -- <relevant-paths>` so removed changes from a target rewrite are visible.
+
+Use quoted, braced shell variables, e.g. `"${headRefOid}:<path>"`. In zsh, an unbraced `$SHA:s…` is parsed as a substitution modifier and can silently inspect the commit instead of the intended file.
 
 ## Read review threads
 
@@ -42,6 +64,19 @@ gh api graphql --paginate -f thread=<thread-id> -f endCursor=<comments-end-curso
 ```
 
 Classify threads only after reading all replies, including later author fixes or reasoned declines.
+
+## Select a re-review baseline
+
+Fetch all reviews and review comments; the metadata summary may not contain the full history:
+
+```bash
+gh api repos/<owner>/<repo>/pulls/<N>/reviews --paginate
+gh api repos/<owner>/<repo>/pulls/<N>/comments --paginate
+```
+
+Filter reviews by the selected account’s `user.login` and a non-null `submitted_at`. A substantive review has a non-blank body, an `APPROVED` or `CHANGES_REQUESTED` state, or at least one top-level inline comment. Join comments on `pull_request_review_id`; top-level comments have no `in_reply_to_id`. An empty-body `COMMENTED` record containing only replies, or no comments, is not a baseline. An empty-body approval or inline-only review still counts.
+
+Choose the latest eligible `submitted_at` and its `commit_id`. Use a delta only when that commit is available and an ancestor of the captured head; otherwise disclose the limitation and review the full pinned diff. Do not infer a rebased copy. New-versus-missed classification helps identify review gaps only when the baseline supports it.
 
 ## Anchor comments
 
