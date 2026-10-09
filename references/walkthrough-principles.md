@@ -1,8 +1,8 @@
 # Walkthrough Principles
 
-Source of truth for *what a change walkthrough says and how it looks*. Two skills
-render it: `plan-walkthrough` (HTML artifact, before approval) and `pr-walkthrough`
-(hosted SVG, in the PR description). Neither owns the content rules — this does.
+Source of truth for *what a change walkthrough says and how it looks*. The
+walkthrough skills render it: `plan-walkthrough` (HTML artifact, before approval)
+and `pr-walkthrough` (hosted SVG, in the PR description). Neither owns the content rules — this does.
 
 A reviewer reads a diff as a list of edits. A walkthrough shows the mechanism:
 what the old path was, what the new one is, and what decides between them.

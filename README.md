@@ -13,7 +13,7 @@ In Claude Code, add the marketplace and install the plugin:
 /plugin install proxy@proxy-marketplace
 ```
 
-Verify that the `proxy:` skills and four advisor agents appear in the session. For local development, start Claude Code with `claude --plugin-dir /absolute/path/to/claude-proxy-plugin` from the target project.
+Verify that the `proxy:` skills and advisor agents appear in the session. For local development, start Claude Code with `claude --plugin-dir /absolute/path/to/claude-proxy-plugin` from the target project.
 
 See [Prerequisites](docs/prerequisites.md) for workflow requirements and [Artifact skill setup](docs/prerequisites.md#artifact-skill-setup) for access to Claude Code's built-in authoring skills.
 
@@ -21,7 +21,7 @@ Walkthrough prerequisites apply when a walkthrough is needed. A required walkthr
 
 ## Advisor execution modes
 
-The four agents advise on product, architecture, extraction, and testing. Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
+The advisors cover product, architecture, extraction, and testing. Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
 
 An advisor launched as the interactive main session, for example `claude --agent proxy:architect`, can ask the user questions through `AskUserQuestion` when available. A spawned advisor returns assumptions and unresolved decisions to its parent without asking the user. Reading an agent's Markdown as guidance in an existing session does not itself apply its frontmatter tool configuration.
 
@@ -103,6 +103,10 @@ This is not the same as `pair` with "you decide": that skips the questions but s
 
 Different shape entirely — audits an *existing* codebase against all references instead of building something new. No plan to approve; just scans and produces a findings report (product/architecture/clean-code/testing conformance). Report only, never fixes anything itself — that's a separate follow-up via `pair` if you want findings acted on.
 
+### `/proxy:pr-review`
+
+Reviews someone else's GitHub PR against its actual target using proxy's advisors and a local correctness review, then presents verified findings and draft comments in chat. Preserves your checkout and uncommitted files; posting requires an explicit go-ahead ([prerequisites](docs/prerequisites.md#pr-review)).
+
 ### `/proxy:typescript-style`
 
 How TypeScript and React get written, distilled from the Decentrl codebase: blank lines that separate decisions, names that say what they return (`checkX`, `planX`, `xOf`), terse comments that give the reason, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, and `situation → outcome` test names. It triggers on its own whenever code is written or reviewed in a TypeScript repo, and defers to a repo's existing formatter and conventions. References for React, tests, commits and one worked example sit under `skills/typescript-style/references/`. For TypeScript and React code, `pair` follows it while implementing, `review` audits against it, and the clean-code and test advisors shape their plans with it.
@@ -120,6 +124,7 @@ proxy/
 │   ├── pair/                default build entry point — plan live, implement live, on approval
 │   ├── solo/                pair with overrides — no questions, no approval clicks, decides everything itself
 │   ├── review/              audits an existing codebase against all references — report only
+│   ├── pr-review/           reviews another author's GitHub PR — draft locally, post on approval
 │   ├── typescript-style/    how TS and React get written: rhythm, naming, comments, errors, logs, tests
 │   ├── qa-plan/             plan QA live, execute live, on approval
 │   ├── plan-walkthrough/    visual before/after page for a plan, published before approval
@@ -147,10 +152,11 @@ proxy/
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 ```
 
-- All four advisor agents produce findings/plans and leave implementation to the main session; see the execution boundaries above.
+- All advisor agents produce findings/plans and leave implementation to the main session; see the execution boundaries above.
 - `pair` and `solo` write and test application code in the main session.
 - `qa-plan` exercises the implementation directly in the main session.
 - The walkthrough skills create and publish visual artifacts under their own prerequisite rules.
+- `pr-review` drafts PR reviews in the main session and posts only the approved draft; its advisors remain read-only.
 
 ## Hooks
 
