@@ -36,9 +36,9 @@ git -C <clone> merge-tree --write-tree <targetTipOid> <headRefOid>
 git -C <clone> log --oneline <headRefOid>..<targetTipOid> -- <relevant-paths>
 ```
 
-Compare the saved files/changes with GitHub’s diff, ignoring formatting differences; recheck the snapshot after retrieving it. Reconcile mismatches before relying on its posting anchors. A target update can change the merge base, so recompute the diff as well as the integration check.
+Compare the saved files/changes with GitHub’s diff; recheck the snapshot after retrieving it. Different context widths or diff formatting may be explained only after confirming the same paths and changed content; a content mismatch remains a blocker. Use `github-pr.diff` for posting anchors even when the local diff has different hunk boundaries. A target update can change the merge base, so recompute the diff as well as the integration check.
 
-On a successful merge check, read its returned tree with `git -C <clone> show "<treeOid>:<path>"`; conflicts are not a successful check. For a tip change, also inspect `git -C <clone> diff <previousTargetTipOid> <targetTipOid> -- <relevant-paths>` so removed changes from a target rewrite are visible.
+On a successful merge check, read its returned tree with `git -C <clone> show "<treeOid>:<path>"`; conflicts are not a successful check. Before repinning a moved target, save the current `targetTipOid` as `previousTargetTipOid`. Then inspect `git -C <clone> diff <previousTargetTipOid> <targetTipOid> -- <relevant-paths>` so removed changes from a target rewrite are visible.
 
 Use quoted, braced shell variables, e.g. `"${headRefOid}:<path>"`. In zsh, an unbraced `$SHA:s…` is parsed as a substitution modifier and can silently inspect the commit instead of the intended file.
 
@@ -74,13 +74,13 @@ gh api repos/<owner>/<repo>/pulls/<N>/reviews --paginate
 gh api repos/<owner>/<repo>/pulls/<N>/comments --paginate
 ```
 
-Filter reviews by the selected account’s `user.login` and a non-null `submitted_at`. A substantive review has a non-blank body, an `APPROVED` or `CHANGES_REQUESTED` state, or at least one top-level inline comment. Join comments on `pull_request_review_id`; top-level comments have no `in_reply_to_id`. An empty-body `COMMENTED` record containing only replies, or no comments, is not a baseline. An empty-body approval or inline-only review still counts.
+Filter reviews by the selected account’s `user.login` and a non-null `submitted_at`. A substantive review has a non-blank body, an `APPROVED`, `CHANGES_REQUESTED` or `DISMISSED` state, or at least one top-level inline comment. Join comments on `pull_request_review_id`; top-level comments have no `in_reply_to_id`. An empty-body `COMMENTED` record containing only replies, or no comments, is not a baseline. An empty-body approval, dismissed review or inline-only review still counts. Dismissal invalidates a decision, not the historical record of which commit was reviewed; it does not establish current approval.
 
-Choose the latest eligible `submitted_at` and its `commit_id`. Use a delta only when that commit is available and an ancestor of the captured head; otherwise disclose the limitation and review the full pinned diff. Do not infer a rebased copy. New-versus-missed classification helps identify review gaps only when the baseline supports it.
+Choose the latest eligible `submitted_at` and its `commit_id`. If the commit is missing locally, try `git -C <clone> fetch origin <commit_id>` and confirm the object is available; fetching by SHA may fail. Use a delta only when that commit is available and an ancestor of the captured head; otherwise disclose the limitation and review the full pinned diff. Do not infer a rebased copy: `range-diff` heuristically pairs commits, and today's target cannot reliably reconstruct the original reviewed series after retargeting or target-history rewrites. New-versus-missed classification belongs in Coverage only when the baseline supports it.
 
 ## Anchor comments
 
-An inline anchor must fall inside a diff hunk, including its context lines; GitHub rejects other lines with 422.
+Validate every inline comment's path, side and line against the saved `github-pr.diff` for the checked snapshot. Its anchor must fall inside a GitHub diff hunk, including its context lines; GitHub rejects other lines with 422. Local diff hunk boundaries are not authoritative. Refresh GitHub's diff and recheck the snapshot after any head, target branch or target tip movement.
 
 - `side: "RIGHT"`: head line numbers for added, changed or context lines.
 - `side: "LEFT"`: the diff's old-side line numbers for deletions or the old version of a changed line.

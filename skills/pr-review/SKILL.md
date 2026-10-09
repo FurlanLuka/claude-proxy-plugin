@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review someone else's GitHub pull request with proxy's advisors and a correctness review. Verify findings, present a main review and inline comments locally, and post only after explicit approval. Use when asked to review a PR, make a PR review as if I'd do it, prepare a review for a PR link, or draft comments on a teammate's PR. Not for your own branch or diff (use /code-review) or for opening a PR.
+description: Review someone else's GitHub pull request with proxy's advisors and a correctness review. Verify findings, present a main review and inline comments locally, and post only after explicit approval. Use when asked to review a PR, "make a PR review as if I'd do it", prepare a review for a PR link, or draft comments on a teammate's PR. Not for your own branch or diff (use /code-review) or for opening a PR.
 ---
 
 # Review a PR
@@ -21,7 +21,7 @@ Read `${CLAUDE_PLUGIN_ROOT}/skills/pr-review/references/github-review.md` for sn
 - **Read existing discussions.** Fetch every thread and all replies before classifying them. Resolved threads, author-confirmed fixes and reasoned declines are settled, even when a bot thread remains unresolved; don't re-raise them without new evidence.
 - **Check target policy.** Flag conflicts with documented contribution rules, respecting exceptions. The actual target still defines the diff and merge check.
 - **Check integration.** Run `git -C <clone> merge-tree --write-tree <targetTipOid> <headRefOid>`. Report conflicts; on success inspect the returned tree. Bound target-only history (`<headRefOid>..<targetTipOid>`) to PR files, direct callers/dependencies and applicable shared schemas, dependency manifests and configuration. Follow concrete compatibility evidence deeper. Confirmed breakage is a must-fix; a clean text merge is not proof of passing checks. Disclose uncertainty and recommend combined CI verification where needed.
-- **Re-review.** Use `gh api user --jq .login`, unless the user names another reviewer. Select that account's latest substantive submitted review by submission time, using the reference’s baseline rules. Exclude reply-only records, while retaining empty-body approvals and reviews with top-level inline comments. If its commit is available and an ancestor of the head, save its delta alongside the full pinned diff. Otherwise review the full diff and disclose the missing baseline; don't infer a rebased copy. Pass settled threads to reviewers and distinguish new findings from misses last round when the baseline supports that distinction.
+- **Re-review.** Use `gh api user --jq .login`, unless the user names another reviewer. Select that account's latest substantive submitted review by submission time, using the reference’s baseline rules. Exclude reply-only records, while retaining empty-body approvals, dismissed reviews and reviews with top-level inline comments. Try fetching a missing reviewed commit by SHA before declaring it unavailable. If its commit is available and an ancestor of the head, save its delta alongside the full pinned diff. Otherwise review the full diff and disclose the unavailable or non-ancestor baseline; don't infer a rebased copy. Pass settled threads to reviewers and distinguish new findings from misses last round when the baseline supports that distinction.
 
 ## 2. Review
 
@@ -58,7 +58,7 @@ Show the draft in chat:
 
 - **Main review:** lead with what needs fixing; praise in a short clause or omit it. Use bullets for must-address items only, with one direct ask per bullet and no alternatives, precedent lists or unnecessary justification. Refer to the inline comment for details. On Approve, optional asks are suggestions, not conditions.
 - **Comments:** numbered inline comments with `path:line`, side and exact text; include any file-level comments explicitly.
-- **Coverage:** what you checked, what you couldn't verify and why, and what you left out. Sibling-only findings belong here, naming the owning PR and offering to raise them separately; posting there needs separate authorization. Keep defects affecting this PR's integration in its review.
+- **Coverage:** what you checked, what you couldn't verify and why, and what you left out. For re-reviews with a usable baseline, identify new findings and misses last round here. Sibling-only findings belong here, naming the owning PR and offering to raise them separately; posting there needs separate authorization. Keep defects affecting this PR's integration in its review.
 - **Proposed filing:** finish with `Proposed filing: Approve` or `Proposed filing: Reviewed with comment`, plus one sentence explaining why. Approve sound logic with only tests, cleanup or nits remaining; say plainly when there is nothing to fix. Comment for wrong/unproven core behavior or a landing path that could precede a required dependency. An unreviewed prerequisite alone does not prevent approving a sound stacked PR whose landing order preserves that dependency. Never use `REQUEST_CHANGES` unless asked.
 
 Comment style:
@@ -84,4 +84,4 @@ Recheck `headRefOid`, `baseRefName` and the live target ref’s OID before **eac
   2. Revalidate findings, anchors, filing and coverage. If the draft or recommendation changes, present it for renewed approval; otherwise authorization for the unchanged draft remains valid.
   3. Recheck before posting; stop and report a blocker if repeated movement prevents a reliable assessment.
 
-Post only the approved text and filing against the checked head. Use valid diff anchors, include file-level comments in the approved draft, build JSON with a script and verify every posted comment as described in the reference. Report the review link and any re-anchoring.
+Post only the approved text and filing against the checked head. Validate every inline path, side and line against `github-pr.diff` for the checked snapshot, include file-level comments in the approved draft, build JSON with a script and verify every posted comment as described in the reference. Report the review link and any re-anchoring.
