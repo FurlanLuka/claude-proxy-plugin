@@ -1,5 +1,5 @@
 {
-  "description": "solo: arm the session marker when proxy:solo is invoked (typed slash command or Skill tool), auto-approve ExitPlanMode while it exists, disarm on any other prompt outside plan mode (background task notifications excepted) or when proxy:pair is invoked by either path in any mode.",
+  "description": "solo: arm the session marker when proxy:solo is invoked (typed slash command or Skill tool); while it exists, auto-approve ExitPlanMode and deny AskUserQuestion. Disarm when proxy:pair or proxy:brainstorm is invoked, or on a prompt that is only \"stop solo\". Other prompts, including steering and subagent reports, leave it armed.",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,6 +8,16 @@
           {
             "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/arm-solo-marker.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/block-solo-question.sh\"",
             "timeout": 5
           }
         ]
