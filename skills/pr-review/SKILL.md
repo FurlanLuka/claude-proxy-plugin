@@ -29,28 +29,17 @@ Verify factual premises before briefing reviewers, using pinned code and authori
 
 Invoke `proxy:context` to load the plugin's references unless their full, unchanged contents are already in context. For TypeScript, JavaScript or React, also read `${CLAUDE_PLUGIN_ROOT}/skills/typescript-style/SKILL.md` and its applicable references; pass them to the clean-code and test advisors. Established repo conventions take precedence over proxy defaults.
 
-Spawn these advisors directly in parallel, scoped to the PR:
+Run the review in `${CLAUDE_PLUGIN_ROOT}/references/review-process.md` against the pinned snapshot. What a PR review adds to it:
 
-- `proxy:product` — scope, usefulness and UX.
-- `proxy:architect` — system and module design.
-- `proxy:clean-code-architect` — structure, extraction and style.
-- `proxy:test-architect` — coverage and test quality.
+- **Lenses.** Always all four advisors and correctness, whatever the size of the PR. Security as the reference says.
+- **Brief.** Add the absolute clone and diff paths, `reviewBaseOid`, `headRefOid`, `targetTipOid`, the `git show` instruction, any re-review delta and the settled threads.
+- **Correctness.** The target is `<reviewBaseOid>...<headRefOid>`. Supply the absolute clone and saved diff paths, requiring `git -C` inspection. Inspect its tool trace when accessible; a forked report must stand on its own. Checkout files or an upstream diff do not establish that scope.
+- **Other standards.** Check applicable philosophy, walkthrough and data-analysis standards outside the advisors' scope and include any findings.
+- **No fix loop.** Nothing is edited. Blocking findings become the must-address bullets of the draft; non-blocking ones become `Nit:` comments or suggestions, or are left out.
 
-Give each absolute clone/diff paths, `reviewBaseOid`, `headRefOid`, `targetTipOid`, the `git show` instruction, applicable repo skills and reference paths, plus any re-review delta and settled threads. Brief: read-only, no questions, no subagents; decide from the references and flag recommendations and assumptions.
+Triage for this audience, on top of the reference's rules:
 
-Run the local correctness lens in parallel:
-
-1. Invoke the bundled `code-review` skill with `medium <reviewBaseOid>...<headRefOid>`. Supply the absolute clone and saved diff paths, requiring `git -C` inspection. Never use `--comment`, `--post`, `--fix` or `ultra`.
-2. Require its report to identify the absolute repo, reviewed commits and pinned-head `git show` evidence, including relevant callers/callees outside the diff. Inspect its tool trace when accessible and verify the cited evidence yourself; a forked report must stand on its own. Checkout files or an upstream diff do not establish that scope.
-3. Discard mis-scoped results and rerun against the pinned snapshot. If that cannot work, report missing correctness coverage.
-
-Add a security pass against the same snapshot for auth, payments, PII or permissions changes. Trace the changed paths end to end in the main session too. Check applicable philosophy, walkthrough and data-analysis standards outside the advisors’ scope and include any findings.
-
-Then verify and triage:
-
-- The author owns merge and deployment sequencing across companion PRs, including across repositories. Review their request/response contracts as evidence and judge this PR on its code's merits against the intended combined contract. An unmerged or unreviewed companion, or breakage caused solely by shipping in the wrong order, does not warrant a must-fix, comment or downgraded filing. Contract defects that remain with the companion changes in place are still findings. Keep sequencing out of the main review, comments and filing rationale; at most, note it in one local-only Coverage line, excluded from posting.
-- Read the code behind every retained claim yourself. Check data claims against authorized read-only sources at the application's consumption layer. Confirmed → statement; unconfirmed → question or drop. Keep credentials, PII, customer content and raw sensitive records out of drafts and posts; summarize evidence appropriate for the PR audience.
-- Drop harmless deviations from proxy defaults when they match repo conventions, and restatements of intentional changes or accepted tradeoffs.
+- Check data claims against authorized read-only sources at the application's consumption layer. Keep credentials, PII, customer content and raw sensitive records out of drafts and posts; summarize evidence appropriate for the PR audience.
 - Keep evidenced defects, understated impact and unresolved actionable risks, including analytics issues. Mentioning a bug in the description does not settle it. Leave unrelated ticket-level decisions out.
 
 ## 3. Present locally
