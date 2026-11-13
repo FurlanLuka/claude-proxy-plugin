@@ -4,7 +4,7 @@ Check only the requirements for the active workflow. Missing capabilities do not
 
 ## Planning and implementation
 
-`proxy:pair` and `proxy:qa-plan` require an interactive main session with plan-mode approval and the target repository's existing development/test tooling. `pair` also requires the advisors selected for its reviews.
+`proxy:pair` and `proxy:qa-plan` require an interactive main session with plan-mode approval and the target repository's existing development/test tooling. `pair` also requires the advisors selected for its reviews and Claude Code's bundled `code-review` skill, which the post-build review uses for correctness.
 
 When the interactive session or plan-mode approval tools are unavailable, report the blocked workflow before drafting or implementing. Describing a headless environment or saying "you decide the implementation details" does not waive the build or QA approval gate. A plain-text approval cannot replace the required plan-mode tools.
 
