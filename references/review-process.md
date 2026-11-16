@@ -1,6 +1,6 @@
 # Review process
 
-How a code review runs. `pair` and `solo` run it on what they just built and fix what it finds; `pr-review` runs it on a pinned PR snapshot and turns the findings into comments. The standards themselves live in the other references. This file only says which lenses run, what they are given, and what happens to their findings.
+How a code review runs. `pair` and `solo` run it on what they just built and fix what it finds; `pr-review` runs it on a pinned PR snapshot and turns the findings into comments. `pr-open` runs it on work that has not been reviewed yet, and `pr-check` runs it on the fixes it makes. The standards themselves live in the other references. This file only says which lenses run, what they are given, and what happens to their findings.
 
 ## Lenses
 

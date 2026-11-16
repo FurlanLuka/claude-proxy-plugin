@@ -109,6 +109,14 @@ Different shape entirely — audits an *existing* codebase against all reference
 
 Reviews someone else's GitHub PR against its actual target using proxy's advisors and a local correctness review, then presents verified findings and draft comments in chat. Preserves your checkout and uncommitted files; posting requires an explicit go-ahead ([prerequisites](docs/prerequisites.md#pr-review)).
 
+### `/proxy:pr-open`
+
+Opens one PR per repo touched once the work is built, reviewed and QA'd. Follows the repo's own PR skill or template where there is one. Writes the description from the diff and checks every claim in it against the code, lists the stack or the sibling PRs in merge order, opens as a draft by default, and requests only the reviewers you named or the repo assigns. `pair` and `solo` invoke it when the request asked for a PR.
+
+### `/proxy:pr-check`
+
+Your own open PRs. First a read-only status in merge order: CI, reviews, unresolved threads, conflicts, moved bases. Then it fixes what it can — verifies each review comment before acting on it, repairs CI, resolves conflicts and restacks — replies on the threads it fixed and re-requests review. Replies that push back are drafted for you, and it never merges unless you said to.
+
 ### `/proxy:typescript-style`
 
 How TypeScript and React get written, distilled from the Decentrl codebase: blank lines that separate decisions, names that say what they return (`checkX`, `planX`, `xOf`), terse comments that give the reason, params objects, pure rule modules beside thin services, returned error codes, prefixed log lines, and `situation → outcome` test names. It triggers on its own whenever code is written or reviewed in a TypeScript repo, and defers to a repo's existing formatter and conventions. References for React, tests, commits and one worked example sit under `skills/typescript-style/references/`. For TypeScript and React code, `pair` follows it while implementing, `review` audits against it, and the clean-code and test advisors shape their plans with it.
@@ -127,10 +135,11 @@ proxy/
 │   ├── solo/                pair with overrides — no questions, no approval clicks, decides everything itself
 │   ├── review/              audits an existing codebase against all references — report only
 │   ├── pr-review/           reviews another author's GitHub PR — draft locally, post on approval
+│   ├── pr-open/             opens the PRs for finished work — description checked against the code, stack and rollout order linked
+│   ├── pr-check/            your own open PRs — status, then review comments, CI, conflicts and restacking until mergeable
 │   ├── typescript-style/    how TS and React get written: rhythm, naming, comments, errors, logs, tests
 │   ├── qa-plan/             plan QA live, execute live, on approval
 │   ├── plan-walkthrough/    visual before/after page for a plan, published before approval
-│   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── hooks/
 │   ├── hooks.json                 PreToolUse on Skill and AskUserQuestion, PermissionRequest on ExitPlanMode, UserPromptSubmit — see Hooks below
@@ -162,6 +171,7 @@ proxy/
 - `qa-plan` exercises the implementation directly in the main session.
 - The walkthrough skills create and publish visual artifacts under their own prerequisite rules.
 - `pr-review` drafts PR reviews in the main session and posts only the approved draft; its advisors remain read-only.
+- `pr-open` and `pr-check` push to and comment on your own PRs when invoked; neither merges, approves or argues with a reviewer without your go-ahead.
 
 ## Hooks
 

@@ -1,8 +1,7 @@
 # Walkthrough Principles
 
-Source of truth for *what a change walkthrough says and how it looks*. The
-walkthrough skills render it: `plan-walkthrough` (HTML artifact, before approval)
-and `pr-walkthrough` (hosted SVG, in the PR description). Neither owns the content rules — this does.
+Source of truth for *what a change walkthrough says and how it looks*. `plan-walkthrough` renders it as an HTML artifact before approval. It does not own
+the content rules — this does.
 
 A reviewer reads a diff as a list of edits. A walkthrough shows the mechanism:
 what the old path was, what the new one is, and what decides between them.
@@ -26,16 +25,10 @@ step ran.
 
 ## Provenance — where the content comes from
 
-Differs by moment, and getting it wrong is the main failure mode.
-
-- **Plan walkthrough** draws *intent*. The after-state doesn't exist yet. Every
-  before-state claim is still verified against real code — a plan page that
-  misdescribes what's there today argues from a false baseline. Mark the
-  after-state as proposed, never as fact.
-- **PR walkthrough** draws *what shipped*. Read the actual diff and the actual
-  base state. Intent drifts during implementation; a page built from the plan will
-  confidently show a design that didn't ship. Every claim is one you just verified
-  in a file.
+A plan walkthrough draws *intent*. The after-state doesn't exist yet. Every
+before-state claim is still verified against real code — a plan page that
+misdescribes what's there today argues from a false baseline. Mark the
+after-state as proposed, never as fact.
 
 For a stacked PR, diff against its **immediate base**, not `develop`.
 
@@ -105,9 +98,8 @@ Three faces, one superfamily — display, body, and mono for identifiers:
 
 ## One page per change, updated in place
 
-The plan page and the PR page are the same page at two moments. `pr-walkthrough`
-updates the artifact the plan produced rather than publishing a second one — the
-update *is* the drift check: what got approved versus what shipped, same URL.
+A change has one page. When the plan's architecture changes, update that page at
+the same URL rather than publishing a second one.
 
-A walkthrough that shows a design you abandoned is worse than none. If review
-changes the design, update the page before merge or delete it.
+A walkthrough that shows a design you abandoned is worse than none. If
+implementation or review changes the design, update the page or delete it.

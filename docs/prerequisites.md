@@ -39,13 +39,15 @@ Before authoring, require:
 
 If a requirement is missing, report it and stop before authoring or publishing. In `pair`, handle it as an infra gap before presenting the build plan. Missing capabilities do not make the structural gate skip; only an explicit user instruction can waive the required step.
 
-## PR walkthrough
+## PR open and PR check
 
-Require artifact publishing. Updating an existing plan page also requires access to it; when no plan page exists, creating one requires both authoring skills above.
+`proxy:pr-open` and `proxy:pr-check` require:
 
-Before exporting or uploading, verify the target repository's hosting destination, upload procedure, credentials, and permitted audience, plus GitHub access to update the PR and existing tools to export and inspect SVGs. Follow repository policy for public engineering material; never publish PII or customer content publicly.
+- An existing local clone of each repository involved, with its development and test tooling.
+- GitHub CLI (`gh`) authenticated to an account that can push branches, open and edit pull requests, comment, resolve threads and request reviewers on those repositories. `pr-check` works only on the authenticated user's own PRs.
+- For work that has not been reviewed at its current revision, everything `references/review-process.md` needs: the advisors and the bundled `code-review` skill.
 
-If hosting, access, or audience is unknown, report the gap and stop before upload or PR edits. Preserve the existing page and PR description; do not create a replacement artifact as a workaround.
+Read access alone is enough for `pr-check`'s status step. If push or comment access is missing, report it and stop before the first write; do not install tools, change permissions, or switch accounts. Neither skill merges, approves, or posts outside the PR unless the user asked for that.
 
 ## Artifact skill setup
 

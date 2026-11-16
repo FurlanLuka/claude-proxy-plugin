@@ -103,3 +103,7 @@ Once `ExitPlanMode` is approved, implement immediately in this conversation — 
 Once verification and the post-build review are complete, invoke `proxy:qa-plan` through the Skill tool in this main session. Research what's testable, draft the QA plan, and present it for approval without waiting for a separate QA request. Include a brief implementation summary and any decisions made without asking, with their reasons, in this handoff.
 
 This step applies to copy/config changes and features without a server or UI too; scale the QA scope to what can actually be checked. Build approval does not authorize QA execution. Wait for the separate QA approval, then execute and report through `qa-plan`. If QA leads to code changes, capture a fresh baseline before making them; those changes then go through the review process too before the report. Give the final completion report after QA, including the review's report and any failed or unverified behavior; do not stop at an implementation-complete message or offer QA as an optional next step.
+
+## After QA: the PR
+
+If the request asked for a PR, invoke `proxy:pr-open` through the Skill tool once QA has reported, without waiting to be asked again. Otherwise end the report by naming `proxy:pr-open` as the next step; do not push or open anything unasked.
