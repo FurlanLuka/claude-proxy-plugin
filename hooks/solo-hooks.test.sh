@@ -80,6 +80,10 @@ typed_pair_auto='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/pr
 typed_brainstorm='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/proxy:brainstorm what if"}'
 stop_solo='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo"}'
 stop_solo_spoken='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"Stop solo."}'
+stop_solo_newline='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\n"}'
+stop_solo_tab='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\t"}'
+stop_solo_padded='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"  Stop Solo!\r\n"}'
+stop_solo_quoted='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"say \"stop solo\" when done"}'
 exit_solo='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"exit solo"}'
 stop_solo_prose='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo from touching the ios repo"}'
 agent_handback='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"Another Claude session sent a message:\n<agent-message from=\"a1\">review done</agent-message>"}'
@@ -119,7 +123,7 @@ run "$approve_cmd" "";         assert_eq "approve: empty stdin -> silent" "/0" "
 touch "$marker"
 for kept in "$prompt_auto" "$prompt_plan" "$prompt_plan_pretty" "$prompt_nomode" "" "$typed_solo_lookalike" \
   "$typed_mention" "$typed_pair_lookalike" "$typed_pair_mention" "$task_notice" "$task_notice_wrapped" \
-  "$agent_handback" "$stop_solo_prose"; do
+  "$agent_handback" "$stop_solo_prose" "$stop_solo_quoted"; do
   run "$prompt_cmd" "$kept"; assert_eq "prompt: keeps marker -> $(printf '%s' "$kept" | tr -d '\n' | cut -c1-70)" "present//0" "$(state)/$out/$rc"
 done
 run "$prompt_cmd" "$nosid";                assert_eq "prompt: session_id absent -> silent" "/0" "$out/$rc"
@@ -132,11 +136,26 @@ for arming in "$typed_solo" "$typed_solo_bare" "$typed_solo_multiline" "$typed_s
   run "$prompt_cmd" "$arming"; assert_eq "prompt: typed solo arms -> $(printf '%s' "$arming" | tr -d '\n' | cut -c1-70)" "present//0" "$(state)/$out/$rc"
 done
 for handoff in "$typed_pair_in_plan" "$typed_pair_bare" "$typed_pair_multiline" "$typed_pair_tab" "$typed_pair_auto" \
-  "$typed_brainstorm" "$stop_solo" "$stop_solo_spoken" "$exit_solo"; do
+  "$typed_brainstorm" "$stop_solo" "$stop_solo_spoken" "$exit_solo" \
+  "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
   touch "$marker"
   run "$prompt_cmd" "$handoff"; assert_eq "prompt: disarms -> $(printf '%s' "$handoff" | tr -d '\n' | cut -c1-70)" "removed//0" "$(state)/$out/$rc"
   run "$approve_cmd" "$compact"; assert_eq "approve: after disarm -> normal dialog" "/0" "$out/$rc"
 done
+
+# The stop command must work with either parser and with none: the raw prompt is JSON-escaped.
+tools="$tmp/tools"; mkdir -p "$tools"; for b in sh sed cat tr rm touch; do ln -s "$(command -v $b)" "$tools/$b"; done
+withpy="$tmp/withpy"; mkdir -p "$withpy"; for b in sh sed cat tr rm touch python3; do ln -s "$(command -v $b)" "$withpy/$b"; done
+for parser in "$tools" "$withpy"; do
+  for stop in "$stop_solo" "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
+    touch "$marker"
+    run "PATH=\"$parser\" $prompt_cmd" "$stop"; assert_eq "prompt: stop disarms with $(basename "$parser") -> $(printf '%s' "$stop" | cut -c60-110 | tr -d '\\')" "removed//0" "$(state)/$out/$rc"
+  done
+  touch "$marker"
+  run "PATH=\"$parser\" $prompt_cmd" "$typed_solo_multiline"; assert_eq "prompt: typed solo + newline keeps arming with $(basename "$parser")" "present//0" "$(state)/$out/$rc"
+  run "PATH=\"$parser\" $prompt_cmd" "$stop_solo_prose"; assert_eq "prompt: stop inside a sentence keeps marker with $(basename "$parser")" "present//0" "$(state)/$out/$rc"
+done
+rm -f "$marker"
 
 # A full solo run: steering and subagent reports between the two plan exits must not cost the second approval.
 run "$arm_cmd" "$skill_solo"

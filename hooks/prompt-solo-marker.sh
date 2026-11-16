@@ -13,15 +13,33 @@ field() { printf '%s' "$input" | sed -n "s/.*\"$1\"[[:space:]]*:[[:space:]]*\"\(
 
 sid=$(field session_id)
 case "$sid" in ''|*[!A-Za-z0-9-]*) exit 0 ;; esac
-prompt=$(field prompt)
-# prompt text arrives JSON-escaped, so a newline after the command is the two characters \n
-case "$prompt" in
-  /proxy:solo|"/proxy:solo "*|"/proxy:solo\\n"*|"/proxy:solo\\t"*) touch "/tmp/claude-proxy-solo-$sid"; exit 0 ;;
-  /proxy:pair|"/proxy:pair "*|"/proxy:pair\\n"*|"/proxy:pair\\t"*|\
-  /proxy:brainstorm|"/proxy:brainstorm "*|"/proxy:brainstorm\\n"*|"/proxy:brainstorm\\t"*) rm -f "/tmp/claude-proxy-solo-$sid"; exit 0 ;;
+
+# The prompt arrives JSON-escaped: a newline typed after the command is the two
+# characters \n. Decode it with a real parser when one is present, so trailing
+# whitespace is whitespace. Without jq or python3, fall back to the raw field with
+# the common whitespace escapes turned into spaces.
+if command -v jq >/dev/null 2>&1; then
+  prompt=$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null)
+elif command -v python3 >/dev/null 2>&1; then
+  prompt=$(printf '%s' "$input" | python3 -c 'import json,sys
+try:
+    value = json.load(sys.stdin).get("prompt")
+    sys.stdout.write(value if isinstance(value, str) else "")
+except Exception:
+    pass' 2>/dev/null)
+else
+  prompt=$(field prompt | sed 's/\\[nrt]/ /g')
+fi
+
+# One line, single-spaced at the edges: tabs and line breaks count as spaces.
+flat=$(printf '%s' "$prompt" | tr '\n\r\t' '   ' | sed 's/^ *//; s/ *$//')
+case "$flat" in
+  /proxy:solo|"/proxy:solo "*) touch "/tmp/claude-proxy-solo-$sid"; exit 0 ;;
+  /proxy:pair|"/proxy:pair "*|/proxy:brainstorm|"/proxy:brainstorm "*) rm -f "/tmp/claude-proxy-solo-$sid"; exit 0 ;;
 esac
+
 # Spoken or typed stop: the whole prompt, ignoring case and trailing punctuation.
-spoken=$(printf '%s' "$prompt" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:][:punct:]]*$//')
+spoken=$(printf '%s' "$flat" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:][:punct:]]*$//')
 case "$spoken" in
   "stop solo"|"exit solo") rm -f "/tmp/claude-proxy-solo-$sid" ;;
 esac
