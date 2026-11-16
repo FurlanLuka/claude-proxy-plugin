@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:clean-code-architect to plan a cleanup of this TypeScript
+    Ask proxy:clean-code to plan a cleanup of this TypeScript
     service method. No other files are supplied and the project has no
     established style guide of its own:
     `async function joinTeam(teamId: string, userId: string, code: string, now: Date) {
@@ -19,7 +19,7 @@ graders:
   - name: clean-code-advisor-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:clean-code-architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
   - name: clean-code-reference-read
     type: tool_used
     tool: Read

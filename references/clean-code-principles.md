@@ -1,6 +1,6 @@
 # Clean Code Principles
 
-Source of truth for extraction/refactoring judgment — used by `clean-code-architect` and (when writing/refactoring code) `pair`. Builds on `philosophy.md` and `architecture-principles.md` (Simple > Extendable > Maintainable), applied at the function/code level.
+Source of truth for extraction/refactoring judgment — used by `clean-code` and (when writing/refactoring code) `pair`. Builds on `philosophy.md` and `architecture-principles.md` (Simple > Extendable > Maintainable), applied at the function/code level.
 
 ## The Extraction Principle
 
@@ -144,9 +144,9 @@ Flag useless comments during every review, not just when doing extraction work. 
 - **Fine, leave it:** a comment that captures product/business context, a non-obvious constraint, or the reason a decision was made a specific way — none of which the code itself can express.
 - When in doubt: would removing this comment confuse a reader? If not, it shouldn't be there.
 
-## Collaboration with Test Architect
+## Collaboration with Testing
 
-Every extraction creates pure functions that need tests — this feeds directly into the non-negotiable testing requirement in `architecture-principles.md`. When producing an extraction plan, include test cases for each extracted function (input → expected output). If the test strategy is complex, recommend spawning **test-architect** to design the full test suite for the extracted code — see `testing-principles.md`.
+Every extraction creates pure functions that need tests — this feeds directly into the non-negotiable testing requirement in `architecture-principles.md`. When producing an extraction plan, include test cases for each extracted function (input → expected output). If the test strategy is complex, recommend spawning **testing** to design the full test suite for the extracted code — see `testing-principles.md`.
 
 ## Output Format
 

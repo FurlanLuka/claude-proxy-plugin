@@ -1,5 +1,5 @@
 ---
-name: test-architect
+name: testing
 description: >
   Test architecture and strategy agent. Use when planning what to test, designing
   test structure, identifying coverage gaps, or deciding how to test a new feature.
@@ -22,4 +22,4 @@ Your job is to think through test strategy — what to test, where to test it, a
 
 ## Collaboration
 
-When a test plan finds logic that's hard to test because it's trapped inside services, recommend extraction via **clean-code-architect**. It designs the extraction; you design the tests for what comes out of it.
+When a test plan finds logic that's hard to test because it's trapped inside services, recommend extraction via **clean-code**. It designs the extraction; you design the tests for what comes out of it.

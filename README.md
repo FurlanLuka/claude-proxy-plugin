@@ -21,9 +21,9 @@ Walkthrough prerequisites apply when a walkthrough is needed. A required walkthr
 
 ## Advisor execution modes
 
-The advisors cover product, architecture, extraction, and testing. Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
+The advisors are `product`, `architecture`, `clean-code` and `testing`, each named after the standards file it applies (`<name>-principles.md`). Each explicitly reads the shared [advisor execution rules](references/advisor-execution.md). `pair` implements their recommendations in the main session. Advisors may use Bash for inspection, but their instructions prohibit file edits, mutating commands, and implementation. This is a behavioral boundary: Bash remains available, so omitting Edit/Write alone does not enforce filesystem isolation.
 
-An advisor launched as the interactive main session, for example `claude --agent proxy:architect`, can ask the user questions through `AskUserQuestion` when available. A spawned advisor returns assumptions and unresolved decisions to its parent without asking the user. Reading an agent's Markdown as guidance in an existing session does not itself apply its frontmatter tool configuration.
+An advisor launched as the interactive main session, for example `claude --agent proxy:architecture`, can ask the user questions through `AskUserQuestion` when available. A spawned advisor returns assumptions and unresolved decisions to its parent without asking the user. Reading an agent's Markdown as guidance in an existing session does not itself apply its frontmatter tool configuration.
 
 ## Regression checks
 
@@ -51,8 +51,8 @@ you write a spec
       │   Asks ONE question at a time, early, product + major-
       │   technical only — proposes a recommendation on technical
       │   calls rather than asking blind.
-      │   Self-reviews the draft against product/architect/clean-
-      │   code-architect/test-architect before you ever see it —
+      │   Self-reviews the draft against product/architecture/
+      │   clean-code/testing before you ever see it —
       │   loops fix → re-review → ask-if-needed until it holds up.
       │   Then plan-walkthrough: if the change is structural, draws
       │   the before/after architecture as an artifact page so you
@@ -70,8 +70,8 @@ you write a spec
       │   end — no questions mid-build unless something is a
       │   genuinely big blocker, not just a preference call.
       │   Then the post-build review (references/review-process.md):
-      │   clean-code-architect + test-architect + a correctness
-      │   pass on every change, architect + product on real
+      │   clean-code + testing + a correctness
+      │   pass on every change, architecture + product on real
       │   features. Each finding is verified, blocking ones loop
       │   fix → re-review until the lens that raised them confirms.
       ▼
@@ -141,9 +141,9 @@ proxy/
 │   └── solo-hooks.test.sh         black-box tests for the hooks and the wiring, run in CI
 ├── agents/
 │   ├── product.md                scope/usefulness/positioning/UX — advisor, no Edit/Write
-│   ├── architect.md              system/module design — advisor, no Edit/Write
-│   ├── clean-code-architect.md   extraction/refactor plans — advisor, no Edit/Write
-│   └── test-architect.md         test strategy — advisor, no Edit/Write
+│   ├── architecture.md           system/module design — advisor, no Edit/Write
+│   ├── clean-code.md             extraction/refactor plans — advisor, no Edit/Write
+│   └── testing.md                test strategy — advisor, no Edit/Write
 ├── references/
 │   ├── advisor-execution.md        shared execution rules for advisor roles
 │   ├── philosophy.md               universal — product taste, communication, delegation
@@ -151,7 +151,7 @@ proxy/
 │   ├── architecture-principles.md  system design judgment (match-existing-conventions first), incl. integration across repos and clients
 │   ├── clean-code-principles.md    extraction/refactor judgment
 │   ├── testing-principles.md       test strategy judgment
-│   ├── security-principles.md      auth, data, secrets, overrides, model input — applied by architect when the work touches them
+│   ├── security-principles.md      auth, data, secrets, overrides, model input — applied by architecture when the work touches them
 │   ├── review-process.md           how a review runs: lenses, brief, verification, the blocking-fix loop — shared by pair, solo and pr-review
 │   ├── walkthrough-principles.md   what a change walkthrough says + its locked visual identity
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification

@@ -1,6 +1,6 @@
 # Security Principles
 
-Source of truth for security judgment — used by `architect` when reviewing a plan or a diff, and by `pair` when writing one, whenever the work touches auth, payments, personal data, permissions, secrets, or input from outside the system. `architecture-principles.md`'s "match existing project conventions first" applies here too: use the project's existing auth, validation and secret handling before introducing another.
+Source of truth for security judgment — used by `architecture` when reviewing a plan or a diff, and by `pair` when writing one, whenever the work touches auth, payments, personal data, permissions, secrets, or input from outside the system. `architecture-principles.md`'s "match existing project conventions first" applies here too: use the project's existing auth, validation and secret handling before introducing another.
 
 **Proportional, not ceremonial.** No threat-model document for a copy change. Apply the sections the change actually touches, and say which ones did not apply.
 

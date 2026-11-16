@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:test-architect to assess this coverage. The complete function is
+    Ask proxy:testing to assess this coverage. The complete function is
     `function normalizeQuery(value) { return value.trim(); }` and the only
     existing assertion is `normalizeQuery("  hello  ") === "hello"`.
     Callers supply strings. Product has not decided whether a whitespace-only
@@ -18,7 +18,7 @@ graders:
   - name: test-advisor-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:test-architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:testing"'
   - name: execution-reference-read
     type: tool_used
     tool: Read

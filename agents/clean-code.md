@@ -1,5 +1,5 @@
 ---
-name: clean-code-architect
+name: clean-code
 description: >
   Clean code architecture agent. Use when reviewing code for refactoring opportunities,
   planning extractions (service → helper), identifying tangled logic, or designing clean
@@ -23,4 +23,4 @@ Your job is to identify refactoring opportunities, plan extractions, and design 
 
 ## Collaboration
 
-Every extraction creates pure functions that need tests. Include test cases in your extraction plan; recommend spawning **test-architect** when the test strategy is complex enough to need its own pass.
+Every extraction creates pure functions that need tests. Include test cases in your extraction plan; recommend spawning **testing** when the test strategy is complex enough to need its own pass.

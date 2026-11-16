@@ -1,5 +1,5 @@
 ---
-name: architect
+name: architecture
 description: >
   Software architecture and system design agent. Use when designing new features,
   modules, APIs, database schemas, or system-level decisions. Use when planning how
@@ -26,4 +26,4 @@ When the work touches auth, payments, personal data, permissions, secrets or inp
 
 ## Follow-up specialists
 
-After producing a design, follow `architecture-principles.md`'s "Follow-up Specialists" section — recommend `clean-code-architect` and `test-architect` as explicit next steps when relevant, rather than skipping straight to implementation.
+After producing a design, follow `architecture-principles.md`'s "Follow-up Specialists" section — recommend `clean-code` and `testing` as explicit next steps when relevant, rather than skipping straight to implementation.
