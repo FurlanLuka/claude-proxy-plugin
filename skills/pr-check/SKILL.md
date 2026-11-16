@@ -17,7 +17,7 @@ For each PR, against the live head and the live target:
 
 - **CI**: each failing check and what failed in it.
 - **Reviews**: the decision, who approved, who is still pending, and whether an approval predates later commits.
-- **Threads**: every unresolved thread, with all its replies read, from people and from bots. A thread the author already answered or a reviewer already accepted is settled.
+- **Threads**: every unresolved thread, with all its replies read, from people and from bots, and compared with the code at the current head. A thread is settled only when its fix is verified in that code or the reviewer accepted the explanation. An author reply alone settles nothing: the reviewer may have been right, and may have shown it since.
 - **Mergeability**: conflicts with the target as it is now.
 - **Stack**: position, and whether its base moved or merged.
 - **Description**: whether it still matches the code.
@@ -51,6 +51,10 @@ Held for the user's go-ahead:
 
 Under `solo`, technical calls are yours as usual; the held replies stay held, because they speak for the user.
 
-## 5. Report
+## 5. Re-read before reporting
 
-Decisions that need the user come first, with the drafted replies. Then per PR: what was fixed, what was replied, and what it is waiting on — a named reviewer, CI, or the user. End with what is ready to merge, in order.
+The status from step 2 describes the revision before the fixes. A push starts new checks and can invalidate an approval, so after the last write, read each changed PR again: its head, its checks and its review decision. Report those, for that head. Checks still running mean the PR is waiting on CI, not ready.
+
+## 6. Report
+
+Decisions that need the user come first, with the drafted replies. Then per PR: what was fixed, what was replied, and what it is waiting on — a named reviewer, CI, or the user. End with what is ready to merge, in order. A PR is ready only if its current head is approved, green and conflict-free as read in step 5.

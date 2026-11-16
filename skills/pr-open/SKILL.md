@@ -19,9 +19,13 @@ Before anything else, read what the repo already says about PRs: its own PR skil
 
 ## 3. Make sure it is ready
 
-- **Reviewed at this revision.** Work that came straight out of `pair` or `solo` in this session already is. Anything else, or anything changed since, goes through `${CLAUDE_PLUGIN_ROOT}/references/review-process.md` first, with its fix loop. A PR is not where blocking findings get discovered.
-- **Green locally.** Run the checks CI will run, where the repo makes that possible.
-- **Merges into the target as it is now.** Fetch the target and check the merge. Resolve conflicts the repo's way before opening, not after.
+In this order, because each step can change the code the next one vouches for:
+
+1. **Merges into the target as it is now.** Fetch the target and check the merge. Resolve conflicts the repo's way before anything else.
+2. **Reviewed at this revision.** Work that came straight out of `pair` or `solo` in this session, with nothing changed since, already is. Anything else goes through `${CLAUDE_PLUGIN_ROOT}/references/review-process.md` first, with its fix loop. A conflict resolution is a change: it goes through the lenses that apply to it. A PR is not where blocking findings get discovered.
+3. **Green locally, at the revision being pushed.** Run the checks CI will run, where the repo makes that possible, after the last edit.
+
+Nothing is pushed on evidence gathered for an earlier revision. If any step changes the code, the later steps run again.
 
 ## 4. Target and stacks
 
@@ -34,7 +38,7 @@ Before anything else, read what the repo already says about PRs: its own PR skil
 Write it from the code at the head commit, not from memory of the plan.
 
 - **What and why**, in the user's terms.
-- **How it works**, briefly. Link the plan walkthrough page when one exists.
+- **How it works**, briefly. Link the plan walkthrough page only after checking it against the final change: if the design moved, update the page per `walkthrough-principles.md` or leave the link out. A page showing a design that did not ship is worse than no page.
 - **How it was verified**: tests added, what QA exercised, and what could not be verified. Take this from the QA report; do not upgrade it.
 - **Rollout**: flags, order across repos, what older clients do — from the plan's integration map.
 - **Accepted risks** and other big decisions, when there are any.
