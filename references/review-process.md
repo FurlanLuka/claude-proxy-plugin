@@ -32,7 +32,15 @@ Tell each advisor: read-only, no questions, no subagents; decide from the refere
 
 ## Correctness
 
-Invoke `code-review` through the Skill tool once per repo touched, with `medium --max-findings 25` and the change as its target: `<base>...<head>` for committed work, no target for the working diff. Its default limit of ten findings is reached on almost every real feature, and what falls off the end is not always the least important.
+Invoke `code-review` through the Skill tool once per repo touched, with `medium --max-findings 25` and the exact change as its target. Its default limit of ten findings is reached on almost every real feature, and what falls off the end is not always the least important.
+
+Pin the change before every pass, the first and each later one:
+
+- **Committed work:** `<before>...<after>`, where `<before>` is the commit the change started from, not wherever upstream happens to be.
+- **Uncommitted work:** record the commit and the working state the change started from, and hand over a before and after it can read: two commits, or a saved diff of just this change with the absolute repo path. Commit objects made for this purpose stay local.
+- **No target** only when the default scope, commits ahead of upstream plus all uncommitted edits, is exactly the change under review. A QA fix on top of an already reviewed feature, or unrelated local edits alongside, makes that false.
+
+`--max-findings` needs Claude Code v2.1.288 or later. On an older version, drop the flag and say in the report that findings were capped at the default.
 
 Never pass `--fix`, `--comment`, `--post` or `ultra`. Use a higher effort level only when the user asks for one.
 
@@ -49,7 +57,7 @@ No finding is acted on because a reviewer said so.
 - Compare the change with the plan: name anything built that the plan did not ask for, and anything the plan asked for that is missing.
 - Label what remains.
 
-**Blocking** — it cannot ship as it is: wrong behaviour or a crash; a break in another repo, an older client, a sibling change or the rollout order; a security problem; required behaviour with no test, or a test that passes for the wrong reason.
+**Blocking** — it cannot ship as it is: wrong behaviour or a crash; a break in another repo, an older client, a sibling change or the rollout order; a security problem; required behaviour with no test, or a test that passes for the wrong reason. A caller reviewing someone else's change may narrow this; `pr-review` leaves sequencing to the author.
 
 **Non-blocking** — everything else: naming, cleanup, comment and doc wording, optional suggestions.
 

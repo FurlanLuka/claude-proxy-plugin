@@ -33,13 +33,14 @@ Run the review in `${CLAUDE_PLUGIN_ROOT}/references/review-process.md` against t
 
 - **Lenses.** Always all four advisors and correctness, whatever the size of the PR. Security as the reference says.
 - **Brief.** Add the absolute clone and diff paths, `reviewBaseOid`, `headRefOid`, `targetTipOid`, the `git show` instruction, any re-review delta and the settled threads.
-- **Correctness.** The target is `<reviewBaseOid>...<headRefOid>`. Supply the absolute clone and saved diff paths, requiring `git -C` inspection. Inspect its tool trace when accessible; a forked report must stand on its own. Checkout files or an upstream diff do not establish that scope.
+- **Correctness.** The target is `<reviewBaseOid>...<headRefOid>`, and the re-review delta when there is one. Supply the absolute clone and saved diff paths, requiring `git -C` inspection. Inspect its tool trace when accessible; a forked report must stand on its own. Checkout files or an upstream diff do not establish that scope.
 - **Other standards.** Check applicable philosophy, walkthrough and data-analysis standards outside the advisors' scope and include any findings.
 - **No fix loop.** Nothing is edited. Blocking findings become the must-address bullets of the draft; non-blocking ones become `Nit:` comments or suggestions, or are left out.
 
 Triage for this audience, on top of the reference's rules:
 
 - Check data claims against authorized read-only sources at the application's consumption layer. Keep credentials, PII, customer content and raw sensitive records out of drafts and posts; summarize evidence appropriate for the PR audience.
+- The author owns merge and deployment sequencing across companion PRs, including across repositories. This overrides the reference's blocking label for rollout order. Review the request/response contracts as evidence and judge this PR on its code's merits against the intended combined contract. An unmerged or unreviewed companion, or breakage caused solely by shipping in the wrong order, does not warrant a must-fix, a comment or a downgraded filing. Contract defects that remain with the companion changes in place are still findings. Keep sequencing out of the main review, the comments and the filing rationale; at most, note it in one local-only Coverage line, excluded from posting.
 - Keep evidenced defects, understated impact and unresolved actionable risks, including analytics issues. Mentioning a bug in the description does not settle it. Leave unrelated ticket-level decisions out.
 
 ## 3. Present locally
