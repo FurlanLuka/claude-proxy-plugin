@@ -1,0 +1,45 @@
+schema_version: "1.1"
+name: advisor-security-triggered
+description: A change touching permissions makes the architecture advisor load and apply the security standard.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:architect to review this planned change. The API has a route
+    GET /calls/:id that returns a call's transcript. Today the handler loads
+    the call and returns 403 unless call.userId equals the authenticated
+    user's id. To make debugging easier, the change adds this at the top of
+    the handler: if the request carries the header `x-debug-user`, the
+    handler uses that header's value as the user id for the ownership check.
+    The header is read in every environment, including production, and any
+    authenticated client can send it. No other files change. Treat these
+    facts as the full brief; source files are not supplied. Obtain the
+    advisor's review.
+graders:
+  - name: architect-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  - name: security-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/security-principles\.md'
+  - name: architecture-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/architecture-principles\.md'
+  - name: concrete-security-finding
+    type: llm
+    criteria: >-
+      PASS only if the review contains a distinct security section or
+      heading and states the concrete request that goes wrong: any
+      authenticated caller can send x-debug-user with another user's id and
+      read that user's transcript, in production. It must treat this as
+      blocking (must not ship as is) and point to a server-enforced limit
+      such as restricting the override to non-production or to named
+      internal identities, or removing it. FAIL if security is only a
+      generic remark without the scenario, if the override is accepted as
+      fine because it is "for debugging", or if the review claims to have
+      edited files or run anything.
