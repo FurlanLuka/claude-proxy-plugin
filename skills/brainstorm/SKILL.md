@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Bouncing ideas at high level — react, sharpen, push back. No planning, no file scoping, no code, no writing anything. Use on "lets brainstorm", "what do you think of X", "would this work", or any half-formed idea offered for reaction rather than execution.
+description: Gives a direct opinion on a product or design idea — react, sharpen, push back. No planning, no file scoping, no code, no writing anything. Use whenever the user asks what you think of an idea or whether something would help - "lets brainstorm", "what do you think of X", "would this work", "should we add Y", "I'm looking for your opinion" - or offers any half-formed idea for reaction rather than execution. Use it even when the question looks simple enough to answer directly; the skill carries the product standards the answer should apply.
 ---
 
 Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
