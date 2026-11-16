@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Gives a direct opinion on a product or design idea — react, sharpen, push back. No planning, no file scoping, no code, no writing anything. Use whenever the user asks what you think of an idea or whether something would help - "lets brainstorm", "what do you think of X", "would this work", "should we add Y", "I'm looking for your opinion" - or offers any half-formed idea for reaction rather than execution. Use it even when the question looks simple enough to answer directly; the skill carries the product standards the answer should apply.
+description: Gives a direct opinion on a product or design idea — react, sharpen, push back. No planning, no file scoping, no code, no writing anything. Use whenever the user asks what you think of an idea or whether something would help - "lets brainstorm", "what do you think of X", "would this work", "should we add Y", "I'm looking for your opinion" - or offers any half-formed idea for reaction rather than execution. Use it even when the question looks simple enough to answer directly; the skill carries the product standards the answer should apply. Standalone questions only - while a pair or solo build is under way, an opinion-shaped message is steering and stays in that workflow unless the user asks to brainstorm.
 ---
 
 Read the required references unless their full, unchanged contents are already available in the current context. Do not assume they were loaded by a startup hook, parent agent, or previous session.
