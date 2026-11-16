@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:test-architect to assess this coverage. A change adds a hook
+    Ask proxy:testing to assess this coverage. A change adds a hook
     `onCallEnding(session)` to a strategy object; it sets
     `session.endsCall = true` so the call hangs up after the closing line.
     The session coordinator is supposed to invoke the hook when a closing
@@ -21,10 +21,10 @@ execution:
     brief; source files and test execution results are not supplied. Obtain
     the advisor's assessment.
 graders:
-  - name: test-advisor-invoked
+  - name: testing-advisor-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:test-architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:testing"'
   - name: testing-reference-read
     type: tool_used
     tool: Read

@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:architect to design this change. A lessons API returns each
+    Ask proxy:architecture to design this change. A lessons API returns each
     lesson with a `kind` field, currently "standard" or "review". The mobile
     app, in a separate repository, decodes `kind` into a closed enum and
     fails to decode the whole lesson list if it meets a value it does not
@@ -17,10 +17,10 @@ execution:
     app release. Treat these facts as the design brief; source files are not
     supplied. Obtain the advisor's design.
 graders:
-  - name: architect-invoked
+  - name: architecture-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:architecture"'
   - name: architecture-reference-read
     type: tool_used
     tool: Read

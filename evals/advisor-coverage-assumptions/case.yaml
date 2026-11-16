@@ -15,7 +15,7 @@ execution:
     concrete testing recommendation and any assumptions or unresolved
     decisions. Source files and test execution results are not supplied.
 graders:
-  - name: test-advisor-invoked
+  - name: testing-advisor-invoked
     type: tool_used
     tool: Agent
     input_match: '"subagent_type"\s*:\s*"proxy:testing"'

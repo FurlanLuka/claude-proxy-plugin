@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:test-architect to assess the test coverage of this function. The
+    Ask proxy:testing to assess the test coverage of this function. The
     complete function is
     `function clamp(value, min, max) { return Math.min(Math.max(value, min), max); }`.
     Callers always pass finite numbers with min <= max; that is enforced
@@ -17,10 +17,10 @@ execution:
     Obtain the advisor's full report in its standard output format. Source
     files and test execution results are not supplied.
 graders:
-  - name: test-advisor-invoked
+  - name: testing-advisor-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:test-architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:testing"'
   - name: execution-reference-read
     type: tool_used
     tool: Read

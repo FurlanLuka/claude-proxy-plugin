@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:architect to review this planned change. The API has a route
+    Ask proxy:architecture to review this planned change. The API has a route
     GET /calls/:id that returns a call's transcript. Today the handler loads
     the call and returns 403 unless call.userId equals the authenticated
     user's id. To make debugging easier, the change adds this at the top of
@@ -18,10 +18,10 @@ execution:
     facts as the full brief; source files are not supplied. Obtain the
     advisor's review.
 graders:
-  - name: architect-invoked
+  - name: architecture-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:architecture"'
   - name: security-reference-read
     type: tool_used
     tool: Read
