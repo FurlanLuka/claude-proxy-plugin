@@ -45,6 +45,15 @@ The most impactful test strategy decision is **what to extract**. When logic is 
 
 This is always preferred over mocking. Mocks test that you called the right function with the right arguments. Pure function tests verify that the actual logic produces correct results.
 
+## Test the Real Wiring
+
+Pure-function tests prove the logic. They do not prove production ever reaches it.
+
+- When behavior depends on who calls what and in which order — a hook a coordinator invokes, a handover between states, a handler registered for an event — at least one test goes in through the real entry point. A test that calls the hook directly passes even when production never calls it.
+- This is your own wiring, not the framework's. "Don't test framework wiring" above still holds.
+- A test must be able to fail. If the fixture already contains the expected output, or the assertion would hold for the old behavior too, it proves nothing.
+- Each item on the plan's risk list gets a test, or a stated reason it cannot have one.
+
 ## Test Structure
 
 ### File Organization

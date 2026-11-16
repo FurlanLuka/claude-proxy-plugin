@@ -172,6 +172,19 @@ Extensibility comes from clean boundaries, not abstraction layers.
 - Configuration over code where patterns repeat.
 - Don't build extension points speculatively. Build v1 simply. Refactor when v2 arrives. v3 tells you if the abstraction was right.
 
+## Integration
+
+A change is more than its diff. It lands in a system that other repos, shipped apps and open PRs already depend on.
+
+- **Name every contract that crosses a boundary.** A payload, schema, event, enum, flag or prompt shared between repos, services, or client and server. For each: who produces it, and everyone who consumes it.
+- **Old clients keep running.** An app in the field does not update with the server. Say what a version that has never heard of the new thing does with it — ignores it, skips it, crashes. A new enum value or kind is a breaking change for a strict reader. Additive by default.
+- **Each step is safe alone.** Any repo may deploy before the others. Give the rollout order, and where the order cannot be guaranteed, gate on a flag or a capability check rather than on timing.
+- **A change carries only itself.** In a stack, a PR does not bring a sibling's rewrite with it. A renamed event or metric is a contract change, not a cleanup.
+- **Check against the target as it is now.** The branch has moved since the work started. Confirm the change still merges and still means the same thing on today's target.
+- **Watch shared behavior changed by side effect.** A converter, a prompt, a shared helper: changing it changes every consumer, including the ones the change was not about.
+
+When work crosses a repo boundary or touches a shared contract, the plan carries an **integration map**: each contract, its producer, its consumers, what old clients do, and the rollout step it belongs to. Single-repo work with no shared contract says so in one line instead.
+
 ## Decisions Override This Document
 
 If a product decision made during planning conflicts with a default in this file, the decision wins — update the design doc to match, don't relitigate the decision by citing architecture defaults. This document sets defaults for when nothing else has been decided, not constraints on what can be decided. (See `philosophy.md` — "product decisions outrank specs" applies here too.)
@@ -186,7 +199,9 @@ When producing a design plan, structure it as:
 4. **Flow** — step-by-step of how data moves through the system for the primary use case.
 5. **Events/side effects** — what events are emitted, what processors react.
 6. **Data changes** — new tables/fields, migrations needed.
-7. **Open questions** — anything that needs user input before implementation. In a spawned advisor, return these to the parent without asking the user. In an interactive main session, clarify one decision at a time; `pair` uses the same one-question-at-a-time rule during clarification.
+7. **Integration map** — per the Integration section, when the work crosses a repo boundary or touches a shared contract.
+8. **Risk list** — the states and failure paths that need care: two things arriving at once, ordering, stale or superseded state, retries and restarts, partial failure. Each one is something the tests cover and the reviewers trace.
+9. **Open questions** — anything that needs user input before implementation. In a spawned advisor, return these to the parent without asking the user. In an interactive main session, clarify one decision at a time; `pair` uses the same one-question-at-a-time rule during clarification.
 
 ## Follow-up Specialists
 

@@ -9,3 +9,7 @@ Apply these rules when acting as an advisor, including when an existing session 
 - **Both contexts:** remain an advisor. Use Bash only for inspection; do not modify files, run mutating commands, or implement fixes, including in temporary directories or scratch files. Do not execute tests or experiments against the code under review, including inline or in-memory mutation checks. Return plans or findings for the implementing session to act on.
 
 Apply domain references within this advisory role. Their implementation and testing procedures guide your assessments and recommendations; the implementing session owns implementation and test execution. Return proposed checks and any missing evidence to that session, and flag conclusions you could not verify.
+
+## Evidence
+
+Every section of your report says what you checked, in a line: the files, paths or cases you read. "No findings" with nothing beside it counts as not done, and the parent will send it back. One line of evidence per section — what was looked at, not a tour of it.
