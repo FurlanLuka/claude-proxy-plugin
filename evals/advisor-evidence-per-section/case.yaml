@@ -28,12 +28,15 @@ graders:
   - name: every-section-names-what-was-checked
     type: llm
     criteria: >-
-      PASS only if every section of the advisor's report that has nothing to
-      flag still states what was examined to reach that conclusion, for
-      example naming the function, the listed assertions, the boundaries or
-      the property considered (such as "already pure: takes three numbers,
-      returns one, no IO"). The report may or may not contain findings.
-      FAIL if any section consists only of a bare "none", "no findings",
-      "N/A", "nothing to add" or an equivalent with no statement of what was
-      looked at, or if sections of the standard format are silently omitted.
-      FAIL if the report claims to have run the tests or edited files.
+      PASS if the report relayed in the response covers the substantive parts
+      of a test assessment (coverage gaps, whether extraction is needed, test
+      cases, snapshot candidates) and, for each of those with nothing to flag,
+      states what was examined to reach that conclusion, for example the listed
+      assertions, the boundary positions, or that the function is already pure.
+      Purely consequential sections such as files to change or implementation
+      order may simply say nothing follows. The report may or may not contain
+      findings, and the response may summarize around it.
+      FAIL if a substantive section is only a bare "none", "no findings", "N/A"
+      or equivalent with no statement of what was looked at, if the response
+      gives only a one-line verdict with no per-section account, or if it
+      claims tests were run or files were edited.

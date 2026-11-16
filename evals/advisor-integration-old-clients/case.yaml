@@ -28,14 +28,13 @@ graders:
   - name: integration-assessed
     type: llm
     criteria: >-
-      PASS only if the design has a distinct integration section, heading or
-      map that (1) names `kind` as a contract produced by the API and
-      consumed by the mobile app, with the admin tool as the source of the
-      new value, (2) states that app versions already in the field will fail
-      to decode the lesson list when they receive "flow", and (3) gives a
-      rollout that is safe at every step, for example withholding "flow"
-      lessons from clients that have not declared support through a version
-      or capability check, shipping a tolerant decoder first, or gating
-      creation behind a flag until adoption. FAIL if it only describes
-      module structure, assumes all clients update together, relies on
-      deploy timing alone, or claims to have implemented anything.
+      PASS only if the response (1) recognises that `kind` is consumed by the
+      separately shipped mobile app, (2) states that app versions already in
+      the field break on the new value and therefore must never receive it,
+      and (3) gives a rollout that is safe at every step, for example
+      withholding "flow" lessons from clients that have not declared support
+      through a capability or version check, shipping a tolerant decoder
+      first, or gating creation behind a flag. A dedicated heading or table is
+      not required. FAIL if it only describes module structure, assumes all
+      clients update together, relies on deploy timing alone, or claims to
+      have implemented anything.
