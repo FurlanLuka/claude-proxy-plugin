@@ -1,0 +1,51 @@
+schema_version: "1.1"
+name: review-dispatches-security
+description: Entering through the shared review process, a small change to outside-input handling still dispatches the architecture advisor with the security standard.
+tags: [advisors]
+execution:
+  max_turns: 14
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Load the proxy references with proxy:context. Then act as the main
+    session at the post-build review step of the review process for this
+    finished change, and dispatch the advisors its lens table requires.
+    The bundled code-review skill cannot run in this session, so leave the
+    correctness lens out and say so. The change: inside the existing
+    payments/webhook-parser module, the function parseProviderEvent(rawBody)
+    used to reject any body over 64 KB and now accepts up to 1 MB, and it
+    now reads a new optional `metadata` object from the provider's payload
+    and copies its keys onto the parsed event. Twelve lines changed in that
+    one file plus its test. There is no new route, module, export, table or
+    permission. Source files are not supplied; brief the advisors from this
+    description and report what each returned.
+graders:
+  - name: context-loaded
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:context"'
+  - name: architect-dispatched
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  - name: security-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/security-principles\.md'
+  - name: clean-code-and-testing-dispatched
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:(?:clean-code-architect|test-architect)"'
+    min: 2
+  - name: security-assessed
+    type: llm
+    criteria: >-
+      PASS only if the response shows the architecture advisor was
+      dispatched because the change handles input from outside the system,
+      and relays a security assessment of it that names at least one
+      concrete concern with this change, such as copying arbitrary
+      provider-supplied keys onto the event, the larger accepted body, or
+      whether the signature is verified before parsing. FAIL if it says the
+      change is too small for the architecture or security lens, runs only
+      the clean-code and testing advisors, or reports a security conclusion
+      without the advisor having been dispatched.
