@@ -35,8 +35,10 @@ graders:
     type: llm
     criteria: >-
       PASS if the recommendation places the formatter inside the existing
-      reports module and either says in one short line that the security
-      standard did not apply, or does not discuss security at all. FAIL if
-      it produces a security review, lists security findings or checklist
-      items for this change, or invents a sensitive surface the brief rules
-      out.
+      reports module and does not turn into a security review. Saying in a
+      line that the security standard did not apply is fine, and so is one
+      short caveat about a neighbouring concern, such as escaping when the
+      Markdown is later rendered as HTML. FAIL if it produces a security
+      section or checklist, lists several security findings for this
+      change, or treats the formatter itself as a sensitive surface the
+      brief rules out.

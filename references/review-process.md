@@ -9,10 +9,12 @@ How a code review runs. `pair` and `solo` run it on what they just built and fix
 | Clean code | `proxy:clean-code-architect` | Always |
 | Testing | `proxy:test-architect` | Always |
 | Correctness | Claude Code's bundled `code-review` skill, invoked from the main session | Any change to code |
-| Architecture | `proxy:architect` | A new module, API surface or data shape, or changes to more than a couple of existing files. Also whenever auth, payments, PII or permissions are touched; it then applies `security-principles.md` as well |
-| Product | `proxy:product` | Same condition as architecture, or any change to what a user sees or reads |
+| Architecture | `proxy:architect` | A new module, API surface or data shape, a responsibility moving between modules, or a contract that crosses a repo boundary. Also whenever auth, payments, PII or permissions are touched; it then applies `security-principles.md` as well |
+| Product | `proxy:product` | A new capability a user can reach, or a change to what a user sees, reads or is charged through the product's interface |
 
-A copy- or config-only change runs clean code and testing, scaled to what there is to check. A caller may ask for more than this table requires; it never runs less.
+A copy- or config-only change runs clean code and testing, scaled to what there is to check. A function added or changed inside one existing module, with no new surface, runs the three always-on lenses and nothing more: every extra advisor costs tokens and time on every change, so the conditional lenses run only when their condition is plainly met, not when it could be argued. A caller may ask for more than this table requires; it never runs less.
+
+One reviewer per lens. Do not ask one advisor to cover another's standard, except where this table says so.
 
 Use the plugin-scoped advisor names exactly as written. Spawn the advisors in parallel as fresh subagents, never as forks of the main session: a reviewer that inherits the builder's reasoning tends to agree with it. Run correctness alongside them.
 
