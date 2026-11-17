@@ -69,9 +69,11 @@ you write a spec
       │   fix → retest until green. Stays unblocked through to the
       │   end — no questions mid-build unless something is a
       │   genuinely big blocker, not just a preference call.
-      │   Then a second pair of eyes: clean-code-architect +
-      │   test-architect review the diff, loop fix → re-review
-      │   until clean.
+      │   Then the post-build review (references/review-process.md):
+      │   clean-code-architect + test-architect + a correctness
+      │   pass on every change, architect + product on real
+      │   features. Each finding is verified, blocking ones loop
+      │   fix → re-review until the lens that raised them confirms.
       ▼
  done → proceeds straight into qa-plan, no need to ask for it
       ▼
@@ -149,6 +151,7 @@ proxy/
 │   ├── architecture-principles.md  system design judgment (match-existing-conventions first)
 │   ├── clean-code-principles.md    extraction/refactor judgment
 │   ├── testing-principles.md       test strategy judgment
+│   ├── review-process.md           how a review runs: lenses, brief, verification, the blocking-fix loop — shared by pair, solo and pr-review
 │   ├── walkthrough-principles.md   what a change walkthrough says + its locked visual identity
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification
 ```

@@ -52,7 +52,7 @@ The user may interrupt with a redirect at any point. Take it, adjust in place, c
 
 ## Implementation
 
-As `pair`, with zero questions. There is no "one question for a genuinely big blocker" exception — make the call, log it, keep building. Only something you cannot do at all (missing credentials, a service you cannot reach) stops the run: leave the working tree as it is, and say what is partial and what is needed.
+As `pair`, with zero questions. That includes the post-build review: a finding that needs a decision is yours to decide and log, never a question. There is no "one question for a genuinely big blocker" exception — make the call, log it, keep building. Only something you cannot do at all (missing credentials, a service you cannot reach) stops the run: leave the working tree as it is, and say what is partial and what is needed.
 
 ## QA
 
@@ -65,5 +65,5 @@ Invoke `proxy:qa-plan` as `pair` does. Two overrides for `qa-plan` itself:
 
 1. **Decisions made** — the running list.
 2. **What changed** — files, behavior, tests added.
-3. **Reviewers** — outcome of the clean-code and test-architect passes.
+3. **Review** — lenses run, blocking findings and how each was resolved, what was skipped and why.
 4. **QA** — exercised / passed / failed / couldn't verify, from `qa-plan`.
