@@ -148,9 +148,10 @@ proxy/
 │   ├── advisor-execution.md        shared execution rules for advisor roles
 │   ├── philosophy.md               universal — product taste, communication, delegation
 │   ├── product-principles.md       prioritization, feature yes/no, positioning, UX
-│   ├── architecture-principles.md  system design judgment (match-existing-conventions first)
+│   ├── architecture-principles.md  system design judgment (match-existing-conventions first), incl. integration across repos and clients
 │   ├── clean-code-principles.md    extraction/refactor judgment
 │   ├── testing-principles.md       test strategy judgment
+│   ├── security-principles.md      auth, data, secrets, overrides, model input — applied by architect when the work touches them
 │   ├── review-process.md           how a review runs: lenses, brief, verification, the blocking-fix loop — shared by pair, solo and pr-review
 │   ├── walkthrough-principles.md   what a change walkthrough says + its locked visual identity
 │   └── data-analysis-principles.md population-level analysis, source cross-referencing, claim verification

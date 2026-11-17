@@ -1,0 +1,40 @@
+schema_version: "1.1"
+name: advisor-integration-old-clients
+description: A contract change that reaches shipped clients gets an integration assessment, not only a module design.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:architect to design this change. A lessons API returns each
+    lesson with a `kind` field, currently "standard" or "review". The mobile
+    app, in a separate repository, decodes `kind` into a closed enum and
+    fails to decode the whole lesson list if it meets a value it does not
+    know. About a third of users are on app versions that cannot be
+    force-updated. We want to add a third kind, "flow", created from the
+    admin tool (a third repository) and rendered by a new screen in the next
+    app release. Treat these facts as the design brief; source files are not
+    supplied. Obtain the advisor's design.
+graders:
+  - name: architect-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  - name: architecture-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/architecture-principles\.md'
+  - name: integration-assessed
+    type: llm
+    criteria: >-
+      PASS only if the response (1) recognises that `kind` is consumed by the
+      separately shipped mobile app, (2) states that app versions already in
+      the field break on the new value and therefore must never receive it,
+      and (3) gives a rollout that is safe at every step, for example
+      withholding "flow" lessons from clients that have not declared support
+      through a capability or version check, shipping a tolerant decoder
+      first, or gating creation behind a flag. A dedicated heading or table is
+      not required. FAIL if it only describes module structure, assumes all
+      clients update together, relies on deploy timing alone, or claims to
+      have implemented anything.

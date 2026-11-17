@@ -1,0 +1,57 @@
+schema_version: "1.1"
+name: review-dispatches-security
+description: Entering through the shared review process, a small change to outside-input handling still dispatches the architecture advisor with the security standard.
+tags: [advisors]
+execution:
+  max_turns: 14
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Load the proxy references with proxy:context. Then act as the main
+    session at the post-build review step of the review process for this
+    finished change, and dispatch the advisors its lens table requires.
+    The bundled code-review skill cannot run in this session, so leave the
+    correctness lens out and say so. The change: inside the existing
+    imports/csv-parser module, the function parseUpload(rawBody) receives
+    the file a customer uploads. It used to reject any body over 64 KB and
+    now accepts up to 1 MB. That limit is the only change: two lines in
+    that one file plus its test. Nothing else about parsing or the parsed
+    output changes. The module has nothing to do with payments, accounts,
+    permissions, personal data or secrets, and there is no new route,
+    module, export or table. Source files are not supplied; brief the
+    advisors from this description and report what each returned.
+graders:
+  - name: context-loaded
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:context"'
+  - name: architect-dispatched
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+  # proxy:context reads the security standard once in the main session, so a
+  # single read proves nothing about the advisor. The second read is the
+  # advisor's; tool graders count delegated reads but cannot be scoped to one agent.
+  - name: security-reference-read-by-advisor-too
+    type: tool_used
+    tool: Read
+    input_match: 'references/security-principles\.md'
+    min: 2
+  - name: clean-code-and-testing-dispatched
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:(?:clean-code-architect|test-architect)"'
+    min: 2
+  - name: security-assessed
+    type: llm
+    criteria: >-
+      PASS only if the response shows the architecture advisor was
+      dispatched because the change handles input from outside the system,
+      although it adds no surface and touches nothing else on the security
+      list, and relays a security assessment that names at least one
+      concrete concern with raising the accepted size, such as memory or
+      time spent parsing a much larger upload, the lack of a per-user
+      limit, or where the limit is enforced. FAIL if it says the change is
+      too small for the architecture or security lens, runs only the
+      clean-code and testing advisors, or reports a security conclusion
+      without the advisor having been dispatched.

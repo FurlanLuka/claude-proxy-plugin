@@ -9,11 +9,12 @@ How a code review runs. `pair` and `solo` run it on what they just built and fix
 | Clean code | `proxy:clean-code-architect` | Always |
 | Testing | `proxy:test-architect` | Always |
 | Correctness | Claude Code's bundled `code-review` skill, invoked from the main session | Any change to code |
-| Architecture | `proxy:architect` | A new module, API surface or data shape, or changes to more than a couple of existing files |
-| Product | `proxy:product` | Same condition as architecture, or any change to what a user sees or reads |
-| Security | The main session, tracing the changed paths end to end | Auth, payments, PII or permissions are touched |
+| Architecture | `proxy:architect` | A new module, API surface or data shape, a responsibility moving between modules, or a contract that crosses a repo boundary. Also whenever the change touches auth, payments, personal data, permissions, secrets or input from outside the system, however small it is and even inside one module; it then applies `security-principles.md` as well |
+| Product | `proxy:product` | A new capability a user can reach, or a change to what a user sees, reads or is charged through the product's interface |
 
-A copy- or config-only change runs clean code and testing, scaled to what there is to check. A caller may ask for more than this table requires; it never runs less.
+A copy- or config-only change runs clean code and testing, scaled to what there is to check. A function added or changed inside one existing module, with no new surface and nothing from the security list above, runs the three always-on lenses and nothing more: every extra advisor costs tokens and time on every change, so the conditional lenses run only when their condition is plainly met, not when it could be argued. A caller may ask for more than this table requires; it never runs less.
+
+One reviewer per lens. Do not ask one advisor to cover another's standard, except where this table says so.
 
 Use the plugin-scoped advisor names exactly as written. Spawn the advisors in parallel as fresh subagents, never as forks of the main session: a reviewer that inherits the builder's reasoning tends to agree with it. Run correctness alongside them.
 
@@ -38,7 +39,7 @@ Reviewers know only what they are handed. Before spawning anything, write one br
 
 - The ask, in the user's terms.
 - Decisions made and why, including what was deliberately left out. Reviewers do not re-raise these without new evidence.
-- The approved plan, when there is one.
+- The approved plan, when there is one, with its integration map and risk list.
 - The exact change under review, per repo: absolute clone path, base and head commits or a saved diff, and how to read the code at that revision.
 - The repo's own conventions: its CLAUDE.md, applicable skills, and the reference paths each advisor needs.
 - Points already settled in earlier rounds or existing discussions.
@@ -67,6 +68,7 @@ Trace the changed paths end to end in the main session too. The lenses do not re
 
 No finding is acted on because a reviewer said so.
 
+- Send back any report section that does not say what was checked; `advisor-execution.md` requires it.
 - Read the code behind every finding. Confirmed → it stands. Unconfirmed → drop it, or keep it as a question.
 - Drop harmless deviations from proxy defaults that match the repo's conventions, restatements of decisions listed in the brief, and anything already settled.
 - Compare the change with the plan: name anything built that the plan did not ask for, and anything the plan asked for that is missing.

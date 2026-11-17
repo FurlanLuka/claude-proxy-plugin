@@ -1,0 +1,44 @@
+schema_version: "1.1"
+name: advisor-real-wiring
+description: The testing advisor flags a test that passes while production never reaches the code under test.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:test-architect to assess this coverage. A change adds a hook
+    `onCallEnding(session)` to a strategy object; it sets
+    `session.endsCall = true` so the call hangs up after the closing line.
+    The session coordinator is supposed to invoke the hook when a closing
+    line is selected. In the diff, the coordinator calls
+    `strategy.onCallEnding(session)` only on the path where the closing line
+    comes from a timeout. On the path where the closing line follows a
+    learner's answer, the coordinator selects the line but never calls the
+    hook. The only new test builds a strategy and a fake session, calls
+    `strategy.onCallEnding(session)` directly, and asserts
+    `session.endsCall === true`. It passes. Treat these facts as the full
+    brief; source files and test execution results are not supplied. Obtain
+    the advisor's assessment.
+graders:
+  - name: test-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:test-architect"'
+  - name: testing-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/testing-principles\.md'
+  - name: wiring-gap-flagged
+    type: llm
+    criteria: >-
+      PASS only if the assessment says the existing test proves the hook's
+      own logic but not that production reaches it, identifies the
+      answer-driven closing path as untested and in fact not calling the
+      hook, and recommends a test that goes through the coordinator's real
+      entry point for that path (and may also recommend one for the timeout
+      path). It should treat this as required, not optional. FAIL if it
+      accepts the direct hook test as sufficient coverage, only suggests
+      more direct calls to the hook, recommends mocking the coordinator in
+      a way that would still pass with the call missing, or claims to have
+      run or written tests.

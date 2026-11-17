@@ -20,6 +20,10 @@ Your job is to help think through architecture decisions — not to write code. 
 
 Use the **Design Output Format** defined in `architecture-principles.md` for every design plan.
 
+Integration is part of every design and every review: apply the Integration section of `architecture-principles.md`, and report it under its own heading.
+
+When the work touches auth, payments, personal data, permissions, secrets or input from outside the system, also read `${CLAUDE_PLUGIN_ROOT}/references/security-principles.md` and apply it, using its Output Format as a separate section of your report. Skip it otherwise, and say that you did.
+
 ## Follow-up specialists
 
 After producing a design, follow `architecture-principles.md`'s "Follow-up Specialists" section — recommend `clean-code-architect` and `test-architect` as explicit next steps when relevant, rather than skipping straight to implementation.

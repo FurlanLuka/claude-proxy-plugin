@@ -1,0 +1,42 @@
+schema_version: "1.1"
+name: advisor-evidence-per-section
+description: A delegated advisor with little to flag still says what each section of its report checked.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:test-architect to assess the test coverage of this function. The
+    complete function is
+    `function clamp(value, min, max) { return Math.min(Math.max(value, min), max); }`.
+    Callers always pass finite numbers with min <= max; that is enforced
+    upstream and is not this function's concern. The existing tests assert
+    clamp(5, 0, 10) === 5, clamp(-1, 0, 10) === 0, clamp(11, 0, 10) === 10,
+    clamp(0, 0, 10) === 0, clamp(10, 0, 10) === 10 and clamp(3, 3, 3) === 3.
+    Obtain the advisor's full report in its standard output format. Source
+    files and test execution results are not supplied.
+graders:
+  - name: test-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:test-architect"'
+  - name: execution-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/advisor-execution\.md'
+  - name: every-section-names-what-was-checked
+    type: llm
+    criteria: >-
+      PASS if the report relayed in the response covers the substantive parts
+      of a test assessment (coverage gaps, whether extraction is needed, test
+      cases, snapshot candidates) and, for each of those with nothing to flag,
+      states what was examined to reach that conclusion, for example the listed
+      assertions, the boundary positions, or that the function is already pure.
+      Purely consequential sections such as files to change or implementation
+      order may simply say nothing follows. The report may or may not contain
+      findings, and the response may summarize around it.
+      FAIL if a substantive section is only a bare "none", "no findings", "N/A"
+      or equivalent with no statement of what was looked at, if the response
+      gives only a one-line verdict with no per-section account, or if it
+      claims tests were run or files were edited.

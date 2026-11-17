@@ -17,6 +17,8 @@ Use `${CLAUDE_PLUGIN_ROOT}/references/philosophy.md` and `${CLAUDE_PLUGIN_ROOT}/
 
 If the spec involves any new module, new API surface, new data shape, or changes to more than a couple of existing files, also read `${CLAUDE_PLUGIN_ROOT}/references/architecture-principles.md`, `${CLAUDE_PLUGIN_ROOT}/references/clean-code-principles.md`, and `${CLAUDE_PLUGIN_ROOT}/references/testing-principles.md` before drafting — together they're the source of truth for architectural, refactor, and test judgment. Every real feature plan needs test scope decided up front (tests are non-negotiable), and most touch existing code enough that extraction judgment matters too — so treat these three as a set, not architecture-principles.md alone. Skip all three for specs that are purely copy/content/config with no structural decisions.
 
+If the spec touches auth, payments, personal data, permissions, secrets or input from outside the system, also read `${CLAUDE_PLUGIN_ROOT}/references/security-principles.md`.
+
 ## Infra gap check — before drafting
 
 Non-negotiables (tests, logs, and anything else `architecture-principles.md` requires as standard) assume the underlying infra already exists in the target repo. It often doesn't.
@@ -53,6 +55,8 @@ Procedure:
 - Product decisions made during clarification outrank any existing doc/spec — write the plan to match the decisions, don't hedge against them.
 - Plain, direct writing. No ceremony for its own sake — skip inline diagrams, feature flags, heavy formal structure unless the thing being built is meant to last, not a throwaway. (Architecture visuals live on the walkthrough page from the visual pass below, not in the plan prose.)
 - For anything sizeable, draft loosely first, then build it out section by section rather than dumping the whole thing at once.
+- When the work crosses a repo boundary or touches a shared contract, the plan carries the integration map from `architecture-principles.md`. Otherwise one line saying it does not.
+- Every real feature plan carries a short risk list: the states and failure paths that need care. The tests cover them and the post-build reviewers trace them.
 - **A feature ships in one go, as one PR.** Don't scope the plan into a stack of incremental PRs unless the user explicitly asks for that. If the work spans multiple projects/repos, that's one PR per project — not one PR per project per stage. Default assumption is "whole feature, done, in a single PR per repo touched." Infra work spun out per the gap check above is its own separate plan and PR by design — that's not a violation of "one PR," it's a different piece of work entirely.
 
 ## Self-review before presenting
