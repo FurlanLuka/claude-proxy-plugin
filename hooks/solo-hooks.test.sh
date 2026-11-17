@@ -83,6 +83,7 @@ stop_solo_spoken='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"St
 stop_solo_newline='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\n"}'
 stop_solo_tab='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\t"}'
 stop_solo_padded='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"  Stop Solo!\r\n"}'
+stop_solo_literal_n='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\\\\n"}'
 stop_solo_quoted='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"say \"stop solo\" when done"}'
 exit_solo='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"exit solo"}'
 stop_solo_prose='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo from touching the ios repo"}'
@@ -123,7 +124,7 @@ run "$approve_cmd" "";         assert_eq "approve: empty stdin -> silent" "/0" "
 touch "$marker"
 for kept in "$prompt_auto" "$prompt_plan" "$prompt_plan_pretty" "$prompt_nomode" "" "$typed_solo_lookalike" \
   "$typed_mention" "$typed_pair_lookalike" "$typed_pair_mention" "$task_notice" "$task_notice_wrapped" \
-  "$agent_handback" "$stop_solo_prose" "$stop_solo_quoted"; do
+  "$agent_handback" "$stop_solo_prose" "$stop_solo_quoted" "$stop_solo_literal_n"; do
   run "$prompt_cmd" "$kept"; assert_eq "prompt: keeps marker -> $(printf '%s' "$kept" | tr -d '\n' | cut -c1-70)" "present//0" "$(state)/$out/$rc"
 done
 run "$prompt_cmd" "$nosid";                assert_eq "prompt: session_id absent -> silent" "/0" "$out/$rc"
@@ -146,11 +147,19 @@ done
 # The stop command must work with either parser and with none: the raw prompt is JSON-escaped.
 tools="$tmp/tools"; mkdir -p "$tools"; for b in sh sed cat tr rm touch; do ln -s "$(command -v $b)" "$tools/$b"; done
 withpy="$tmp/withpy"; mkdir -p "$withpy"; for b in sh sed cat tr rm touch python3; do ln -s "$(command -v $b)" "$withpy/$b"; done
+for stop in "$stop_solo" "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
+  touch "$marker"
+  run "PATH=\"$withpy\" $prompt_cmd" "$stop"; assert_eq "prompt: stop disarms with python3 -> $(printf '%s' "$stop" | cut -c60-110 | tr -d '\\')" "removed//0" "$(state)/$out/$rc"
+done
+touch "$marker"
+run "PATH=\"$withpy\" $prompt_cmd" "$stop_solo_literal_n"; assert_eq "prompt: typed backslash-n after stop keeps marker with python3" "present//0" "$(state)/$out/$rc"
+# With no parser a real newline and a typed backslash-n look the same, so only the plain form is honored.
+run "PATH=\"$tools\" $prompt_cmd" "$stop_solo_literal_n"; assert_eq "prompt: typed backslash-n after stop keeps marker with no parser" "present//0" "$(state)/$out/$rc"
+for unsure in "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
+  run "PATH=\"$tools\" $prompt_cmd" "$unsure"; assert_eq "prompt: no parser, escaped whitespace stays armed -> $(printf '%s' "$unsure" | cut -c60-110 | tr -d '\\')" "present//0" "$(state)/$out/$rc"
+done
+run "PATH=\"$tools\" $prompt_cmd" "$stop_solo"; assert_eq "prompt: no parser, plain stop solo disarms" "removed//0" "$(state)/$out/$rc"
 for parser in "$tools" "$withpy"; do
-  for stop in "$stop_solo" "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
-    touch "$marker"
-    run "PATH=\"$parser\" $prompt_cmd" "$stop"; assert_eq "prompt: stop disarms with $(basename "$parser") -> $(printf '%s' "$stop" | cut -c60-110 | tr -d '\\')" "removed//0" "$(state)/$out/$rc"
-  done
   touch "$marker"
   run "PATH=\"$parser\" $prompt_cmd" "$typed_solo_multiline"; assert_eq "prompt: typed solo + newline keeps arming with $(basename "$parser")" "present//0" "$(state)/$out/$rc"
   run "PATH=\"$parser\" $prompt_cmd" "$stop_solo_prose"; assert_eq "prompt: stop inside a sentence keeps marker with $(basename "$parser")" "present//0" "$(state)/$out/$rc"

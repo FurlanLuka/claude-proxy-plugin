@@ -17,7 +17,11 @@ case "$sid" in ''|*[!A-Za-z0-9-]*) exit 0 ;; esac
 # The prompt arrives JSON-escaped: a newline typed after the command is the two
 # characters \n. Decode it with a real parser when one is present, so trailing
 # whitespace is whitespace. Without jq or python3, fall back to the raw field with
-# the common whitespace escapes turned into spaces.
+# the common whitespace escapes turned into spaces. That fallback cannot tell a real
+# newline from a typed backslash followed by n, so the stop command below is only
+# honored there when the raw prompt holds no backslash at all: when unsure, solo
+# stays armed and the user says it again.
+decoded=yes
 if command -v jq >/dev/null 2>&1; then
   prompt=$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null)
 elif command -v python3 >/dev/null 2>&1; then
@@ -28,7 +32,9 @@ try:
 except Exception:
     pass' 2>/dev/null)
 else
-  prompt=$(field prompt | sed 's/\\[nrt]/ /g')
+  decoded=no
+  raw=$(field prompt)
+  prompt=$(printf '%s' "$raw" | sed 's/\\[nrt]/ /g')
 fi
 
 # One line, single-spaced at the edges: tabs and line breaks count as spaces.
@@ -39,6 +45,9 @@ case "$flat" in
 esac
 
 # Spoken or typed stop: the whole prompt, ignoring case and trailing punctuation.
+if [ "$decoded" = no ]; then
+  case "$raw" in *\\*) exit 0 ;; esac
+fi
 spoken=$(printf '%s' "$flat" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:][:punct:]]*$//')
 case "$spoken" in
   "stop solo"|"exit solo") rm -f "/tmp/claude-proxy-solo-$sid" ;;
