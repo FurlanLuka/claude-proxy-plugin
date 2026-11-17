@@ -28,7 +28,7 @@ graders:
   - name: architecture-dispatched
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:architecture"'
   # proxy:context reads the security standard once in the main session, so a
   # single read proves nothing about the advisor. The second read is the
   # advisor's; tool graders count delegated reads but cannot be scoped to one agent.
