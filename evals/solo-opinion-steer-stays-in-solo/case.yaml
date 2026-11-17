@@ -1,0 +1,42 @@
+schema_version: "1.1"
+name: solo-opinion-steer-stays-in-solo
+description: An opinion-shaped steer during a solo build is taken as steering; it does not switch to brainstorm, which would end solo.
+tags: [transitions]
+context:
+  history_file: conversation.jsonl
+execution:
+  max_turns: 12
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  append_system_prompt: >-
+    This conversation is in the middle of a proxy:solo build. Load the
+    current version of that skill before responding to the next user turn.
+  prompt: Should we keep this simpler?
+graders:
+  - name: current-solo-loaded
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:solo"'
+  - name: brainstorm-not-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:brainstorm"'
+    min: 0
+    max: 0
+  - name: pair-not-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:pair"'
+    min: 0
+    max: 0
+  - name: taken-as-steer
+    type: llm
+    criteria: >-
+      PASS if the response treats the message as steering of the build in
+      progress: it says what it will cut or simplify, such as the options,
+      the presets or the cache, and that it carries on with the build on
+      that basis. It may add that it cannot continue building in this
+      session because plan-mode or edit tools are unavailable. FAIL if it
+      switches to a brainstorm or an open-ended opinion discussion, hands
+      the decision back as a question or a pick-list, restarts the solo
+      workflow from the top, or says solo has ended.

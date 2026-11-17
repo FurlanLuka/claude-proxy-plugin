@@ -48,6 +48,7 @@ Skip `plan-walkthrough`. Nobody is waiting to approve the plan, so the page has 
 The user may interrupt with a redirect at any point. Take it, adjust in place, continue autonomously from where you were. Do not switch to asking questions, do not restart from the top.
 
 - A steer never disarms the marker, in or out of plan mode. Do not re-invoke `proxy:solo` because of one.
+- A steer phrased as a question or an opinion ("should we keep this simpler?") is still a steer. Take it as one: adjust and continue. Do not invoke `proxy:brainstorm` for it. That skill ends solo, so the next plan would stop for approval; switch only when the user asks to brainstorm.
 - The user says stop while you are in plan mode → do not call `ExitPlanMode`. End the turn with one line: solo stays armed until they say "stop solo" or invoke `proxy:pair`.
 
 ## Implementation

@@ -37,6 +37,8 @@ graders:
       it with a check/plan/is-style verb, uses a named params object for three
       or more inputs, and replaces the magic numbers with named constants that
       carry their unit. FAIL if the plan keeps the decisions inside the IO
-      method, keeps throwing for expected refusals without justification,
+      method, ends with expected refusals still thrown and no justification
+      (an intermediate step that keeps throwing before a later step
+      switches to returned results is fine),
       claims to have edited files or run tests, or ignores TypeScript style
       entirely.
