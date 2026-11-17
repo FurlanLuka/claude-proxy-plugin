@@ -67,3 +67,4 @@ Invoke `proxy:qa-plan` as `pair` does. Two overrides for `qa-plan` itself:
 2. **What changed** — files, behavior, tests added.
 3. **Review** — lenses run, blocking findings and how each was resolved, what was skipped and why.
 4. **QA** — exercised / passed / failed / couldn't verify, from `qa-plan`.
+5. **PRs** — links in merge order, when the request asked for them and `pr-open` ran.

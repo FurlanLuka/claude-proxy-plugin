@@ -20,7 +20,7 @@ graders:
   - name: no-workflow-transition
     type: tool_used
     tool: Skill
-    input_match: '"skill"\s*:\s*"proxy:(?:pair|plan-walkthrough|qa-plan|pr-walkthrough)"'
+    input_match: '"skill"\s*:\s*"proxy:(?:pair|solo|plan-walkthrough|qa-plan|pr-open|pr-check)"'
     min: 0
     max: 0
   - name: agreement-stays-conversational

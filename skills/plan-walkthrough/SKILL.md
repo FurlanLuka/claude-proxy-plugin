@@ -32,8 +32,7 @@ When the gate requires a walkthrough, or immediately for a standalone invocation
 
 ## The after-state is a proposal, not a fact
 
-The single rule that differs from `pr-walkthrough`. The right-hand side of every
-panel is something that doesn't exist yet.
+The right-hand side of every panel is something that doesn't exist yet.
 
 - Verify the **before** side against real code, always. Grep it, read it. A
   before-state drawn from memory or from the spec's description of the current
@@ -54,9 +53,8 @@ zoomable, and reachable while reading the plan.
 - Figures are still inline `<svg>` inside the page — same discipline as the PR
   page, so the later export is a find-and-replace rather than a redraw. Keep each
   figure self-contained and its only theme dependency the token names.
-- Web fonts are fine here (the artifact CSP allows Google Fonts). The PR moment is
-  where they have to be baked out.
-- Publish it. Keep the URL — `pr-walkthrough` republishes to that same URL later.
+- Web fonts are fine here (the artifact CSP allows Google Fonts).
+- Publish it. Keep the URL — `pr-open` links it from the PR description.
 
 ## Present it with the plan
 
@@ -74,5 +72,5 @@ Plan-mode iteration changes the plan; it does not re-trigger this skill. If
 iteration changes the *architecture* — a panel is now wrong, not just a detail —
 update the page in place at that same URL and say so. Otherwise leave it.
 
-If the plan is approved and implementation drifts, that's `pr-walkthrough`'s
-problem, not this one's.
+If the plan is approved and implementation drifts from the page, update it or
+delete it, per `walkthrough-principles.md`.

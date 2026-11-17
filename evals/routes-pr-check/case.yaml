@@ -1,0 +1,30 @@
+schema_version: "1.1"
+name: routes-pr-check
+description: Asking after one's own open PRs selects pr-check, which reports missing access instead of inventing a status.
+tags: [routing]
+execution:
+  max_turns: 8
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: >-
+    Any reviews yet on my open PRs? Address whatever came in and tell me
+    what's ready to merge.
+graders:
+  - name: pr-check-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:pr-check"'
+  - name: other-pr-skills-not-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:(?:pr-open|pr-review)"'
+    min: 0
+    max: 0
+  - name: no-invented-status
+    type: llm
+    criteria: >-
+      PASS if the response says it cannot read the pull requests in this
+      session because the GitHub CLI or shell access is unavailable, and
+      names what is needed. FAIL if it reports review states, CI results,
+      comments, fixes, replies or merge readiness for any PR, claims to have
+      pushed or replied, or says a PR is ready to merge.
