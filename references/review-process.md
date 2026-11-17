@@ -24,7 +24,7 @@ A review can only isolate a change whose starting point was recorded before the 
 So the caller that makes the change captures a baseline first, per repo, before the first edit:
 
 - the head commit, and
-- the working state on top of it, as a snapshot it can diff against later. The snapshot must hold the contents of untracked files too, not only their names: a build that edits a file the user had already created but not yet added would otherwise be credited with the user's lines. Build it without disturbing the user's index, for example as a tree written from a temporary index that adds everything not ignored. A saved diff works only together with copies of the untracked files it cannot see.
+- the working state on top of it, as a snapshot it can diff against later. The snapshot must hold the contents of untracked files too, not only their names: a build that edits a file the user had already created but not yet added would otherwise be credited with the user's lines. Build it without disturbing the user's index, for example as a tree written from a temporary index that starts as a copy of the user's current index and then adds everything not ignored. Starting from that copy keeps what the user staged on purpose, such as an ignored file added with `git add -f`; an index seeded from the head commit would leave it out. A saved diff works only together with copies of the untracked files it cannot see.
 
 If an untracked file's earlier contents were not captured and the change touched it, say that edits to that file could not be isolated.
 
