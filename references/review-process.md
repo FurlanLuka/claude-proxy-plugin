@@ -17,6 +17,19 @@ A copy- or config-only change runs clean code and testing, scaled to what there 
 
 Use the plugin-scoped advisor names exactly as written. Spawn the advisors in parallel as fresh subagents, never as forks of the main session: a reviewer that inherits the builder's reasoning tends to agree with it. Run correctness alongside them.
 
+## Baseline
+
+A review can only isolate a change whose starting point was recorded before the change was made. The finished tree alone cannot say which edits belong to it: a fix may land in a file that already holds uncommitted feature work or the user's own edits.
+
+So the caller that makes the change captures a baseline first, per repo, before the first edit:
+
+- the head commit, and
+- the working state on top of it, as a snapshot it can diff against later: a local commit object of the tree as it stands, or a saved diff plus the list of untracked files.
+
+Capture again before every later edit that will need its own review: a fix for a blocking finding, a steer, a QA fix. Each capture is the "before" for the pass that follows.
+
+If a baseline was not captured and the starting state cannot be reconstructed, say so in the report: the isolated change could not be verified. Do not present a review of a wider diff as a review of the change.
+
 ## Brief
 
 Reviewers know only what they are handed. Before spawning anything, write one brief file in the session's scratch space, outside every repo, and give its absolute path to each reviewer:
@@ -37,7 +50,7 @@ Invoke `code-review` through the Skill tool once per repo touched, with `medium 
 Pin the change before every pass, the first and each later one:
 
 - **Committed work:** `<before>...<after>`, where `<before>` is the commit the change started from, not wherever upstream happens to be.
-- **Uncommitted work:** record the commit and the working state the change started from, and hand over a before and after it can read: two commits, or a saved diff of just this change with the absolute repo path. Commit objects made for this purpose stay local.
+- **Uncommitted work:** the before is the baseline captured ahead of the change, the after is a snapshot taken now. Hand over a before and after it can read: two commits, or a saved diff of just this change with the absolute repo path. Commit objects made for this purpose stay local.
 - **No target** only when the default scope, commits ahead of upstream plus all uncommitted edits, is exactly the change under review. A QA fix on top of an already reviewed feature, or unrelated local edits alongside, makes that false.
 
 `--max-findings` needs Claude Code v2.1.288 or later. On an older version, drop the flag and say in the report that findings were capped at the default.
@@ -69,7 +82,7 @@ For callers that fix what they find. `pr-review` does not fix; its findings beco
 
 - **Blocking:** fix it, rerun the relevant checks, and return the fix and the results to the lens that raised it, continuing that reviewer rather than starting a new one where possible. Repeat until that lens confirms the fix. When a fix changes behaviour, run correctness on the fix as well: fixes introduce their own defects.
 - **Non-blocking:** fix once, or skip with a reason. No re-review.
-- **Later changes:** code changed after the review — a steer, a QA fix — is a new change. Run the lenses that apply to it on that change alone.
+- **Later changes:** code changed after the review — a steer, a QA fix — is a new change. Capture its baseline before making it, then run the lenses that apply to it on that change alone.
 
 The review is closed when no blocking finding is open on the current revision. Passing tests or an earlier clean pass does not close it.
 
@@ -78,4 +91,4 @@ The review is closed when no blocking finding is open on the current revision. P
 - Lenses run, and any skipped with the reason.
 - Blocking findings and how each was resolved.
 - Non-blocking findings fixed, and those skipped with reasons.
-- What could not be verified.
+- What could not be verified, including any change whose baseline was missing.
