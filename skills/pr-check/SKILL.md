@@ -11,6 +11,8 @@ Read `${CLAUDE_PLUGIN_ROOT}/docs/prerequisites.md` and check its **PR open and P
 
 The PRs the user named. Otherwise the user's open PRs for the current branch and its stack, in the repos under the working directory. Confirm each is the user's own; anything else is a job for `pr-review`.
 
+This is also the fix scope: the only PRs whose branches steps 3 and 4 may edit, push to or comment on. Reading a PR outside it, to report on a stack, never brings it into scope.
+
 ## 2. Status — read-only
 
 For each PR, against the live head and the live target:
@@ -60,8 +62,10 @@ The status from step 2 describes the revision before the fixes. A push starts ne
 
 Do this for every PR that was changed, and for every PR above one in a stack: pushing a lower branch changes the target of the PR on top of it even when that PR's own head did not move.
 
-Report what was read, for that head against that target. Checks still running mean the PR is waiting on CI, not ready. A conflict found here goes back to step 3.
+Report what was read, for that head against that target. Checks still running mean the PR is waiting on CI, not ready.
+
+A conflict found here goes back to step 3 only for a PR in the fix scope from step 1. For any other PR, such as an upper PR in the stack the user did not ask to fix, the refresh stays read-only: report the conflict and what caused it, and do not restack, edit or push that branch.
 
 ## 6. Report
 
-Decisions that need the user come first, with the drafted replies. Then per PR: what was fixed, what was replied, and what it is waiting on — a named reviewer, CI, or the user. End with what is ready to merge, in order. A PR is ready only if its current head is approved, green and merges cleanly into its live target, all as read in step 5.
+Decisions that need the user come first, with the drafted replies. Then per PR: what was fixed, what was replied, and what it is waiting on — a named reviewer, CI, or the user. List separately any PR outside the fix scope that this run left in conflict, so the user can ask for it. End with what is ready to merge, in order. A PR is ready only if its current head is approved, green and merges cleanly into its live target, all as read in step 5.
