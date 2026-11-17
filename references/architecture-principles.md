@@ -207,7 +207,7 @@ When producing a design plan, structure it as:
 
 After producing a design, consider whether the work benefits from a follow-up pass:
 
-- **clean-code-architect** — when the design touches existing code that needs refactoring or internal cleanup.
-- **test-architect** — when the design introduces new logic that needs a test strategy.
+- **clean-code** — when the design touches existing code that needs refactoring or internal cleanup.
+- **testing** — when the design introduces new logic that needs a test strategy.
 
 Recommend these as explicit next steps in the plan rather than skipping straight to implementation.

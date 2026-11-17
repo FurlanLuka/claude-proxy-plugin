@@ -61,11 +61,11 @@ Procedure:
 
 ## Self-review before presenting
 
-Before calling `EnterPlanMode`, run the draft past the relevant specialist agents — `proxy:product` for scope/usefulness/positioning/UX soundness (every plan), `proxy:architect` for design soundness, `proxy:clean-code-architect` if the plan touches existing code, `proxy:test-architect` for test-plan soundness. Spawn them as subagents from here; keep this self-critique in the background before presenting the plan.
+Before calling `EnterPlanMode`, run the draft past the relevant specialist agents — `proxy:product` for scope/usefulness/positioning/UX soundness (every plan), `proxy:architecture` for design soundness, `proxy:clean-code` if the plan touches existing code, `proxy:testing` for test-plan soundness. Spawn them as subagents from here; keep this self-critique in the background before presenting the plan.
 
-Use the plugin-scoped names exactly as written (`proxy:architect`, not bare `architect`) to avoid collisions with global agents that share the same bare names. The scoped form selects this plugin's version, which carries the "match existing conventions first" rule and the philosophy references; don't assume another agent with the same bare name has those instructions.
+Use the plugin-scoped names exactly as written (`proxy:architecture`, never a bare or older name such as `architect`) to avoid collisions with global agents that have similar names. The scoped form selects this plugin's version, which carries the "match existing conventions first" rule and the philosophy references; don't assume another agent with the same bare name has those instructions.
 
-- If a specialist flags a real gap, revise the draft and loop — don't present a plan a spawned architect-agent would immediately poke a hole in.
+- If a specialist flags a real gap, revise the draft and loop — don't present a plan a spawned advisor would immediately poke a hole in.
 - If review surfaces something that's genuinely a product or major-technical decision (not just a fixable gap), that goes back through the clarification procedure above — ONE question, same rules — even though initial clarification already happened. Don't silently resolve a real decision yourself just because you're past that phase.
 - Keep iterating — revise, re-review, ask if truly needed — until the draft holds up, or until further review isn't surfacing anything new. Catch obvious gaps before presenting the plan; don't chase perfection indefinitely.
 - Once it's solid, move to the visual pass.

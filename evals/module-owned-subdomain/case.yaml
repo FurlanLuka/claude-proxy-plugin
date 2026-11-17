@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:architect where this responsibility belongs. The orders module
+    Ask proxy:architecture where this responsibility belongs. The orders module
     owns the complete order lifecycle. Its returns logic now spans eligibility
     rules, partial-return calculations, and several order-state transitions;
     keeping these distinct concerns together in one file has become difficult
@@ -17,10 +17,10 @@ execution:
     changing that ownership. Treat these facts as the design brief; source
     files are not supplied.
 graders:
-  - name: architect-invoked
+  - name: architecture-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:architecture"'
   - name: architecture-reference-read
     type: tool_used
     tool: Read

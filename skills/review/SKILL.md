@@ -11,7 +11,7 @@ Runs in the main session, live — not a workflow. There's nothing being built a
 
 Read every `.md` file in `${CLAUDE_PLUGIN_ROOT}/references/`. Discover the current files rather than relying on a fixed list. Apply each standard to the parts of the project it governs; loading walkthrough or data-analysis guidance does not require creating artifacts or running data queries for an unrelated audit.
 
-When the code is TypeScript, JavaScript or React, also read `${CLAUDE_PLUGIN_ROOT}/skills/typescript-style/SKILL.md` and its references, pass them to `proxy:clean-code-architect` and `proxy:test-architect`, and report style conformance as its own area. Where the project has an established convention of its own, report drift from that instead.
+When the code is TypeScript, JavaScript or React, also read `${CLAUDE_PLUGIN_ROOT}/skills/typescript-style/SKILL.md` and its references, pass them to `proxy:clean-code` and `proxy:testing`, and report style conformance as its own area. Where the project has an established convention of its own, report drift from that instead.
 
 ## Scope
 
@@ -22,9 +22,9 @@ If what to review isn't already clear from the request (whole project vs. a spec
 Spawn the specialist agents against the **real, existing codebase** — not a draft plan, the actual code:
 
 - `proxy:product` — scope/usefulness/positioning/UX conformance
-- `proxy:architect` — system/module design conformance
-- `proxy:clean-code-architect` — extraction, comments, pure-function conventions
-- `proxy:test-architect` — test coverage and quality
+- `proxy:architecture` — system/module design conformance
+- `proxy:clean-code` — extraction, comments, pure-function conventions
+- `proxy:testing` — test coverage and quality
 
 Give each specialist the audit scope, relevant reference paths, and the request for findings rather than implementation. Pass any applicable walkthrough or data-analysis standards to the specialist reviewing that area. Check areas outside the specialists' scope in the main session and include their findings in the report.
 

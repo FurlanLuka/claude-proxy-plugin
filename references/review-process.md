@@ -6,10 +6,10 @@ How a code review runs. `pair` and `solo` run it on what they just built and fix
 
 | Lens | Run by | Runs when |
 | --- | --- | --- |
-| Clean code | `proxy:clean-code-architect` | Always |
-| Testing | `proxy:test-architect` | Always |
+| Clean code | `proxy:clean-code` | Always |
+| Testing | `proxy:testing` | Always |
 | Correctness | Claude Code's bundled `code-review` skill, invoked from the main session | Any change to code |
-| Architecture | `proxy:architect` | A new module, API surface or data shape, a responsibility moving between modules, or a contract that crosses a repo boundary. Also whenever the change touches auth, payments, personal data, permissions, secrets or input from outside the system, however small it is and even inside one module; it then applies `security-principles.md` as well |
+| Architecture | `proxy:architecture` | A new module, API surface or data shape, a responsibility moving between modules, or a contract that crosses a repo boundary. Also whenever the change touches auth, payments, personal data, permissions, secrets or input from outside the system, however small it is and even inside one module; it then applies `security-principles.md` as well |
 | Product | `proxy:product` | A new capability a user can reach, or a change to what a user sees, reads or is charged through the product's interface |
 
 A copy- or config-only change runs clean code and testing, scaled to what there is to check. A function added or changed inside one existing module, with no new surface and nothing from the security list above, runs the three always-on lenses and nothing more: every extra advisor costs tokens and time on every change, so the conditional lenses run only when their condition is plainly met, not when it could be argued. A caller may ask for more than this table requires; it never runs less.

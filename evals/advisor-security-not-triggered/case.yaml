@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:architect where this belongs. The project is organized by
+    Ask proxy:architecture where this belongs. The project is organized by
     domain. A reports module already builds a weekly summary object in
     memory from data it owns. We need a pure function that formats that
     summary object as a Markdown string for display in the same module's
@@ -17,10 +17,10 @@ execution:
     explain why. Treat these facts as the design brief; source files are not
     supplied.
 graders:
-  - name: architect-invoked
+  - name: architecture-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:architecture"'
   - name: architecture-reference-read
     type: tool_used
     tool: Read

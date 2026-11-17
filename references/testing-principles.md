@@ -1,6 +1,6 @@
 # Testing Principles
 
-Source of truth for test strategy — used by `test-architect` and (when writing tests) `pair`. Tests are non-negotiable per `architecture-principles.md`; this file is the how.
+Source of truth for test strategy — used by `testing` and (when writing tests) `pair`. Tests are non-negotiable per `architecture-principles.md`; this file is the how.
 
 **Not TDD.** Tests verify that real behavior works, written alongside or after the implementation — not a test-first, red-green-refactor discipline driving the design. Write the code, then write tests that confirm it actually does what it's supposed to, then run them for real. Don't write a failing test first and implement to satisfy it.
 
@@ -117,9 +117,9 @@ describe('functionName', () => {
 - **No mocks** for pure function tests. If a test needs mocks, the code probably needs extraction instead (see `clean-code-principles.md`).
 - Domain-specific assertion helpers for common invariants worth naming and reusing across test files.
 
-## Collaboration with Clean Code Architect
+## Collaboration with Clean Code
 
-When a test plan identifies logic that is hard to test because it's trapped inside services (requires mocks, DI bootstrapping, or database setup), recommend extraction via **clean-code-architect** — see `clean-code-principles.md`. Clean-code-architect designs the extraction; test-architect designs the tests for the extracted pure functions.
+When a test plan identifies logic that is hard to test because it's trapped inside services (requires mocks, DI bootstrapping, or database setup), recommend extraction via **clean-code** — see `clean-code-principles.md`. Clean-code designs the extraction; testing designs the tests for the extracted pure functions.
 
 ## Test Plan Output Format
 

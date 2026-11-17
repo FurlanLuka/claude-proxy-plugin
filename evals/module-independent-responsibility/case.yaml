@@ -7,7 +7,7 @@ execution:
   timeout_seconds: 240
   allowed_tools: [Read, Glob, Grep, Skill, Agent]
   prompt: >-
-    Ask proxy:architect where this feature belongs. The project has orders and
+    Ask proxy:architecture where this feature belongs. The project has orders and
     checkout modules. We are adding gift cards with their own issuance records,
     balance ledger, redemption rules, and public API. Gift cards can be issued
     and redeemed by partners without an order or checkout session. Checkout
@@ -15,10 +15,10 @@ execution:
     checkout should integrate. Treat these facts as the design brief; source
     files are not supplied.
 graders:
-  - name: architect-invoked
+  - name: architecture-invoked
     type: tool_used
     tool: Agent
-    input_match: '"subagent_type"\s*:\s*"proxy:architect"'
+    input_match: '"subagent_type"\s*:\s*"proxy:architecture"'
   - name: architecture-reference-read
     type: tool_used
     tool: Read

@@ -31,7 +31,7 @@ Invoke `proxy:context` to load the plugin's references unless their full, unchan
 
 Run the review in `${CLAUDE_PLUGIN_ROOT}/references/review-process.md` against the pinned snapshot. What a PR review adds to it:
 
-- **Lenses.** Always all four advisors and correctness, whatever the size of the PR. The architect applies the security standard when the reference's trigger is met.
+- **Lenses.** Always all four advisors and correctness, whatever the size of the PR. The architecture advisor applies the security standard when the reference's trigger is met.
 - **Brief.** Add the absolute clone and diff paths, `reviewBaseOid`, `headRefOid`, `targetTipOid`, the `git show` instruction, any re-review delta and the settled threads.
 - **Correctness.** The target is `<reviewBaseOid>...<headRefOid>`, and the re-review delta when there is one. Supply the absolute clone and saved diff paths, requiring `git -C` inspection. Inspect its tool trace when accessible; a forked report must stand on its own. Checkout files or an upstream diff do not establish that scope.
 - **Other standards.** Check applicable philosophy, walkthrough and data-analysis standards outside the advisors' scope and include any findings.
