@@ -1,6 +1,7 @@
 #!/bin/sh
 # Invoking proxy:solo through the Skill tool arms the session marker that lets
-# ExitPlanMode auto-approve; invoking proxy:pair disarms it. (A typed /proxy:solo
+# ExitPlanMode auto-approve; invoking proxy:pair or proxy:brainstorm, the two skills
+# that exist to talk with the user, disarms it. (A typed /proxy:solo
 # bypasses the Skill tool; prompt-solo-marker.sh handles that path.) The model never
 # writes the marker itself, so no permission classifier has to judge that write.
 # Always exit 0: this hook must never block a skill invocation.
@@ -12,6 +13,6 @@ sid=$(field session_id)
 case "$sid" in ''|*[!A-Za-z0-9-]*) exit 0 ;; esac
 case "$(field skill)" in
   proxy:solo) touch "/tmp/claude-proxy-solo-$sid" ;;
-  proxy:pair) rm -f "/tmp/claude-proxy-solo-$sid" ;;
+  proxy:pair|proxy:brainstorm) rm -f "/tmp/claude-proxy-solo-$sid" ;;
 esac
 exit 0

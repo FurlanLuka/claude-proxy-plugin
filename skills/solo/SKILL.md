@@ -15,9 +15,10 @@ Open with one line so the user knows what they are watching:
 
 Plan mode stays real — read-only exploration, plan file, `EnterPlanMode`/`ExitPlanMode`. Plugin hooks handle the approval, and none of them need anything from you:
 
-- Invoking this skill, by typing `/proxy:solo` or through the Skill tool, armed a per-session marker (`/tmp/claude-proxy-solo-<session_id>`). Invoking `proxy:pair` disarms it.
+- Invoking this skill, by typing `/proxy:solo` or through the Skill tool, armed a per-session marker (`/tmp/claude-proxy-solo-<session_id>`).
 - `ExitPlanMode` is auto-approved while the marker exists (needs `jq` or `python3` on the machine).
-- Any other user prompt outside plan mode removes the marker.
+- `AskUserQuestion` is denied while the marker exists. Take the denial as the reminder it is: decide, log it, continue.
+- The marker stays armed through steering, subagent reports and task notifications. It ends when the user invokes `proxy:pair` or `proxy:brainstorm`, or sends a prompt that is only "stop solo".
 
 Never create, touch, or remove that file yourself — the permission classifier treats a model writing its own approval switch as self-modification and denies it. The hooks own the marker.
 
@@ -46,9 +47,8 @@ Skip `plan-walkthrough`. Nobody is waiting to approve the plan, so the page has 
 
 The user may interrupt with a redirect at any point. Take it, adjust in place, continue autonomously from where you were. Do not switch to asking questions, do not restart from the top.
 
-- The prompt arrived outside plan mode → the hook removed the marker. Before your next `EnterPlanMode`, invoke `proxy:solo` again through the Skill tool; that re-arms it. Do not restart the workflow or repeat the opening line because of the re-invocation, just continue.
-- The prompt arrived inside plan mode → the marker is still armed. Keep planning and exit as normal.
-- The user says stop while you are in plan mode → do not call `ExitPlanMode`. End the turn with one line: the marker is armed until they leave plan mode (Shift+Tab) or send a prompt outside it.
+- A steer never disarms the marker, in or out of plan mode. Do not re-invoke `proxy:solo` because of one.
+- The user says stop while you are in plan mode → do not call `ExitPlanMode`. End the turn with one line: solo stays armed until they say "stop solo" or invoke `proxy:pair`.
 
 ## Implementation
 

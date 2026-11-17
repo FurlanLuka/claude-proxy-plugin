@@ -131,10 +131,11 @@ proxy/
 │   ├── pr-walkthrough/      that same page, exported to hosted SVG in the PR description
 │   └── context/             loads all references/ into the current chat on demand (manual)
 ├── hooks/
-│   ├── hooks.json                 PreToolUse on Skill, PermissionRequest on ExitPlanMode, UserPromptSubmit — see Hooks below
-│   ├── arm-solo-marker.sh         creates the session marker when the model invokes proxy:solo via the Skill tool, removes it on proxy:pair
+│   ├── hooks.json                 PreToolUse on Skill and AskUserQuestion, PermissionRequest on ExitPlanMode, UserPromptSubmit — see Hooks below
+│   ├── arm-solo-marker.sh         creates the session marker when the model invokes proxy:solo via the Skill tool, removes it on proxy:pair or proxy:brainstorm
 │   ├── approve-solo-plan.sh       approves ExitPlanMode only while the marker exists
-│   ├── prompt-solo-marker.sh      a typed /proxy:solo arms the marker; any other prompt outside plan mode removes it
+│   ├── block-solo-question.sh     denies AskUserQuestion while the marker exists
+│   ├── prompt-solo-marker.sh      a typed /proxy:solo arms the marker; a typed /proxy:pair, /proxy:brainstorm or "stop solo" removes it
 │   └── solo-hooks.test.sh         black-box tests for the hooks and the wiring, run in CI
 ├── agents/
 │   ├── product.md                scope/usefulness/positioning/UX — advisor, no Edit/Write
@@ -160,14 +161,16 @@ proxy/
 
 ## Hooks
 
-These are the first hooks since the original two were dropped, and they exist only so `solo` can pass through plan mode without a click. All of them are no-ops unless a solo run is active, so `pair` and everything else are unaffected. The switch is a per-session marker file, `/tmp/claude-proxy-solo-<session_id>`, and only hooks ever touch it — the model never does.
+These are the first hooks since the original two were dropped, and they exist only so `solo` can pass through plan mode without a click and without asking questions. All of them are no-ops unless a solo run is active, so `pair` and everything else are unaffected. The switch is a per-session marker file, `/tmp/claude-proxy-solo-<session_id>`, and only hooks ever touch it — the model never does.
 
-- **`PreToolUse` on `Skill`** — the model invoking `proxy:solo` creates the marker; `proxy:pair` removes it. Typing `/proxy:solo` yourself never calls the Skill tool (the command expands straight into the prompt), so the prompt hook below covers that path. The marker is created by the harness, not by a model-issued write. That matters: the auto-mode classifier denies a model creating its own approval switch as self-modification, which is exactly what happened when this was first tried.
+- **`PreToolUse` on `Skill`** — the model invoking `proxy:solo` creates the marker; `proxy:pair` or `proxy:brainstorm` removes it, since both exist to talk with you. Typing `/proxy:solo` yourself never calls the Skill tool (the command expands straight into the prompt), so the prompt hook below covers that path. The marker is created by the harness, not by a model-issued write. That matters: the auto-mode classifier denies a model creating its own approval switch as self-modification, which is exactly what happened when this was first tried.
 - **`PermissionRequest` on `ExitPlanMode`** — the plan-approval dialog is this permission prompt. The hook answers "allow" only if the marker exists; otherwise it stays silent and the normal dialog appears. `ExitPlanMode` is a user-interaction tool, so Claude Code honors the allow only when it comes with `updatedInput` echoing the plan back; a bare allow is silently ignored (the older docs example is stale). Echoing the plan needs a real JSON parser, so the hook uses `jq` or `python3`, whichever is present.
-- **`UserPromptSubmit`** — a prompt that starts with `/proxy:solo` arms the marker; a typed `/proxy:pair` disarms it in any mode. Any other prompt you send outside plan mode removes it. That closes the window after an Esc, a Ctrl-C + `--resume`, or you entering plan mode yourself later. Other prompts sent *inside* plan mode leave it armed, because that is you steering the plan solo is writing. After a steer outside plan mode, `solo` re-invokes itself through the Skill tool before its next plan mode, which re-arms.
+- **`PreToolUse` on `AskUserQuestion`** — denied while the marker exists, with a reason telling the model to make the call and log it. `solo` promises no questions; this holds the model to it.
+- **`UserPromptSubmit`** — a prompt that starts with `/proxy:solo` arms the marker. A typed `/proxy:pair` or `/proxy:brainstorm`, or a prompt that is only "stop solo" or "exit solo", disarms it. Every other prompt leaves it armed. Earlier versions disarmed on any prompt outside plan mode, which ended solo in the middle of a run: subagent reports and task notifications arrive as prompts too, and `solo` runs six advisor passes per build, so the QA plan nearly always landed on the dialog. Steering a run did the same.
 
 Things to know:
 
+- A solo session stays solo. The marker outlives the run, so a later plan in the same session also passes without a click until you say "stop solo", invoke `pair` or `brainstorm`, or start a new session.
 - It fails safe. Hooks not yet loaded, a missing `session_id`, an unwritable `/tmp`, neither `jq` nor `python3` installed — all mean the dialog shows and you click. Never the other way round.
 - Approval restores whatever permission mode was active before plan mode. `solo` removes only the two plan approvals; every Edit and Bash call still follows your session mode.
 - Subagents share the session id, so a subagent calling `ExitPlanMode` during the window would also be approved. None of this plugin's agents enter plan mode.

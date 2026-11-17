@@ -19,6 +19,8 @@ hook_cmd() { jq -r "$1" "$root/hooks/hooks.json" | sed "s|\${CLAUDE_PLUGIN_ROOT}
 arm_cmd=$(hook_cmd '.hooks.PreToolUse[0].hooks[0].command')
 approve_cmd=$(hook_cmd '.hooks.PermissionRequest[0].hooks[0].command')
 prompt_cmd=$(hook_cmd '.hooks.UserPromptSubmit[0].hooks[0].command')
+question_cmd=$(hook_cmd '.hooks.PreToolUse[1].hooks[0].command')
+question_matcher=$(jq -r '.hooks.PreToolUse[1].matcher' "$root/hooks/hooks.json")
 arm_matcher=$(jq -r '.hooks.PreToolUse[0].matcher' "$root/hooks/hooks.json")
 approve_matcher=$(jq -r '.hooks.PermissionRequest[0].matcher' "$root/hooks/hooks.json")
 
@@ -68,13 +70,27 @@ typed_solo_lookalike='{"session_id":"'"$sid"'","permission_mode":"auto","prompt"
 typed_mention='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"please use /proxy:solo for this"}'
 typed_solo_multiline='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/proxy:solo\nfix the login bug"}'
 task_notice='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"<task-notification>\n<task-id>a1</task-id>\n<status>completed</status>\n</task-notification>"}'
-task_notice_mention='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"see <task-notification> above"}'
 typed_solo_in_plan='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:solo take over"}'
 typed_pair_in_plan='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair take over"}'
 typed_pair_bare='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair"}'
 typed_pair_multiline='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair\nreview this plan"}'
 typed_pair_tab='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pair\treview this plan"}'
 typed_pair_lookalike='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"/proxy:pairing"}'
+typed_pair_auto='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/proxy:pair take over"}'
+typed_brainstorm='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"/proxy:brainstorm what if"}'
+stop_solo='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo"}'
+stop_solo_spoken='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"Stop solo."}'
+stop_solo_newline='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\n"}'
+stop_solo_tab='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\t"}'
+stop_solo_padded='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"  Stop Solo!\r\n"}'
+stop_solo_literal_n='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo\\\\n"}'
+stop_solo_quoted='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"say \"stop solo\" when done"}'
+exit_solo='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"exit solo"}'
+stop_solo_prose='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"stop solo from touching the ios repo"}'
+agent_handback='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"Another Claude session sent a message:\n<agent-message from=\"a1\">review done</agent-message>"}'
+task_notice_wrapped='{"session_id":"'"$sid"'","permission_mode":"auto","prompt":"<system-reminder>\n[SYSTEM NOTIFICATION - NOT USER INPUT]\n<task-notification>\n<task-id>a1</task-id>\n</task-notification>\n</system-reminder>"}'
+skill_brainstorm='{"session_id":"'"$sid"'","tool_name":"Skill","tool_input":{"skill":"proxy:brainstorm"}}'
+question='{"session_id":"'"$sid"'","tool_name":"AskUserQuestion","tool_input":{"questions":[{"question":"Which one?"}]}}'
 typed_pair_mention='{"session_id":"'"$sid"'","permission_mode":"plan","prompt":"please consider /proxy:pair later"}'
 
 run "$arm_cmd" "$skill_solo";        assert_eq "arm: proxy:solo -> marker created, silent" "present//0" "$(state)/$out/$rc"
@@ -104,37 +120,69 @@ run "$approve_cmd" "$othersid"; assert_eq "approve: marker for another session -
 rm -f "$marker"
 run "$approve_cmd" "";         assert_eq "approve: empty stdin -> silent" "/0" "$out/$rc"
 
+# Prompts leave the marker alone unless they are an explicit handoff or stop.
 touch "$marker"
-run "$prompt_cmd" "$prompt_auto";        assert_eq "prompt: auto mode -> removed, silent" "removed//0" "$(state)/$out/$rc"
-touch "$marker"
-run "$prompt_cmd" "$prompt_plan";        assert_eq "prompt: plan mode -> kept, silent" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$prompt_plan_pretty"; assert_eq "prompt: pretty json, plan mode -> kept" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$prompt_nomode";      assert_eq "prompt: permission_mode absent -> removed (fail safe)" "removed//0" "$(state)/$out/$rc"
-touch "$marker"
-run "$prompt_cmd" "";                    assert_eq "prompt: empty stdin -> kept, silent" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$nosid";              assert_eq "prompt: session_id absent -> silent" "/0" "$out/$rc"
+for kept in "$prompt_auto" "$prompt_plan" "$prompt_plan_pretty" "$prompt_nomode" "" "$typed_solo_lookalike" \
+  "$typed_mention" "$typed_pair_lookalike" "$typed_pair_mention" "$task_notice" "$task_notice_wrapped" \
+  "$agent_handback" "$stop_solo_prose" "$stop_solo_quoted" "$stop_solo_literal_n"; do
+  run "$prompt_cmd" "$kept"; assert_eq "prompt: keeps marker -> $(printf '%s' "$kept" | tr -d '\n' | cut -c1-70)" "present//0" "$(state)/$out/$rc"
+done
+run "$prompt_cmd" "$nosid";                assert_eq "prompt: session_id absent -> silent" "/0" "$out/$rc"
 rm -f "$marker"
-run "$prompt_cmd" "$typed_solo";           assert_eq "prompt: typed '/proxy:solo args' -> arms instead" "present//0" "$(state)/$out/$rc"
-rm -f "$marker"
-run "$prompt_cmd" "$typed_solo_bare";      assert_eq "prompt: typed bare '/proxy:solo' -> arms" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$typed_solo_lookalike"; assert_eq "prompt: '/proxy:solomon' -> clears" "removed//0" "$(state)/$out/$rc"
-touch "$marker"
-run "$prompt_cmd" "$typed_mention";        assert_eq "prompt: prose mentioning /proxy:solo -> clears" "removed//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$typed_solo_multiline"; assert_eq "prompt: typed '/proxy:solo' + newline -> arms" "present//0" "$(state)/$out/$rc"
-rm -f "$marker"
-run "$prompt_cmd" "$typed_solo_in_plan";   assert_eq "prompt: typed '/proxy:solo' while in plan mode -> arms" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$typed_pair_lookalike"; assert_eq "prompt: '/proxy:pairing' in plan mode -> keeps" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$typed_pair_mention";   assert_eq "prompt: mentioning pair in plan mode -> keeps" "present//0" "$(state)/$out/$rc"
-for pair_prompt in "$typed_pair_in_plan" "$typed_pair_bare" "$typed_pair_multiline" "$typed_pair_tab"; do
+for inert in "$prompt_auto" "$agent_handback" "$typed_solo_lookalike" "$typed_mention"; do
+  run "$prompt_cmd" "$inert"; assert_eq "prompt: never arms -> $(printf '%s' "$inert" | tr -d '\n' | cut -c1-70)" "removed//0" "$(state)/$out/$rc"
+done
+for arming in "$typed_solo" "$typed_solo_bare" "$typed_solo_multiline" "$typed_solo_in_plan"; do
+  rm -f "$marker"
+  run "$prompt_cmd" "$arming"; assert_eq "prompt: typed solo arms -> $(printf '%s' "$arming" | tr -d '\n' | cut -c1-70)" "present//0" "$(state)/$out/$rc"
+done
+for handoff in "$typed_pair_in_plan" "$typed_pair_bare" "$typed_pair_multiline" "$typed_pair_tab" "$typed_pair_auto" \
+  "$typed_brainstorm" "$stop_solo" "$stop_solo_spoken" "$exit_solo" \
+  "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
   touch "$marker"
-  run "$prompt_cmd" "$pair_prompt"; assert_eq "prompt: typed pair in plan mode -> disarms" "removed//0" "$(state)/$out/$rc"
-  run "$approve_cmd" "$compact";   assert_eq "approve: typed pair handoff -> normal dialog" "/0" "$out/$rc"
+  run "$prompt_cmd" "$handoff"; assert_eq "prompt: disarms -> $(printf '%s' "$handoff" | tr -d '\n' | cut -c1-70)" "removed//0" "$(state)/$out/$rc"
+  run "$approve_cmd" "$compact"; assert_eq "approve: after disarm -> normal dialog" "/0" "$out/$rc"
+done
+
+# The stop command must work with either parser and with none: the raw prompt is JSON-escaped.
+tools="$tmp/tools"; mkdir -p "$tools"; for b in sh sed cat tr rm touch; do ln -s "$(command -v $b)" "$tools/$b"; done
+withpy="$tmp/withpy"; mkdir -p "$withpy"; for b in sh sed cat tr rm touch python3; do ln -s "$(command -v $b)" "$withpy/$b"; done
+for stop in "$stop_solo" "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
+  touch "$marker"
+  run "PATH=\"$withpy\" $prompt_cmd" "$stop"; assert_eq "prompt: stop disarms with python3 -> $(printf '%s' "$stop" | cut -c60-110 | tr -d '\\')" "removed//0" "$(state)/$out/$rc"
 done
 touch "$marker"
-run "$prompt_cmd" "$task_notice";          assert_eq "prompt: background task notification -> kept, silent" "present//0" "$(state)/$out/$rc"
-run "$prompt_cmd" "$task_notice_mention";  assert_eq "prompt: prose mentioning <task-notification> -> clears" "removed//0" "$(state)/$out/$rc"
+run "PATH=\"$withpy\" $prompt_cmd" "$stop_solo_literal_n"; assert_eq "prompt: typed backslash-n after stop keeps marker with python3" "present//0" "$(state)/$out/$rc"
+# With no parser a real newline and a typed backslash-n look the same, so only the plain form is honored.
+run "PATH=\"$tools\" $prompt_cmd" "$stop_solo_literal_n"; assert_eq "prompt: typed backslash-n after stop keeps marker with no parser" "present//0" "$(state)/$out/$rc"
+for unsure in "$stop_solo_newline" "$stop_solo_tab" "$stop_solo_padded"; do
+  run "PATH=\"$tools\" $prompt_cmd" "$unsure"; assert_eq "prompt: no parser, escaped whitespace stays armed -> $(printf '%s' "$unsure" | cut -c60-110 | tr -d '\\')" "present//0" "$(state)/$out/$rc"
+done
+run "PATH=\"$tools\" $prompt_cmd" "$stop_solo"; assert_eq "prompt: no parser, plain stop solo disarms" "removed//0" "$(state)/$out/$rc"
+for parser in "$tools" "$withpy"; do
+  touch "$marker"
+  run "PATH=\"$parser\" $prompt_cmd" "$typed_solo_multiline"; assert_eq "prompt: typed solo + newline keeps arming with $(basename "$parser")" "present//0" "$(state)/$out/$rc"
+  run "PATH=\"$parser\" $prompt_cmd" "$stop_solo_prose"; assert_eq "prompt: stop inside a sentence keeps marker with $(basename "$parser")" "present//0" "$(state)/$out/$rc"
+done
+rm -f "$marker"
+
+# A full solo run: steering and subagent reports between the two plan exits must not cost the second approval.
+run "$arm_cmd" "$skill_solo"
+run "$approve_cmd" "$compact";    assert_eq "run: build plan auto-approves" "allow/0" "$(allowed "$compact")/$rc"
+run "$prompt_cmd" "$agent_handback"; run "$prompt_cmd" "$task_notice_wrapped"; run "$prompt_cmd" "$prompt_auto"
+run "$arm_cmd" "$skill_other"
+run "$approve_cmd" "$compact";    assert_eq "run: QA plan still auto-approves after reports and a steer" "allow/0" "$(allowed "$compact")/$rc"
+
+denied() { printf '%s' "$out" | jq -e '.hookSpecificOutput.hookEventName=="PreToolUse" and .hookSpecificOutput.permissionDecision=="deny" and (.hookSpecificOutput.permissionDecisionReason|length>0)' >/dev/null 2>&1 && echo deny || echo "other:$out"; }
+run "$question_cmd" "$question";  assert_eq "question: marker present -> denied with a reason" "deny/0" "$(denied)/$rc"
+run "$question_cmd" "$nosid";     assert_eq "question: session_id absent -> silent" "/0" "$out/$rc"
+run "$question_cmd" "$badsid";    assert_eq "question: session_id with path chars -> silent" "/0" "$out/$rc"
+run "$question_cmd" "";           assert_eq "question: empty stdin -> silent" "/0" "$out/$rc"
+run "$arm_cmd" "$skill_brainstorm"; assert_eq "arm: proxy:brainstorm -> marker removed" "removed//0" "$(state)/$out/$rc"
+run "$question_cmd" "$question";  assert_eq "question: no marker -> silent (question goes through)" "/0" "$out/$rc"
 
 assert_eq "hooks.json: PreToolUse matcher is Skill" "Skill" "$arm_matcher"
+assert_eq "hooks.json: second PreToolUse matcher is AskUserQuestion" "AskUserQuestion" "$question_matcher"
 assert_eq "hooks.json: PermissionRequest matcher is ExitPlanMode" "ExitPlanMode" "$approve_matcher"
 
 exit $fail
