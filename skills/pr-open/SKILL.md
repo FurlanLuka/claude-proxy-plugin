@@ -25,7 +25,9 @@ In this order, because each step can change the code the next one vouches for:
 2. **Reviewed at this revision.** Work that came straight out of `pair` or `solo` in this session, with nothing changed since, already is. Anything else goes through `${CLAUDE_PLUGIN_ROOT}/references/review-process.md` first, with its fix loop. A conflict resolution is a change: it goes through the lenses that apply to it. A PR is not where blocking findings get discovered.
 3. **Green locally, at the revision being pushed.** Run the checks CI will run, where the repo makes that possible, after the last edit.
 
-Nothing is pushed on evidence gathered for an earlier revision. If any step changes the code, the later steps run again.
+4. **Still merges, at the head being pushed.** A review fix can touch a line the target also changed, and the target can move while you work. Immediately before pushing, fetch the target again and check the final head against it. If it conflicts, resolve it, and since the resolution changes the code, take it back through steps 2 and 3 before trying again.
+
+Nothing is pushed on evidence gathered for an earlier revision. If any step changes the code, every step after it runs again, and step 4 is always the last thing before the push.
 
 ## 4. Target and stacks
 
@@ -48,7 +50,7 @@ Then check every claim against the code or the evidence: "no behavior change", "
 
 ## 6. Open
 
-- Push the branch. Force-push only with lease, only to the work's own branch, only when its history was rewritten.
+- Push the branch, straight after the final merge check in section 3 passes for this head. Force-push only with lease, only to the work's own branch, only when its history was rewritten.
 - Open as a draft unless the repo's convention or the user says ready.
 - Request the reviewers the user named, or the ones the repo's convention assigns. Do not choose people.
 - Apply the repo's labels, including any that trigger a preview.

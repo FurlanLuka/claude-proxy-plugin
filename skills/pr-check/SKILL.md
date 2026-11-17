@@ -53,8 +53,15 @@ Under `solo`, technical calls are yours as usual; the held replies stay held, be
 
 ## 5. Re-read before reporting
 
-The status from step 2 describes the revision before the fixes. A push starts new checks and can invalidate an approval, so after the last write, read each changed PR again: its head, its checks and its review decision. Report those, for that head. Checks still running mean the PR is waiting on CI, not ready.
+The status from step 2 describes the revision before the fixes. A push starts new checks and can invalidate an approval, and the target can move while the fixes are made. So after the last write, read again, for each PR, at the same moment:
+
+- its head, its checks and its review decision, and
+- its live target and whether that head merges into it cleanly.
+
+Do this for every PR that was changed, and for every PR above one in a stack: pushing a lower branch changes the target of the PR on top of it even when that PR's own head did not move.
+
+Report what was read, for that head against that target. Checks still running mean the PR is waiting on CI, not ready. A conflict found here goes back to step 3.
 
 ## 6. Report
 
-Decisions that need the user come first, with the drafted replies. Then per PR: what was fixed, what was replied, and what it is waiting on — a named reviewer, CI, or the user. End with what is ready to merge, in order. A PR is ready only if its current head is approved, green and conflict-free as read in step 5.
+Decisions that need the user come first, with the drafted replies. Then per PR: what was fixed, what was replied, and what it is waiting on — a named reviewer, CI, or the user. End with what is ready to merge, in order. A PR is ready only if its current head is approved, green and merges cleanly into its live target, all as read in step 5.
