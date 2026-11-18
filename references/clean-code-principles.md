@@ -165,6 +165,18 @@ What to do with what you find:
 - **Wording, tone, completeness** — non-blocking, as before.
 - **Outside the repo** — a spec, a wiki page, a guide in another tool. You cannot search those. When the brief or the code points to one that describes what changed, name it and what in it is likely stale. The implementing session reports it to the user and updates it only when asked.
 
+### When the change is to guidance itself
+
+Skills, agent docs, `CLAUDE.md`, `AGENTS.md`: text that agents act on. A wrong fact there teaches a convention the repo does not have, so a change to it is checked claim by claim.
+
+- **Against the code, never against other guidance.** Every path, identifier, quoted literal, number and stated behavior in an added or changed line is checked in the code it describes. A guidance line is not evidence for itself, or for another guidance line.
+- **Quantifiers are claims.** "All", "every", "never", "only": re-derive each with a search. Run the pattern first on a line you know it should match, so that an empty result means no match and not a broken pattern.
+- **Removed lines are accounted for.** Each one is restated elsewhere in the change, or removed on purpose and said so. Moving text between files is where a rule gets lost without anyone deciding to drop it.
+- **Sweep for contradictions.** Search the rest of the guidance for the terms a changed rule names. Two rules a reader could apply either way are a finding, wherever the second one lives.
+- **Renamed or removed headings.** Search for references to the old name.
+
+A claim that needs a run to settle is reported as not checked, with what would settle it. A false claim or a contradiction introduced by the change is blocking, like any other doc the change made false.
+
 ## Algorithm vs Helpers
 
 - **Stateful algorithms** — when logic maintains running state across iterations, a class with constructor setup and a public entry method is appropriate. Private methods handle scoring and internal state. The class is still testable — construct it with known inputs, call the public method, assert the output.
@@ -196,6 +208,10 @@ Flag useless comments during every review, not just when doing extraction work. 
 
 - **Flag:** a comment that restates what the code already says (`// increment counter` above `counter++`), a comment explaining WHAT when the code is already clear, a stale comment that no longer matches the code next to it. A comment this change made untrue is more than a flag: it is blocking under Docs Follow the Change.
 - **Fine, leave it:** a comment that captures product/business context, a non-obvious constraint, or the reason a decision was made a specific way — none of which the code itself can express.
+- **Describe the present.** A comment says what the reader needs now, not how the code got here: no "used to", "now", "the new flow replaces", no account of an approach that was tried and dropped. The reason a decision stands belongs in the comment; the story of reaching it belongs in the commit.
+- **Nothing more transient than the code.** No feature flags, experiments, rollout phases, ticket numbers, or other screens and features, unless the annotated code reads that thing. Test: would an unrelated cleanup, a flag deleted or an experiment concluded, silently make this comment wrong? Then it describes the moment, not the contract.
+- **Docstrings lead with what a caller must know**: the contract and the gotchas. How the body works, which the reader can see, does not belong there.
+- **The same rules cover other text a developer reads**: test names, log messages, error text.
 - When in doubt: would removing this comment confuse a reader? If not, it shouldn't be there.
 
 ## Collaboration with Testing
