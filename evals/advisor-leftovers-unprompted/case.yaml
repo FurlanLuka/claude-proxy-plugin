@@ -1,0 +1,38 @@
+schema_version: "1.1"
+name: advisor-leftovers-unprompted
+description: Given only a description of a change, with no hint about unused code, the clean-code advisor still goes looking for what the change left behind.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code to review this finished change. In src/pricing.ts
+    the change adds applyDiscount(order, rules), which reads its rates from
+    the rules argument. The single call site in src/checkout.ts now calls
+    applyDiscount where it used to call applyLegacyDiscount(order). The
+    diff touches only those two files and adds test/discount.test.ts.
+    Source files are not supplied and nothing else about the repository is
+    known; obtain the advisor's review.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: goes-looking-for-leftovers
+    type: llm
+    criteria: >-
+      PASS only if the review raises, unprompted, that applyLegacyDiscount
+      may now be unused because its only stated call site moved, and asks
+      for or specifies a repository search to settle it: remaining callers
+      of applyLegacyDiscount, and things that existed only for it, such as
+      its constants or rate table, its tests, or its config. It must say
+      this could not be checked without the repository rather than assert
+      the result. FAIL if the review discusses only the new function and
+      the call site, never mentions what the replaced function leaves
+      behind, asserts as fact that the old function is unused or still
+      used, or claims to have searched or edited anything.
