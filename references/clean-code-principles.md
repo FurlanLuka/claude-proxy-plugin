@@ -151,7 +151,7 @@ When reviewing a change, list what it renamed, removed, or made behave different
 - **Instructions for agents.** `CLAUDE.md`, `AGENTS.md`, skills, prompts and templates that describe the changed behavior. A stale instruction is followed, not just read.
 - **References between docs.** Links, section anchors, file paths, command names, and examples that are meant to run.
 
-Search, don't infer, and say what you searched: the terms and where you looked. "No docs affected" with no search beside it is not a finding.
+Search, don't infer, and say what you searched: the terms and where you looked. Cover both kinds every time — docs for people and instructions for agents. Agent instructions are the easy ones to forget and the costly ones to miss: nobody rereads them, they are simply obeyed. A search of one kind is half a search, and "no docs affected" with no search beside it is not a finding.
 
 This section and Leftovers meet at one line. A doc whose whole subject is gone is a leftover: it is removed. A doc that stays but now says something untrue belongs here: it is corrected.
 
