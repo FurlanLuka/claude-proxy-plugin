@@ -74,7 +74,7 @@ No finding is acted on because a reviewer said so.
 - Compare the change with the plan: name anything built that the plan did not ask for, and anything the plan asked for that is missing.
 - Label what remains.
 
-**Blocking** — it cannot ship as it is: wrong behaviour or a crash; a break in another repo, an older client, a sibling change or the rollout order; a security problem; required behaviour with no test, or a test that passes for the wrong reason. A caller reviewing someone else's change may narrow this; `pr-review` leaves sequencing to the author.
+**Blocking** — it cannot ship as it is: wrong behaviour or a crash; a break in another repo, an older client, a sibling change or the rollout order; a security problem; required behaviour with no test, or a test that passes for the wrong reason; code this change leaves unused. A caller reviewing someone else's change may narrow this; `pr-review` leaves sequencing to the author.
 
 **Non-blocking** — everything else: naming, cleanup, comment and doc wording, optional suggestions.
 

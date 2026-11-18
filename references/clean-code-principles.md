@@ -111,6 +111,24 @@ Use section comments sparingly — only for major logical groups within a large 
 - The code is framework wiring — leave plumbing as plumbing.
 - The refactor crosses module boundaries just to avoid a few lines of duplication. Cross-domain duplication is acceptable and preferred over coupling.
 
+## Leftovers
+
+A change that replaces or removes something usually leaves part of the old thing behind. `philosophy.md` says to cut what no longer earns its place; this is where that gets checked.
+
+When reviewing a change, look for what it orphaned:
+
+- **What it replaced.** The old function, type, component or module, once its last caller moved to the new one. Its constants, its helpers, its tests and fixtures, its config keys and flags, its assets, its docs and comments.
+- **What it abandoned on the way.** An approach tried during the build and then replaced, with its helpers, parameters or files still in the diff. A parameter threaded through that nothing reads. A branch that can no longer be reached.
+- **What it added and never used.** An export with no importer, a function with no production caller, an option nothing sets.
+
+Search, don't infer. Reading the diff shows what was added, not what stopped being used. For each candidate, search the repo for references, including tests, config, scripts and string-based lookups, and say what you searched. A symbol still referenced only by its own test is unused.
+
+What to do with what you find:
+
+- **Left unused by this change** — blocking. The change removes it, in the same change. Dead code that ships is paid for by every later reader.
+- **Unused before this change** — report it, and leave it. Removing it here would widen the diff beyond its own change; it is a follow-up.
+- **Cannot tell** — a dynamic lookup, a public API with callers outside the repo, something only reachable at runtime. Say so and name what would settle it. Do not recommend deleting on a guess.
+
 ## Algorithm vs Helpers
 
 - **Stateful algorithms** — when logic maintains running state across iterations, a class with constructor setup and a public entry method is appropriate. Private methods handle scoring and internal state. The class is still testable — construct it with known inputs, call the public method, assert the output.
@@ -159,6 +177,7 @@ When producing a clean code plan, structure it as:
    - Interface definition (params + return type)
    - Transformed call site (how the service calls the new helper)
    - Test cases (input → expected output, one line each)
-3. **Files to modify** — table of files and what changes in each.
-4. **Implementation order** — sequence that builds incrementally (simplest extraction first).
-5. **Verification** — steps to confirm correctness (type check, test run, coverage).
+3. **Leftovers** — when reviewing a change: what it left unused, what was already unused nearby, and what could not be determined, each with the search that shows it. "None", with what was searched, when there are none.
+4. **Files to modify** — table of files and what changes in each.
+5. **Implementation order** — sequence that builds incrementally (simplest extraction first).
+6. **Verification** — steps to confirm correctness (type check, test run, coverage).
