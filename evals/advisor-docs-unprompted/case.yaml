@@ -26,13 +26,11 @@ graders:
   - name: goes-looking-for-docs
     type: llm
     criteria: >-
-      PASS only if the review raises, unprompted, that documentation may
-      now be wrong, and asks for or specifies a search to settle it: the
-      old command name and the old stashing behavior, across docs for
-      people such as a README or guides AND instructions for agents such
-      as CLAUDE.md, AGENTS.md, skills or prompts. It must say this could
-      not be checked without the repository rather than assert the result.
-      FAIL if the review never mentions documentation, mentions only
-      human-facing docs with nothing about agent instructions, asserts as
-      fact that docs are or are not affected, or claims to have searched
-      or edited anything.
+      PASS if the review raises, without being asked, that documentation
+      may now be wrong, and names what to search for and where: the old
+      command name or the old stashing behavior, in docs for people such
+      as a README or guides AND in instructions for agents such as
+      CLAUDE.md, AGENTS.md, skills or prompts. Reporting that it searched
+      the workspace and found no files is fine. FAIL if the review never
+      mentions documentation, or mentions only human-facing docs with
+      nothing about agent instructions.
