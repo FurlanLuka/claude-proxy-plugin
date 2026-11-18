@@ -145,7 +145,7 @@ What to do with what you find:
 
 A doc that describes how something works is part of that thing. When the thing changes and the doc does not, the doc is now wrong, and a wrong doc costs more than a missing one: people and agents act on it.
 
-When reviewing a change, list what it renamed, removed, or made behave differently — functions, commands, flags, config keys, file paths, routes, concepts — and search for each in what the repo says about itself:
+When reviewing a change, list what it renamed, removed, or made behave differently — functions, commands, flags, config keys, file paths, routes, concepts. Add what it introduced, wherever the repo keeps a list of that kind of thing: a command table, a config reference, an index of skills. Something new cannot be found by searching for its name, so check the list it belongs in. Then search for each in what the repo says about itself:
 
 - **Docs for people.** README, architecture and design docs, guides, API docs, changelogs where the repo keeps one, comments and docstrings on the changed code.
 - **Instructions for agents.** `CLAUDE.md`, `AGENTS.md`, skills, prompts and templates that describe the changed behavior. A stale instruction is followed, not just read.
@@ -169,13 +169,16 @@ What to do with what you find:
 
 Skills, agent docs, `CLAUDE.md`, `AGENTS.md`: text that agents act on. A wrong fact there teaches a convention the repo does not have, so a change to it is checked claim by claim.
 
-- **Against the code, never against other guidance.** Every path, identifier, quoted literal, number and stated behavior in an added or changed line is checked in the code it describes. A guidance line is not evidence for itself, or for another guidance line.
+- **Tell a fact from a rule first.** "The handler validates its input" is a claim about what exists. "Never post without approval" is a rule about what should happen. They are checked differently.
+- **A fact is checked against what implements it.** Every path, identifier, quoted literal, number and stated behavior in an added or changed line is checked where that behavior is defined: usually the code, and for behavior that is itself defined in guidance, such as a skill's own steps, the text of that skill. A guidance line is not evidence for itself, and a description elsewhere is not evidence for it either.
+- **A rule is checked for what it rests on.** Its references resolve, its intent is stated or evident, and where it meets another rule it says which wins. Code or guidance that does not follow a new rule yet does not make the rule false: report that as drift, with where, for the implementing session to decide on.
 - **Quantifiers are claims.** "All", "every", "never", "only": re-derive each with a search. Run the pattern first on a line you know it should match, so that an empty result means no match and not a broken pattern.
 - **Removed lines are accounted for.** Each one is restated elsewhere in the change, or removed on purpose and said so. Moving text between files is where a rule gets lost without anyone deciding to drop it.
+- **A moved rule still reaches the agents it applied to.** Every sentence surviving is not enough. A rule in an always-loaded instruction file applies everywhere; the same rule in a doc nothing loads applies nowhere. Show how agents reach the destination wherever the rule applied: the instruction file points to it, a skill that covers that work reads it, or it is loaded by path. No route is a finding, as serious as the rule being deleted.
 - **Sweep for contradictions.** Search the rest of the guidance for the terms a changed rule names. Two rules a reader could apply either way are a finding, wherever the second one lives.
 - **Renamed or removed headings.** Search for references to the old name.
 
-A claim that needs a run to settle is reported as not checked, with what would settle it. A false claim or a contradiction introduced by the change is blocking, like any other doc the change made false.
+A claim that needs a run to settle is reported as not checked, with what would settle it. A false fact, a contradiction, or a rule that no longer reaches its agents, introduced by the change, is blocking, like any other doc the change made false. Drift from a new rule is reported and is not blocking.
 
 ## Algorithm vs Helpers
 
@@ -230,7 +233,7 @@ When producing a clean code plan, structure it as:
    - Transformed call site (how the service calls the new helper)
    - Test cases (input → expected output, one line each)
 3. **Leftovers** — when reviewing a change: what it left unused, what was already unused nearby, and what could not be determined, each with the search that shows it. "None", with what was searched, when there are none.
-4. **Docs** — when reviewing a change: docs and agent instructions it made false, new behavior missing from docs that cover its kind, and docs outside the repo that likely need an update, each with the search that shows it. "None", with the terms searched and where, when there are none.
+4. **Docs** — when reviewing a change, each with the search that shows it: docs and agent instructions it made false; ones that were already false before it, and why they are left; ones that could not be determined, and what would settle them; new behavior missing from a list that covers its kind; docs outside the repo that likely need an update; and, for a change to guidance, drift from a new rule. "None", with the terms searched and where, when there are none.
 5. **Files to modify** — table of files and what changes in each.
 6. **Implementation order** — sequence that builds incrementally (simplest extraction first).
 7. **Verification** — steps to confirm correctness (type check, test run, coverage).

@@ -16,7 +16,9 @@ execution:
     prisma/migrations. Never edit a migration that has been applied. Run
     `npm run db:reset` only on a local database." The new docs/database.md
     reads: "Migrations live in prisma/migrations. Run `npm run db:reset`
-    only on a local database." For reference, these are facts about the
+    only on a local database." After the change CLAUDE.md does not mention
+    docs/database.md or the database at all, and no skill reads that file.
+    For reference, these are facts about the
     code at the same commit. package.json defines the scripts test, lint,
     build and db:reset. src/handlers holds three files: orders.ts exports
     `schema` and `handle`; users.ts exports `schema` and `handle`;
@@ -47,3 +49,13 @@ graders:
       is missing from docs/database.md, and treats that as a rule dropped
       by the move that must be restored or confirmed as intentional. FAIL
       if it does not mention the missing sentence.
+  - name: reach-of-moved-rule-checked
+    type: llm
+    criteria: >-
+      PASS if the review points out that the database rules moved out of
+      CLAUDE.md, which agents always load, into docs/database.md, which
+      nothing points agents to, so agents may no longer see those rules,
+      and asks for a pointer from CLAUDE.md or another way for agents to
+      load the file. FAIL if it treats the move as fine as long as the
+      sentences survive, or does not mention how agents reach the new
+      file.
