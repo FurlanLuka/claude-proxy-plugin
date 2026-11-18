@@ -26,13 +26,13 @@ graders:
   - name: goes-looking-for-leftovers
     type: llm
     criteria: >-
-      PASS only if the review raises, unprompted, that applyLegacyDiscount
-      may now be unused because its only stated call site moved, and asks
-      for or specifies a repository search to settle it: remaining callers
-      of applyLegacyDiscount, and things that existed only for it, such as
-      its constants or rate table, its tests, or its config. It must say
-      this could not be checked without the repository rather than assert
-      the result. FAIL if the review discusses only the new function and
-      the call site, never mentions what the replaced function leaves
-      behind, asserts as fact that the old function is unused or still
-      used, or claims to have searched or edited anything.
+      PASS if the review raises, without being asked, that
+      applyLegacyDiscount may now be unused because its only stated call
+      site moved, and names what to search for to settle it: remaining
+      callers of applyLegacyDiscount, plus at least one kind of thing that
+      may have existed only for it, such as its constants or rate table,
+      its tests, or its config. Reporting that it searched the workspace
+      and found no files is fine. FAIL if the review discusses only the
+      new function and the call site and never mentions what the replaced
+      function leaves behind, or states as established fact, with no
+      search to back it, that the old function is unused or is still used.
