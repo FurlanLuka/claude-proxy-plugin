@@ -1,0 +1,61 @@
+schema_version: "1.1"
+name: advisor-guidance-claims
+description: Reviewing a change to agent guidance, the clean-code advisor checks its claims against the code, including a quantifier and a sentence lost in a move.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code to review this finished change. It edits only
+    agent guidance; no code changes. In CLAUDE.md it adds two lines:
+    "Run `npm run verify` before every commit." and "Every handler in
+    src/handlers exports a `schema` alongside its `handle` function." It
+    also moves the Database section out of CLAUDE.md into a new file,
+    docs/database.md. The section in CLAUDE.md read: "Migrations live in
+    prisma/migrations. Never edit a migration that has been applied. Run
+    `npm run db:reset` only on a local database." The new docs/database.md
+    reads: "Migrations live in prisma/migrations. Run `npm run db:reset`
+    only on a local database." After the change CLAUDE.md does not mention
+    docs/database.md or the database at all, and no skill reads that file.
+    For reference, these are facts about the
+    code at the same commit. package.json defines the scripts test, lint,
+    build and db:reset. src/handlers holds three files: orders.ts exports
+    `schema` and `handle`; users.ts exports `schema` and `handle`;
+    health.ts exports `handle` only. Source files are not supplied; obtain
+    the advisor's review.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: false-claims-found
+    type: llm
+    criteria: >-
+      PASS if the review says both of these: that `npm run verify` is not a
+      script package.json defines, so the added instruction is wrong; and
+      that "every handler exports a schema" is false because health.ts
+      exports only `handle`. FAIL if it misses either one or accepts the
+      added lines as fine.
+  - name: lost-sentence-found
+    type: llm
+    criteria: >-
+      PASS if the review notices that the sentence "Never edit a migration
+      that has been applied" was in the Database section in CLAUDE.md and
+      is missing from docs/database.md, and treats that as a rule dropped
+      by the move that must be restored or confirmed as intentional. FAIL
+      if it does not mention the missing sentence.
+  - name: reach-of-moved-rule-checked
+    type: llm
+    criteria: >-
+      PASS if the review points out that the database rules moved out of
+      CLAUDE.md, which agents always load, into docs/database.md, which
+      nothing points agents to, so agents may no longer see those rules,
+      and asks for a pointer from CLAUDE.md or another way for agents to
+      load the file. FAIL if it treats the move as fine as long as the
+      sentences survive, or does not mention how agents reach the new
+      file.

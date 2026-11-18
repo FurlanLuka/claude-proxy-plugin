@@ -141,6 +141,45 @@ What to do with what you find:
 - **Unused before this change** — report it, and leave it. Removing it here would widen the diff beyond its own change; it is a follow-up.
 - **Cannot tell** — the baseline is missing, or the thing is reachable from outside the repo or at runtime and nothing shows its consumers are gone. Say so and name what would settle it. Never blocking, and never a recommendation to delete on a guess.
 
+## Docs Follow the Change
+
+A doc that describes how something works is part of that thing. When the thing changes and the doc does not, the doc is now wrong, and a wrong doc costs more than a missing one: people and agents act on it.
+
+When reviewing a change, list what it renamed, removed, or made behave differently — functions, commands, flags, config keys, file paths, routes, concepts. Add what it introduced, wherever the repo keeps a list of that kind of thing: a command table, a config reference, an index of skills. Something new cannot be found by searching for its name, so check the list it belongs in. Then search for each in what the repo says about itself:
+
+- **Docs for people.** README, architecture and design docs, guides, API docs, changelogs where the repo keeps one, comments and docstrings on the changed code.
+- **Instructions for agents.** `CLAUDE.md`, `AGENTS.md`, skills, prompts and templates that describe the changed behavior. A stale instruction is followed, not just read.
+- **References between docs.** Links, section anchors, file paths, command names, and examples that are meant to run.
+
+Search, don't infer, and say what you searched: the terms and where you looked. Cover both kinds every time — docs for people and instructions for agents. Agent instructions are the easy ones to forget and the costly ones to miss: nobody rereads them, they are simply obeyed. A search of one kind is half a search, and "no docs affected" with no search beside it is not a finding.
+
+This section and Leftovers meet at one line. A doc whose whole subject is gone is a leftover: it is removed. A doc that stays but now says something untrue belongs here: it is corrected.
+
+As with leftovers, telling "made false by this change" from "already false before it" needs the pinned before and after in the brief. Without them, report the doc as undetermined and say the baseline was missing.
+
+What to do with what you find:
+
+- **Now false, because of this change** — blocking. A command that no longer exists, a path that moved, a described behavior the change reversed, a link or reference that no longer resolves. The change fixes it in the same change.
+- **Already false before this change** — report it and leave it, for the same reason as code that was already unused: fixing it here widens the diff beyond its own change.
+- **New and undocumented** — flag it only where the repo already documents that kind of thing: a new command in a README that lists the commands, a new option in a config reference. Do not ask for docs the project has no habit of writing; `philosophy.md` counts verbose docs as ceremony.
+- **Wording, tone, completeness** — non-blocking, as before.
+- **Outside the repo** — a spec, a wiki page, a guide in another tool. You cannot search those. When the brief or the code points to one that describes what changed, name it and what in it is likely stale. The implementing session reports it to the user and updates it only when asked.
+
+### When the change is to guidance itself
+
+Skills, agent docs, `CLAUDE.md`, `AGENTS.md`: text that agents act on. A wrong fact there teaches a convention the repo does not have, so a change to it is checked claim by claim.
+
+- **Tell a fact from a rule first.** "The handler validates its input" is a claim about what exists. "Never post without approval" is a rule about what should happen. They are checked differently.
+- **A fact is checked against what implements it.** Every path, identifier, quoted literal, number and stated behavior in an added or changed line is checked where that behavior is defined: usually the code, and for behavior that is itself defined in guidance, such as a skill's own steps, the text of that skill. A guidance line is not evidence for itself, and a description elsewhere is not evidence for it either.
+- **A rule is checked for what it rests on.** Its references resolve, its intent is stated or evident, and where it meets another rule it says which wins. Code or guidance that does not follow a new rule yet does not make the rule false: report that as drift, with where, for the implementing session to decide on.
+- **Quantifiers in facts are claims.** "All handlers export a schema", "no file does X", "the only caller": re-derive each with a search. Run the pattern first on a line you know it should match, so that an empty result means no match and not a broken pattern. The same words in a rule, "never post without approval", say what should happen, not what is; they are checked as a rule, and whatever does not follow it yet is drift.
+- **Removed lines are accounted for.** Each one is restated elsewhere in the change, or removed on purpose and said so. Moving text between files is where a rule gets lost without anyone deciding to drop it.
+- **A moved rule still reaches the agents it applied to.** Every sentence surviving is not enough. A rule in an always-loaded instruction file applies everywhere; the same rule in a doc nothing loads applies nowhere. Show how agents reach the destination wherever the rule applied: the instruction file points to it, a skill that covers that work reads it, or it is loaded by path. No route is a finding, as serious as the rule being deleted.
+- **Sweep for contradictions.** Search the rest of the guidance for the terms a changed rule names. Two rules a reader could apply either way are a finding, wherever the second one lives.
+- **Renamed or removed headings.** Search for references to the old name.
+
+A claim that needs a run to settle is reported as not checked, with what would settle it. A false fact, a contradiction, or a rule that no longer reaches its agents, introduced by the change, is blocking, like any other doc the change made false. Drift from a new rule is reported and is not blocking.
+
 ## Algorithm vs Helpers
 
 - **Stateful algorithms** — when logic maintains running state across iterations, a class with constructor setup and a public entry method is appropriate. Private methods handle scoring and internal state. The class is still testable — construct it with known inputs, call the public method, assert the output.
@@ -170,8 +209,12 @@ When analyzing code for refactoring:
 
 Flag useless comments during every review, not just when doing extraction work. Make code self-describable through naming and structure, not narration.
 
-- **Flag:** a comment that restates what the code already says (`// increment counter` above `counter++`), a comment explaining WHAT when the code is already clear, a stale comment that no longer matches the code next to it.
+- **Flag:** a comment that restates what the code already says (`// increment counter` above `counter++`), a comment explaining WHAT when the code is already clear, a stale comment that no longer matches the code next to it. A comment this change made untrue is more than a flag: it is blocking under Docs Follow the Change.
 - **Fine, leave it:** a comment that captures product/business context, a non-obvious constraint, or the reason a decision was made a specific way — none of which the code itself can express.
+- **Describe the present.** A comment says what the reader needs now, not how the code got here: no "used to", "now", "the new flow replaces", no account of an approach that was tried and dropped. The reason a decision stands belongs in the comment; the story of reaching it belongs in the commit.
+- **Nothing more transient than the code.** No feature flags, experiments, rollout phases, or other screens and features, unless the annotated code reads that thing. Test: would an unrelated cleanup, a flag deleted or an experiment concluded, silently make this comment wrong? Then it describes the moment, not the contract. Two things are not transient context and stay: a citation of the spec a rule comes from, as `typescript-style` writes it, and the removal condition on something temporary, which `security-principles.md` requires next to an override.
+- **Docstrings lead with what a caller must know**: the contract and the gotchas. How the body works, which the reader can see, does not belong there.
+- **The same rules cover other text a developer reads**: test names, log messages, error text.
 - When in doubt: would removing this comment confuse a reader? If not, it shouldn't be there.
 
 ## Collaboration with Testing
@@ -190,6 +233,7 @@ When producing a clean code plan, structure it as:
    - Transformed call site (how the service calls the new helper)
    - Test cases (input → expected output, one line each)
 3. **Leftovers** — when reviewing a change: what it left unused, what was already unused nearby, and what could not be determined, each with the search that shows it. "None", with what was searched, when there are none.
-4. **Files to modify** — table of files and what changes in each.
-5. **Implementation order** — sequence that builds incrementally (simplest extraction first).
-6. **Verification** — steps to confirm correctness (type check, test run, coverage).
+4. **Docs** — when reviewing a change, each with the search that shows it: docs and agent instructions it made false; ones that were already false before it, and why they are left; ones that could not be determined, and what would settle them; new behavior missing from a list that covers its kind; docs outside the repo that likely need an update; and, for a change to guidance, drift from a new rule. "None", with the terms searched and where, when there are none.
+5. **Files to modify** — table of files and what changes in each.
+6. **Implementation order** — sequence that builds incrementally (simplest extraction first).
+7. **Verification** — steps to confirm correctness (type check, test run, coverage).
