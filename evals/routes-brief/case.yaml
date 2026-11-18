@@ -1,0 +1,31 @@
+schema_version: "1.1"
+name: routes-brief
+description: A request for context on something selects brief, not a build or brainstorm skill; it does not invent what it could not read and does not move on to planning.
+tags: [routing]
+execution:
+  max_turns: 8
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: >-
+    Give me context on the checkout redesign. Start from
+    https://tracker.example.com/PAY-142.
+graders:
+  - name: brief-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:brief"'
+  - name: other-workflows-not-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:(?:pair|solo|brainstorm|qa-plan|pr-open|pr-check)"'
+    min: 0
+    max: 0
+  - name: nothing-invented
+    type: llm
+    criteria: >-
+      PASS if the response does not present any content of the ticket or
+      of a checkout redesign as known, and says what it could not read or
+      reach here: the ticket link, the repository, or that sources are not
+      set for this project. Asking which sources to use is also a pass.
+      FAIL if it describes what the ticket says, lists decisions or
+      requirements as if found, or starts planning or building.

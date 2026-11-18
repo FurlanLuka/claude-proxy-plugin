@@ -95,6 +95,14 @@ you write a spec
  Report: exercised / passed / failed / couldn't verify
 ```
 
+### `/proxy:brief`
+
+Gets you the context on something: a feature, a ticket, a decision, a bug. It follows the links and names in the request through chat, docs, tickets, code, earlier sessions and data, and returns a short brief of what is known, what is decided, what is in conflict and what is open, each with its source. It only reads, and it plans nothing.
+
+It is separate from building on purpose. You ask for a brief, read it, and then say what to do; `pair` and `solo` do not run it for you, but they start from one that is already in the conversation.
+
+Which sources it may use is a per-project decision kept in project memory, so a personal project does not search a work chat. The first run in a project asks once, offering only what the session can reach, and saves the answer. When no question can be asked, it falls back to the repo and earlier sessions.
+
 ### `/proxy:solo`
 
 Same pipeline as `pair`, minus every stop. No clarification questions, no plan approval click, no QA approval click — the agent decides, logs each decision, and the final report leads with that list. Plan mode is still real (read-only exploration, plan file); the approval is answered by a plugin hook instead of you. Interrupt anytime to steer; it takes the redirect and keeps going.
@@ -131,6 +139,7 @@ proxy/
 │   └── plugin.json        manifest — name/description/version/author, rest auto-discovered
 ├── skills/
 │   ├── brainstorm/          bounce ideas, high level, no planning — react and push back, nothing written
+│   ├── brief/               context on anything, from the sources this project allows; sources kept in project memory; reads only, plans nothing
 │   ├── pair/                default build entry point — plan live, implement live, on approval
 │   ├── solo/                pair with overrides — no questions, no approval clicks, decides everything itself
 │   ├── review/              audits an existing codebase against all references — report only
