@@ -1,0 +1,38 @@
+schema_version: "1.1"
+name: advisor-docs-unprompted
+description: Given only a description of a change, with no mention of documentation, the clean-code advisor still asks which docs and agent instructions describe what changed.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code to review this finished change. The change renames
+    the CLI command `tool sync` to `tool pull` in src/cli.ts and makes it
+    refuse to run with uncommitted changes, where it used to stash them
+    automatically. The old name is not kept as an alias. The diff touches
+    src/cli.ts and test/cli.test.ts only. Source files are not supplied
+    and nothing else about the repository is known; obtain the advisor's
+    review.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: goes-looking-for-docs
+    type: llm
+    criteria: >-
+      PASS only if the review raises, unprompted, that documentation may
+      now be wrong, and asks for or specifies a search to settle it: the
+      old command name and the old stashing behavior, across docs for
+      people such as a README or guides AND instructions for agents such
+      as CLAUDE.md, AGENTS.md, skills or prompts. It must say this could
+      not be checked without the repository rather than assert the result.
+      FAIL if the review never mentions documentation, mentions only
+      human-facing docs with nothing about agent instructions, asserts as
+      fact that docs are or are not affected, or claims to have searched
+      or edited anything.
