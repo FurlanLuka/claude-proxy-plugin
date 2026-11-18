@@ -1,0 +1,51 @@
+schema_version: "1.1"
+name: advisor-leftovers
+description: Reviewing a change, the clean-code advisor finds what the change left unused and separates it from what was already unused.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code to review this finished change. The repo is a
+    private application, not a published package; src/pricing.ts and
+    src/receipts.ts are internal modules that nothing outside the repo
+    imports. The change is pinned: base commit 4f1c2aa, head commit
+    9be07d3. It adds applyDiscount(order, rules) to src/pricing.ts and
+    switches the call in src/checkout.ts to it. Nothing is deleted. A
+    repo-wide search at each commit gives these references.
+    applyLegacyDiscount at base 4f1c2aa: its export in src/pricing.ts, a
+    call in src/checkout.ts, and test/legacy-discount.test.ts; at head
+    9be07d3: its export and test/legacy-discount.test.ts only.
+    LEGACY_DISCOUNT_TABLE at both commits: its definition in
+    src/pricing.ts, and inside applyLegacyDiscount. The config key
+    discount.legacyMode at both commits: config/default.json, and one read
+    inside applyLegacyDiscount. formatReceiptV1 in src/receipts.ts at both
+    commits: its export only. applyDiscount at head only: its export,
+    src/checkout.ts and test/discount.test.ts. Source files are not
+    supplied; treat these search results as complete and obtain the
+    advisor's review.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: leftovers-found-and-separated
+    type: llm
+    criteria: >-
+      PASS only if the review (1) names applyLegacyDiscount as left unused
+      by this change, on the evidence that it had a caller at the base
+      commit and has only its own test at the head, and says it should be
+      removed in this change together with at least two of:
+      LEGACY_DISCOUNT_TABLE, test/legacy-discount.test.ts, the
+      discount.legacyMode config key; and (2) treats formatReceiptV1
+      differently, as already unused at the base commit, to be reported or
+      handled as a follow-up rather than removed here. FAIL if it misses
+      the old function, treats the test file as evidence the function is
+      still in use, recommends deleting formatReceiptV1 as part of this
+      change, lumps all of it together without the distinction, or claims
+      to have edited files or run anything.
