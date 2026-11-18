@@ -1,0 +1,44 @@
+schema_version: "1.1"
+name: advisor-leftovers-public-export
+description: A public export that loses its last in-repo caller is undetermined, not a blocking leftover.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code to review this finished change. The repo is a
+    library published to the company's package registry; src/index.ts is
+    its public entry point and re-exports formatMoney and formatMoneyLegacy
+    from src/money.ts. The change is pinned: base commit 71aa0c4, head
+    commit c93e1bd. It switches the library's own invoice renderer,
+    src/invoice.ts, from formatMoneyLegacy to formatMoney. Nothing is
+    deleted. A repo-wide search gives these references to
+    formatMoneyLegacy. At base 71aa0c4: its definition in src/money.ts,
+    the re-export in src/index.ts, a call in src/invoice.ts, and
+    test/money.test.ts. At head c93e1bd: its definition, the re-export in
+    src/index.ts, and test/money.test.ts. Nothing is known about which
+    other repositories install this library or what they import. Source
+    files are not supplied; treat these search results as complete and
+    obtain the advisor's review.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: public-export-undetermined
+    type: llm
+    criteria: >-
+      PASS if the review notes that formatMoneyLegacy has lost its last
+      caller inside this repo, but, because it is part of the published
+      public entry point and outside consumers are unknown, does not
+      require its removal in this change: it is reported as undetermined
+      or as a possible follow-up, with what would settle it, such as
+      checking which repos import it, usage data or a deprecation. FAIL if
+      it says formatMoneyLegacy must be removed in this change, calls it
+      blocking, or treats having only a test in this repo as proof it is
+      unused.

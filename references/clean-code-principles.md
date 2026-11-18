@@ -121,17 +121,19 @@ When reviewing a change, look for what it orphaned:
 - **What it abandoned on the way.** An approach tried during the build and then replaced, with its helpers, parameters or files still in the diff. A parameter threaded through that nothing reads. A branch that can no longer be reached.
 - **What it added and never used.** An export with no importer, a function with no production caller, an option nothing sets.
 
-Something added for a consumer that arrives in a companion change — another repo, or a later change in a stack the plan or brief names — is not a leftover. Name the consumer. If nothing names one, it is a leftover.
+Something added for a consumer that arrives in a companion change — another repo, or a later change in a stack the plan or brief names — is not a leftover. Name the consumer. If nothing names one and the thing is internal to the repo, it is a leftover.
 
-Search, don't infer. Reading the diff shows what was added, not what stopped being used. For each candidate, search the repo for references, including tests, config, scripts and string-based lookups, and say what you searched. A symbol still referenced only by its own test is unused.
+Search, don't infer. Reading the diff shows what was added, not what stopped being used. For each candidate, search the repo for references, including tests, config, scripts and string-based lookups, and say what you searched. An internal symbol still referenced only by its own test is unused.
+
+A search of this repo only proves something about this repo. Anything other code can reach without importing it here stays undetermined until there is evidence its consumers are gone: a public export of a package or library, a route, a CLI command, a job or handler registered by name, anything resolved at runtime from a string. That it has no caller here, or only a test, is not that evidence. What counts: the package is not published or consumed elsewhere, usage data, a deprecation that has run its course, or the owner saying so.
 
 Telling "left unused by this change" from "unused before it" needs the state the change started from. Use the pinned before and after in the brief. Without them, report the item under "cannot tell" and say the baseline was missing; do not guess which side it falls on.
 
 What to do with what you find:
 
-- **Left unused by this change** — blocking. The change removes it, in the same change. Dead code that ships is paid for by every later reader.
+- **Left unused by this change** — blocking, when it is internal to the repo or there is evidence its outside consumers are gone. The change removes it, in the same change. Dead code that ships is paid for by every later reader.
 - **Unused before this change** — report it, and leave it. Removing it here would widen the diff beyond its own change; it is a follow-up.
-- **Cannot tell** — a dynamic lookup, a public API with callers outside the repo, something only reachable at runtime. Say so and name what would settle it. Do not recommend deleting on a guess.
+- **Cannot tell** — the baseline is missing, or the thing is reachable from outside the repo or at runtime and nothing shows its consumers are gone. Say so and name what would settle it. Never blocking, and never a recommendation to delete on a guess.
 
 ## Algorithm vs Helpers
 
