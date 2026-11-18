@@ -153,9 +153,14 @@ When reviewing a change, list what it renamed, removed, or made behave different
 
 Search, don't infer, and say what you searched: the terms and where you looked. "No docs affected" with no search beside it is not a finding.
 
+This section and Leftovers meet at one line. A doc whose whole subject is gone is a leftover: it is removed. A doc that stays but now says something untrue belongs here: it is corrected.
+
+As with leftovers, telling "made false by this change" from "already false before it" needs the pinned before and after in the brief. Without them, report the doc as undetermined and say the baseline was missing.
+
 What to do with what you find:
 
-- **Now false** — blocking. A command that no longer exists, a path that moved, a described behavior the change reversed, a link or reference that no longer resolves. The change fixes it in the same change.
+- **Now false, because of this change** — blocking. A command that no longer exists, a path that moved, a described behavior the change reversed, a link or reference that no longer resolves. The change fixes it in the same change.
+- **Already false before this change** — report it and leave it, for the same reason as code that was already unused: fixing it here widens the diff beyond its own change.
 - **New and undocumented** — flag it only where the repo already documents that kind of thing: a new command in a README that lists the commands, a new option in a config reference. Do not ask for docs the project has no habit of writing; `philosophy.md` counts verbose docs as ceremony.
 - **Wording, tone, completeness** — non-blocking, as before.
 - **Outside the repo** — a spec, a wiki page, a guide in another tool. You cannot search those. When the brief or the code points to one that describes what changed, name it and what in it is likely stale. The implementing session reports it to the user and updates it only when asked.
@@ -189,7 +194,7 @@ When analyzing code for refactoring:
 
 Flag useless comments during every review, not just when doing extraction work. Make code self-describable through naming and structure, not narration.
 
-- **Flag:** a comment that restates what the code already says (`// increment counter` above `counter++`), a comment explaining WHAT when the code is already clear, a stale comment that no longer matches the code next to it.
+- **Flag:** a comment that restates what the code already says (`// increment counter` above `counter++`), a comment explaining WHAT when the code is already clear, a stale comment that no longer matches the code next to it. A comment this change made untrue is more than a flag: it is blocking under Docs Follow the Change.
 - **Fine, leave it:** a comment that captures product/business context, a non-obvious constraint, or the reason a decision was made a specific way — none of which the code itself can express.
 - When in doubt: would removing this comment confuse a reader? If not, it shouldn't be there.
 
