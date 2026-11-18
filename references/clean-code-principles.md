@@ -141,6 +141,25 @@ What to do with what you find:
 - **Unused before this change** — report it, and leave it. Removing it here would widen the diff beyond its own change; it is a follow-up.
 - **Cannot tell** — the baseline is missing, or the thing is reachable from outside the repo or at runtime and nothing shows its consumers are gone. Say so and name what would settle it. Never blocking, and never a recommendation to delete on a guess.
 
+## Docs Follow the Change
+
+A doc that describes how something works is part of that thing. When the thing changes and the doc does not, the doc is now wrong, and a wrong doc costs more than a missing one: people and agents act on it.
+
+When reviewing a change, list what it renamed, removed, or made behave differently — functions, commands, flags, config keys, file paths, routes, concepts — and search for each in what the repo says about itself:
+
+- **Docs for people.** README, architecture and design docs, guides, API docs, changelogs where the repo keeps one, comments and docstrings on the changed code.
+- **Instructions for agents.** `CLAUDE.md`, `AGENTS.md`, skills, prompts and templates that describe the changed behavior. A stale instruction is followed, not just read.
+- **References between docs.** Links, section anchors, file paths, command names, and examples that are meant to run.
+
+Search, don't infer, and say what you searched: the terms and where you looked. "No docs affected" with no search beside it is not a finding.
+
+What to do with what you find:
+
+- **Now false** — blocking. A command that no longer exists, a path that moved, a described behavior the change reversed, a link or reference that no longer resolves. The change fixes it in the same change.
+- **New and undocumented** — flag it only where the repo already documents that kind of thing: a new command in a README that lists the commands, a new option in a config reference. Do not ask for docs the project has no habit of writing; `philosophy.md` counts verbose docs as ceremony.
+- **Wording, tone, completeness** — non-blocking, as before.
+- **Outside the repo** — a spec, a wiki page, a guide in another tool. You cannot search those. When the brief or the code points to one that describes what changed, name it and what in it is likely stale. The implementing session reports it to the user and updates it only when asked.
+
 ## Algorithm vs Helpers
 
 - **Stateful algorithms** — when logic maintains running state across iterations, a class with constructor setup and a public entry method is appropriate. Private methods handle scoring and internal state. The class is still testable — construct it with known inputs, call the public method, assert the output.
@@ -190,6 +209,7 @@ When producing a clean code plan, structure it as:
    - Transformed call site (how the service calls the new helper)
    - Test cases (input → expected output, one line each)
 3. **Leftovers** — when reviewing a change: what it left unused, what was already unused nearby, and what could not be determined, each with the search that shows it. "None", with what was searched, when there are none.
-4. **Files to modify** — table of files and what changes in each.
-5. **Implementation order** — sequence that builds incrementally (simplest extraction first).
-6. **Verification** — steps to confirm correctness (type check, test run, coverage).
+4. **Docs** — when reviewing a change: docs and agent instructions it made false, new behavior missing from docs that cover its kind, and docs outside the repo that likely need an update, each with the search that shows it. "None", with the terms searched and where, when there are none.
+5. **Files to modify** — table of files and what changes in each.
+6. **Implementation order** — sequence that builds incrementally (simplest extraction first).
+7. **Verification** — steps to confirm correctness (type check, test run, coverage).

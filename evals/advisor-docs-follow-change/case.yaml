@@ -1,0 +1,50 @@
+schema_version: "1.1"
+name: advisor-docs-follow-change
+description: Reviewing a change, the clean-code advisor finds docs and agent instructions the change made false, and handles wording and external docs differently.
+tags: [advisors]
+execution:
+  max_turns: 12
+  timeout_seconds: 240
+  allowed_tools: [Read, Glob, Grep, Skill, Agent]
+  prompt: >-
+    Ask proxy:clean-code to review this finished change. The change renames
+    the CLI command `tool sync` to `tool pull` in src/cli.ts and makes it
+    refuse to run with uncommitted changes, where it used to stash them
+    automatically. The old name is not kept as an alias. Tests were updated.
+    No documentation files are in the diff. A repo-wide search for "tool
+    sync" and for "stash" after the change gives these hits. README.md, in
+    the Commands table: "`tool sync` - fetch the latest config". docs/guide.md:
+    "Run `tool sync` any time; uncommitted changes are stashed for you."
+    CLAUDE.md: "Before editing config, run `tool sync`." docs/faq.md: a
+    paragraph about the project's history that says "we originally called
+    the sync step a refresh", with no command in it. The brief for this
+    change links an onboarding page in the team wiki, outside the repo,
+    that walks new hires through `tool sync`. Source files are not supplied;
+    treat these search results as complete and obtain the advisor's review.
+graders:
+  - name: clean-code-advisor-invoked
+    type: tool_used
+    tool: Agent
+    input_match: '"subagent_type"\s*:\s*"proxy:clean-code"'
+  - name: clean-code-reference-read
+    type: tool_used
+    tool: Read
+    input_match: 'references/clean-code-principles\.md'
+  - name: false-docs-found
+    type: llm
+    criteria: >-
+      PASS if the response says README.md, docs/guide.md and CLAUDE.md are
+      wrong after this change and must be updated as part of it. Extra
+      suggestions about the change itself are fine. FAIL if it reports no
+      documentation impact, leaves out CLAUDE.md, or presents fixing these
+      three as optional.
+  - name: history-and-external-handled-apart
+    type: llm
+    criteria: >-
+      PASS if the response does not require a change to the history
+      paragraph in docs/faq.md, and treats the team wiki page as outside
+      this change: something to flag, report or have its owner update,
+      rather than a file this diff edits. Saying the wiki page is stale and
+      should be updated by someone is a pass. FAIL only if it lists the
+      wiki page among the files to edit in this change, says it edited it,
+      or requires rewriting the docs/faq.md paragraph.
