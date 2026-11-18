@@ -125,7 +125,13 @@ Something added for a consumer that arrives in a companion change — another re
 
 Search, don't infer. Reading the diff shows what was added, not what stopped being used. For each candidate, search the repo for references, including tests, config, scripts and string-based lookups, and say what you searched. An internal symbol still referenced only by its own test is unused.
 
-A search of this repo only proves something about this repo. Anything other code can reach without importing it here stays undetermined until there is evidence its consumers are gone: a public export of a package or library, a route, a CLI command, a job or handler registered by name, anything resolved at runtime from a string. That it has no caller here, or only a test, is not that evidence. What counts: the package is not published or consumed elsewhere, usage data, a deprecation that has run its course, or the owner saying so.
+A search of this repo only proves something about this repo. Anything other code can reach without importing it here stays undetermined until there is evidence its consumers are gone: a public export of a package or library, a route, a CLI command, a job or handler registered by name, anything resolved at runtime from a string. That it has no caller here, or only a test, is not that evidence. The evidence has to be about the way that thing is actually reached:
+
+- **An exported symbol** is reached by import. Evidence: the package is not published or installed anywhere else, or a search of the repos that depend on it.
+- **A route, a command, a job or a handler** is reached by being called at runtime, by clients, schedulers, webhooks or people, whether or not any package is published. Evidence: request or invocation logs, usage data, the list of scheduled jobs and integrations that call it, or a deprecation that has run its course.
+- **Anything resolved from a string** is reached through the data that names it. Evidence: what that data holds.
+
+That a service's package is unpublished says nothing about who calls its routes. The owner saying it is unused settles any of them.
 
 Telling "left unused by this change" from "unused before it" needs the state the change started from. Use the pinned before and after in the brief. Without them, report the item under "cannot tell" and say the baseline was missing; do not guess which side it falls on.
 
