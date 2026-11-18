@@ -45,7 +45,7 @@ Reassess after each answer: a course correction can make later, pre-written ques
 
 Procedure:
 
-1. Read the spec. Answer anything answerable yourself from the repo/context — don't ask questions you could resolve by reading code. Only ask about genuine forks in approach, product decisions, or major technical decisions that require the user's judgment.
+1. Read the spec, and the brief if `proxy:brief` produced one earlier in this conversation: what it reports as decided is decided, and what it left open or in conflict is where clarification starts. Do not run a brief yourself; gathering context is the user's call. Answer anything answerable yourself from the repo/context — don't ask questions you could resolve by reading code, or that the brief already answers. Only ask about genuine forks in approach, product decisions, or major technical decisions that require the user's judgment.
 2. If something in that scope is unclear, ask ONE question — early, before drafting. For technical decisions, lead with a recommended option. You may use multiple-choice prompts when the options fit, but always allow a free-text answer or correction when none match the user's intent. Don't constrain the response to a pick-list.
 3. Take the answer. Re-assess: does this change what else needs asking? Drop any question that's now moot. If something genuinely still needs clarifying, ask ONE more question. Repeat.
 4. Stop asking once there's no real ambiguity left in scope — don't pad with questions for completeness, and don't drift into implementation-detail questions.

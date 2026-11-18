@@ -14,6 +14,12 @@ Follow `pair`'s infra-gap procedure, including explicit user overrides, for miss
 
 `proxy:solo` has the same requirements plus `jq` or `python3` on the machine. Its approvals are answered by the plugin's hooks rather than by the user (invoking the skill arms a per-session marker; `ExitPlanMode` is approved and `AskUserQuestion` is denied while it exists), but the plan-mode tools must still exist and the hooks must be loaded; when they are not, the normal approval dialog appears and the run waits for it. A non-interactive session blocks `solo` exactly as it blocks `pair`.
 
+## Brief
+
+`proxy:brief` needs nothing beyond read access to the repository. Every other source is optional: a chat, docs, tracker or data connector is used only when the project's memory allows it and the session can reach it. A missing or unauthorized connector is reported in the brief and never blocks it; do not install or authorize one to complete a brief.
+
+The first run in a project asks which sources to use and saves the answer to project memory. Where the session has no persistent project memory, it asks each time and says the answer was not saved. While `solo` is armed, or in a non-interactive session, it asks nothing and reads the repository, its history and earlier sessions only.
+
 ## PR review
 
 `proxy:pr-review` requires:

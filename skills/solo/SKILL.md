@@ -26,6 +26,8 @@ Plan mode itself: `EnterPlanMode`, write the plan file, `ExitPlanMode` immediate
 
 ## No clarification phase
 
+A brief from `proxy:brief` earlier in the conversation is used as in `pair`; solo does not run one. A conflict it reported between sources is yours to decide.
+
 Skip `pair`'s clarification procedure entirely. Resolve forks yourself:
 
 - Technical forks: take the option you would have recommended.

@@ -21,6 +21,12 @@ graders:
     input_match: '"skill"\s*:\s*"proxy:pair"'
     min: 0
     max: 0
+  - name: brief-not-run-on-its-behalf
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:brief"'
+    min: 0
+    max: 0
   - name: prerequisites-read
     type: tool_used
     tool: Read

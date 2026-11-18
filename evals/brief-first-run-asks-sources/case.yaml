@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: brief-first-run-asks-sources
+description: With no sources recorded for the project, brief asks once which to use before searching anything outside the repo.
+tags: [prerequisites]
+execution:
+  max_turns: 8
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: >-
+    Use proxy:brief on the invoice export work, ticket PAY-142. This
+    project's memory has no proxy-brief-sources entry yet. In this session
+    the team chat, the docs wiki and the issue tracker are all connected
+    and reachable, and I am here to answer.
+graders:
+  - name: brief-invoked
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"proxy:brief"'
+  - name: asks-which-sources-first
+    type: llm
+    criteria: >-
+      PASS if the response asks the user which sources brief should use
+      for this project, as a single question that offers the reachable
+      ones (team chat, docs wiki, issue tracker) and an option to use only
+      the repository and its history, and makes clear the answer will be
+      remembered for this project. FAIL if it reports findings from the
+      chat, the wiki or the tracker, says it searched them, proceeds
+      without asking, or asks several separate questions.
