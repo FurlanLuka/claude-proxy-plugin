@@ -121,7 +121,11 @@ When reviewing a change, look for what it orphaned:
 - **What it abandoned on the way.** An approach tried during the build and then replaced, with its helpers, parameters or files still in the diff. A parameter threaded through that nothing reads. A branch that can no longer be reached.
 - **What it added and never used.** An export with no importer, a function with no production caller, an option nothing sets.
 
+Something added for a consumer that arrives in a companion change — another repo, or a later change in a stack the plan or brief names — is not a leftover. Name the consumer. If nothing names one, it is a leftover.
+
 Search, don't infer. Reading the diff shows what was added, not what stopped being used. For each candidate, search the repo for references, including tests, config, scripts and string-based lookups, and say what you searched. A symbol still referenced only by its own test is unused.
+
+Telling "left unused by this change" from "unused before it" needs the state the change started from. Use the pinned before and after in the brief. Without them, report the item under "cannot tell" and say the baseline was missing; do not guess which side it falls on.
 
 What to do with what you find:
 
